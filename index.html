@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Không gian Mở Sách</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/ms.css">
+<style>
+  /* Trang chủ: cổng vào (ghi tên) + bản đồ các không gian */
+  .hero { background: var(--paper-2); border-bottom: 1px solid var(--line); }
+  .hero .wrap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: center; padding-block: 36px 32px; }
+  .hero h1 { font-size: clamp(2rem, 5vw, 3.1rem); color: var(--teal-ink); }
+  .hero h1 span { color: var(--orange-ink); }
+  .hero .tag { margin-top: 6px; font-size: .8rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
+  .hero .lead { margin-top: 14px; max-width: 52ch; color: var(--ink-2); font-size: 1.05rem; }
+  .hero .mark { width: clamp(96px, 16vw, 150px); height: auto; }
+
+  main .wrap { padding-block: 28px 56px; display: grid; gap: 28px; }
+
+  /* Cổng vào */
+  .gate { background: var(--paper); border: 2px solid var(--teal); border-radius: var(--r-lg); padding: 24px; display: grid; gap: 14px; max-width: 560px; box-shadow: var(--shadow); }
+  .gate h2 { font-size: 1.6rem; }
+  .gate p { color: var(--ink-2); }
+  .gate form { display: flex; gap: 10px; flex-wrap: wrap; }
+  .gate input { flex: 1 1 220px; min-width: 0; min-height: 50px; padding: 10px 16px; border-radius: 999px; border: 2px solid var(--line); background: var(--paper-2); color: var(--ink); font: 500 1.05rem var(--font-body); }
+  .gate input:focus { border-color: var(--teal); outline: none; }
+  .gate .hint { font-size: .85rem; }
+
+  /* Thẻ thư viện */
+  .card-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: end; }
+  .libcard {
+    position: relative; overflow: hidden;
+    display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 16px; align-items: center;
+    background: var(--teal-ink); color: var(--paper);
+    border-radius: var(--r-md); padding: 18px 20px; max-width: 520px;
+  }
+  .libcard { color: var(--btn-fg); background: var(--btn-bg); }
+  .libcard::after { content: ""; position: absolute; right: -36px; top: -36px; width: 84px; height: 84px; border-radius: 50%; background: var(--orange); opacity: .9; }
+  .libcard .avatar { grid-row: span 3; width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--orange); color: var(--cta-fg); font: 800 1.6rem var(--font-display); z-index: 1; }
+  .libcard .lbl { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; opacity: .8; z-index: 1; }
+  .libcard .nm { font: 700 1.5rem/1.1 var(--font-display); z-index: 1; overflow-wrap: anywhere; }
+  .libcard .meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: .85rem; z-index: 1; font-variant-numeric: tabular-nums; }
+  .libcard .stars-total { display: inline-flex; align-items: center; gap: 6px; }
+  .libcard .stars-total svg { width: 18px; height: 18px; }
+  .libcard .stars-total path { fill: var(--orange); }
+  .linkbtn { background: none; border: 0; color: var(--ink-2); font: 500 .9rem var(--font-body); text-decoration: underline; cursor: pointer; padding: 6px; }
+
+  /* Bản đồ */
+  .map-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .map-head h2 { font-size: 1.6rem; }
+  .map-head p { color: var(--ink-2); }
+  .map {
+    background: var(--paper-2);
+    background-image: radial-gradient(var(--line) 1.2px, transparent 1.2px);
+    background-size: 22px 22px;
+    border: 1px solid var(--line); border-radius: var(--r-lg);
+    padding: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px;
+  }
+  .room {
+    position: relative; display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 16px; align-items: start;
+    background: var(--paper); border: 2px solid var(--line); border-radius: var(--r-md);
+    padding: 18px; text-decoration: none; color: var(--ink);
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  .room.open:hover { transform: translateY(-3px); border-color: var(--teal); box-shadow: var(--shadow); }
+  .room.soon { cursor: pointer; }
+  .room.soon .art { filter: grayscale(.8); opacity: .6; }
+  .room .art { width: 96px; height: 96px; border-radius: 18px; display: grid; place-items: center; }
+  .room .art svg { width: 76px; height: 76px; }
+  .room h3 { font-size: 1.35rem; }
+  .room p { color: var(--ink-2); font-size: .95rem; margin-top: 4px; }
+  .room .foot { margin-top: 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .room .go { font-weight: 700; color: var(--teal-ink); font-size: .95rem; }
+  .room .door { position: absolute; left: 50%; bottom: -2px; width: 44px; height: 6px; margin-left: -22px; background: var(--paper-2); border-radius: 4px 4px 0 0; }
+  .room.open .door { background: var(--orange); }
+
+  .fill-teal { fill: var(--teal); } .fill-orange { fill: var(--orange); } .fill-ink { fill: var(--teal-ink); } .fill-paper { fill: var(--paper); } .fill-soft { fill: var(--teal-soft); } .fill-osoft { fill: var(--orange-soft); }
+  .bg-teal { background: var(--teal-soft); } .bg-orange { background: var(--orange-soft); }
+
+  footer { border-top: 1px solid var(--line); color: var(--ink-2); font-size: .85rem; }
+  footer .wrap { padding-block: 18px; display: flex; gap: 12px; justify-content: space-between; flex-wrap: wrap; }
+
+  @media (max-width: 720px) {
+    .map { grid-template-columns: minmax(0, 1fr); padding: 12px; gap: 12px; }
+    .hero .wrap { grid-template-columns: minmax(0, 1fr); }
+    .hero .mark { display: none; }
+    .card-row { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 420px) {
+    .room { grid-template-columns: 64px minmax(0, 1fr); padding: 14px; }
+    .room .art { width: 64px; height: 64px; border-radius: 14px; }
+    .room .art svg { width: 50px; height: 50px; }
+  }
+  /* [3D] nút vào sảnh 3D (chat 3D thêm 16/10/2026) */
+  .go3d { margin-top: 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+  .go3d small { color: var(--ink-2); font-size: .88rem; max-width: 34ch; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <h1>Không gian <span>Mở Sách</span></h1>
+      <p class="tag">Mở sách, mở tư duy</p>
+      <p class="lead">Một trung tâm sách nhỏ trên mạng: vào phòng học để tự học từng khoá, ra vườn đọc những đoạn văn hay, và vào phòng chiếu xem phim ngắn rồi viết cảm nhận.</p>
+      <p class="go3d"><a class="btn cta" href="play.html">Vào sảnh 3D</a><small>Chọn nhân vật rồi đi dạo các phòng. Máy chậm thì dùng bản đồ bên dưới.</small></p>
+    </div>
+    <img class="mark" src="assets/logo-mark.png" alt="Logo Mở Sách">
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <section class="gate" id="gate" hidden aria-labelledby="gate-title">
+      <h2 id="gate-title">Ghi tên vào thẻ thư viện</h2>
+      <p>Mỗi bạn vào Không gian Mở Sách đều có một thẻ thư viện. Thẻ giữ tên và số Sao Biển bạn nhận được ở các khoá học.</p>
+      <form id="gate-form">
+        <label class="sr-only" for="name-input">Tên của em</label>
+        <input id="name-input" name="name" autocomplete="given-name" placeholder="Tên của em, ví dụ: Minh Anh" maxlength="30" required>
+        <button class="btn cta" type="submit">Nhận thẻ và vào</button>
+      </form>
+      <p class="hint">Tên chỉ được lưu trên máy này để Nêm gọi đúng tên em.</p>
+    </section>
+
+    <section id="welcome" hidden>
+      <div class="card-row">
+        <div class="libcard" aria-label="Thẻ thư viện">
+          <div class="avatar" id="card-initial">M</div>
+          <div class="lbl">Thẻ thư viện Mở Sách</div>
+          <div class="nm" id="card-name">—</div>
+          <div class="meta"><span id="card-no">MS-0000</span><span class="stars-total"><svg viewBox="0 0 24 24" aria-hidden="true"><path id="star-path"/></svg><span id="card-stars">0</span> sao biển</span></div>
+        </div>
+        <button class="linkbtn" id="change-name" type="button">Không phải em? Đổi tên</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="map-title">
+      <div class="map-head">
+        <h2 id="map-title">Bản đồ không gian</h2>
+        <p>Chọn một phòng để bắt đầu.</p>
+      </div>
+      <div class="map" id="map"></div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Trung tâm Mở Sách · Không gian trực tuyến (bản thử nghiệm)</span>
+    <span>Viết Không Khó · Viết Là Vui</span>
+  </div>
+</footer>
+
+<script src="assets/ms.js"></script>
+<script>
+(function () {
+  var ART = {
+    hoc: '<svg viewBox="0 0 80 80" aria-hidden="true"><rect x="8" y="12" width="64" height="38" rx="5" class="fill-ink"/><rect x="13" y="17" width="54" height="28" rx="3" class="fill-paper"/><rect x="19" y="23" width="26" height="4" rx="2" class="fill-teal"/><rect x="19" y="31" width="38" height="4" rx="2" class="fill-soft"/><rect x="19" y="38" width="18" height="3" rx="1.5" class="fill-orange"/><rect x="18" y="56" width="44" height="6" rx="3" class="fill-teal"/><rect x="24" y="62" width="5" height="12" rx="2" class="fill-ink"/><rect x="51" y="62" width="5" height="12" rx="2" class="fill-ink"/></svg>',
+    vuon: '<svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="28" r="20" class="fill-teal"/><circle cx="26" cy="34" r="12" class="fill-teal"/><circle cx="54" cy="34" r="12" class="fill-teal"/><rect x="37" y="40" width="6" height="24" rx="3" class="fill-ink"/><path d="M14 66h52v4H14z" class="fill-ink"/><path d="M22 58c6-3 12-3 18 0 6-3 12-3 18 0v6c-6-3-12-3-18 0-6-3-12-3-18 0z" class="fill-orange"/><circle cx="62" cy="12" r="6" class="fill-orange"/></svg>',
+    doc: '<svg viewBox="0 0 80 80" aria-hidden="true"><rect x="12" y="20" width="10" height="46" rx="2" class="fill-teal"/><rect x="24" y="14" width="12" height="52" rx="2" class="fill-orange"/><rect x="38" y="24" width="9" height="42" rx="2" class="fill-ink"/><rect x="49" y="18" width="11" height="48" rx="2" transform="rotate(10 54 42)" class="fill-teal"/><rect x="8" y="66" width="64" height="5" rx="2" class="fill-ink"/></svg>',
+    phim: '<svg viewBox="0 0 80 80" aria-hidden="true"><rect x="10" y="18" width="60" height="44" rx="6" class="fill-ink"/><rect x="16" y="24" width="48" height="32" rx="3" class="fill-paper"/><path d="M35 32v16l13-8z" class="fill-orange"/><rect x="10" y="64" width="60" height="4" rx="2" class="fill-teal"/></svg>'
+  };
+  // [3D] hình cho Phòng Lễ hội (đèn ông sao), thêm 16/10/2026
+  ART["le-hoi"] = '<svg viewBox="0 0 80 80" aria-hidden="true"><path d="M40 10l7.6 15.4 17 2.5-12.3 12 2.9 16.9L40 48.8l-15.2 8 2.9-16.9-12.3-12 17-2.5z" class="fill-orange"/><circle cx="40" cy="33" r="6" class="fill-paper"/><rect x="38" y="52" width="4" height="22" rx="2" class="fill-ink"/><rect x="14" y="70" width="52" height="4" rx="2" class="fill-teal"/></svg>';
+  var TINT = { hoc: "bg-teal", vuon: "bg-teal", doc: "bg-orange", phim: "bg-orange", "le-hoi": "bg-orange" };
+
+  document.getElementById("star-path").setAttribute("d", MS.STAR_PATH);
+
+  var map = document.getElementById("map");
+  map.innerHTML = MS.ZONES.map(function (z) {
+    var open = z.status === "open";
+    var tag = open ? 'a href="' + z.url + '"' : 'button type="button" data-soon="' + MS.esc(z.name) + '"';
+    var end = open ? "a" : "button";
+    return "<" + tag + ' class="room ' + (open ? "open" : "soon") + '" style="font:inherit;text-align:left;width:100%">' +
+      '<div class="art ' + TINT[z.id] + '">' + ART[z.id] + "</div>" +
+      "<div><h3>" + MS.esc(z.name) + "</h3><p>" + MS.esc(z.desc) + "</p>" +
+      '<div class="foot">' + (open ? '<span class="chip open">Đang mở</span><span class="go">Vào phòng →</span>' : '<span class="chip soon">Sắp mở</span>') + "</div></div>" +
+      '<span class="door" aria-hidden="true"></span></' + end + ">";
+  }).join("");
+  map.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-soon]");
+    if (b) MS.toast(b.getAttribute("data-soon") + " đang được xây. Hẹn em sớm nhé!");
+  });
+
+  function render() {
+    var name = MS.getName();
+    document.getElementById("gate").hidden = !!name;
+    document.getElementById("welcome").hidden = !name;
+    if (name) {
+      var c = MS.getCard();
+      document.getElementById("card-name").textContent = c.name;
+      document.getElementById("card-initial").textContent = c.name.charAt(0).toUpperCase();
+      document.getElementById("card-no").textContent = "Số thẻ " + c.cardNo;
+      document.getElementById("card-stars").textContent = MS.totalStars();
+    }
+  }
+  document.getElementById("gate-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var v = document.getElementById("name-input").value.trim();
+    if (!v) return;
+    MS.setName(v); render();
+    MS.toast("Chào " + v + "! Chọn một phòng để bắt đầu nhé.");
+  });
+  document.getElementById("change-name").addEventListener("click", function () {
+    var d = document.getElementById("gate"); d.hidden = false;
+    document.getElementById("welcome").hidden = true;
+    document.getElementById("name-input").focus();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

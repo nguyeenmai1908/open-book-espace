@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vườn đọc sách · Mở Sách</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/ms.css">
+<style>
+  /* Vườn đọc: một cảnh vườn (ngày/đêm) ở trên, các "cuốn sách trên ghế đá" ở dưới.
+     Cảnh vườn có màu riêng theo giờ, phần đọc theo giao diện sáng/tối của máy. */
+  :root { --l1: #f0a640; --l2: #5fb760; --l3: #93553a; --l4: #ffc93c; --l5: #d98a32; }
+
+  .scene { position: relative; overflow: hidden; height: clamp(220px, 34vw, 320px); transition: background .8s ease; }
+  .scene svg.land { position: absolute; inset: auto 0 0 0; width: 100%; height: 72%; }
+  body[data-time="day"] .scene { background: linear-gradient(#bfe9ea, #f3fbf6 78%); }
+  body[data-time="night"] .scene { background: linear-gradient(#0d1b33, #23395c 80%); }
+  .orb { position: absolute; top: 26px; right: 12%; width: 64px; height: 64px; border-radius: 50%; transition: all .8s ease; }
+  body[data-time="day"] .orb { background: #ff8300; box-shadow: 0 0 0 14px rgba(255,131,0,.18), 0 0 0 30px rgba(255,131,0,.08); }
+  body[data-time="night"] .orb { background: #f6efd2; box-shadow: inset -14px -6px 0 0 #d9cfa8, 0 0 40px rgba(246,239,210,.35); }
+  .sky-stars { position: absolute; inset: 0; opacity: 0; transition: opacity .8s ease; }
+  body[data-time="night"] .sky-stars { opacity: 1; }
+  .sky-stars i { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff; animation: tw 3s ease-in-out infinite; }
+  @keyframes tw { 50% { opacity: .25; } }
+  .glow { opacity: 0; transition: opacity .8s ease; }
+  body[data-time="night"] .glow { opacity: 1; }
+
+  .g1 { fill: #7cc68a; } .g2 { fill: #50b1b3; } .g3 { fill: #3f9a6b; } .trunk { fill: #7a5236; } .bench { fill: #b46a2e; } .path { fill: #f3d9a8; }
+  body[data-time="night"] .g1 { fill: #2f5a4a; } body[data-time="night"] .g2 { fill: #24504f; } body[data-time="night"] .g3 { fill: #1f4636; }
+  body[data-time="night"] .trunk { fill: #4a3424; } body[data-time="night"] .bench { fill: #6e4320; } body[data-time="night"] .path { fill: #4b4a54; }
+  .lantern { fill: #ffd27a; }
+
+  .scene-title { position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); top: 22px; right: 120px; }
+  .scene-title h1 { font-size: clamp(1.9rem, 5vw, 2.8rem); color: #10494a; transition: color .8s; }
+  body[data-time="night"] .scene-title h1 { color: #f6efd2; }
+  .scene-title p { color: #2a5556; font-weight: 500; max-width: 40ch; transition: color .8s; }
+  body[data-time="night"] .scene-title p { color: #c8d6e8; }
+
+  .bar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 16px; }
+  .switch { display: inline-flex; padding: 4px; border-radius: 999px; background: var(--paper-3); }
+  .switch button { border: 0; background: transparent; color: var(--ink-2); font: 600 .95rem var(--font-body); padding: 8px 16px; border-radius: 999px; cursor: pointer; min-height: 40px; }
+  .switch button[aria-pressed="true"] { background: var(--paper); color: var(--ink); box-shadow: var(--shadow); }
+
+  main .wrap { padding-block: 8px 56px; display: grid; gap: 18px; }
+  .intro { color: var(--ink-2); max-width: 62ch; }
+  .books { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .book { display: grid; gap: 10px; align-content: start; padding: 18px; border-radius: var(--r-md); background: var(--paper); border: 2px solid var(--line); text-align: left; color: var(--ink); font: inherit; cursor: pointer; position: relative; }
+  .book:hover, .book[aria-pressed="true"] { border-color: var(--teal); box-shadow: var(--shadow); }
+  .book .cover { height: 10px; border-radius: 6px; }
+  .book h3 { font-size: 1.2rem; }
+  .book p { color: var(--ink-2); font-size: .92rem; }
+
+  .reader { border-radius: var(--r-lg); border: 2px solid var(--teal); background: var(--paper); padding: 22px; display: grid; gap: 14px; }
+  .reader h2 { font-size: 1.5rem; color: var(--teal-ink); }
+  .reader .tools { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .reader .text { font-size: 1.1rem; line-height: 1.85; max-width: 68ch; }
+  .reader .text span { transition: background .3s, box-shadow .3s; border-radius: 4px; padding: 1px 2px; }
+  .reader.marked .text span { box-shadow: inset 0 -0.55em 0 var(--hl); }
+  .legend { display: none; flex-wrap: wrap; gap: 8px 14px; font-size: .88rem; color: var(--ink-2); }
+  .reader.marked .legend { display: flex; }
+  .legend i { display: inline-block; width: 18px; height: 10px; border-radius: 4px; margin-right: 6px; vertical-align: middle; }
+  .toggle { display: inline-flex; gap: 8px; align-items: center; font-weight: 600; cursor: pointer; }
+  .toggle input { width: 20px; height: 20px; accent-color: var(--teal-ink); }
+  .note { font-size: .82rem; color: var(--ink-2); font-style: italic; }
+
+  @media (max-width: 760px) { .books { grid-template-columns: minmax(0, 1fr); } .scene-title { right: 90px; } .orb { width: 48px; height: 48px; right: 8%; } }
+</style>
+</head>
+<body data-time="day">
+
+<div class="topbar">
+  <div class="wrap">
+    <a class="brand" href="index.html"><img src="assets/logo-mark.png" alt=""><span><b>Mở Sách</b><small>Không gian trực tuyến</small></span></a>
+    <span class="spacer"></span>
+    <a class="back" href="khong-gian-hoc.html" style="font-weight:600;text-decoration:none;color:var(--teal-ink)">Không gian học →</a>
+  </div>
+</div>
+
+<section class="scene" aria-label="Cảnh vườn đọc sách">
+  <div class="sky-stars" id="sky"></div>
+  <div class="orb" aria-hidden="true"></div>
+  <div class="scene-title"><h1>Vườn đọc sách</h1><p id="mood">Nắng đẹp rồi, ra ghế đá đọc vài trang nhé.</p></div>
+  <svg class="land" viewBox="0 0 1000 230" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <path class="g1" d="M0 120C160 80 300 110 460 96s340-50 540-10v144H0z"/>
+    <path class="path" d="M430 230c40-60 90-100 170-130 30 0 40 4 50 10-70 30-110 70-130 120z"/>
+    <path class="g3" d="M0 170c200-30 360-10 520 4 160-20 320-34 480-10v66H0z" opacity=".9"/>
+    <rect class="trunk" x="772" y="96" width="16" height="80" rx="6"/>
+    <circle class="g2" cx="780" cy="80" r="52"/><circle class="g2" cx="738" cy="104" r="34"/><circle class="g2" cx="824" cy="104" r="34"/>
+    <rect class="trunk" x="922" y="86" width="14" height="86" rx="6"/>
+    <circle class="g2" cx="930" cy="70" r="44"/><circle class="g2" cx="896" cy="92" r="28"/><circle class="g2" cx="966" cy="94" r="28"/>
+    <rect class="bench" x="250" y="150" width="120" height="10" rx="4"/><rect class="bench" x="258" y="136" width="104" height="8" rx="4"/>
+    <rect class="bench" x="262" y="160" width="8" height="22" rx="2"/><rect class="bench" x="350" y="160" width="8" height="22" rx="2"/>
+    <rect x="290" y="140" width="34" height="10" rx="2" fill="#ff8300"/><rect x="294" y="132" width="26" height="8" rx="2" fill="#50b1b3"/>
+    <rect class="trunk" x="640" y="110" width="5" height="70" rx="2"/>
+    <g class="glow"><circle cx="642" cy="104" r="26" fill="#ffd27a" opacity=".25"/></g>
+    <rect class="lantern" x="632" y="94" width="20" height="20" rx="5"/>
+  </svg>
+</section>
+
+<div class="bar">
+  <div class="wrap">
+    <div class="switch" role="group" aria-label="Chọn giờ trong vườn">
+      <button type="button" id="b-day" aria-pressed="true">Ban ngày</button>
+      <button type="button" id="b-night" aria-pressed="false">Ban đêm</button>
+    </div>
+    <span class="note">Vườn tự đổi theo giờ trên máy của em, hoặc chọn ở đây.</span>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+    <p class="intro">Trên ghế đá có ba cuốn sách nhỏ, mỗi cuốn là một đoạn văn nghị luận mẫu từ khoá <a href="khoa-hoc/nghi-luan-1.html">Nghị luận Vỡ Lòng · Khoá 1</a>. Chọn một cuốn để đọc. Bật “Tô màu 5 lớp bánh” để thấy câu nào là câu chủ đề, lý lẽ, bằng chứng, phân tích hay kết đoạn.</p>
+    <div class="books" id="books"></div>
+    <article class="reader" id="reader" aria-live="polite"></article>
+  </div>
+</main>
+
+<script src="assets/ms.js"></script>
+<script>
+(function () {
+  var PARTS = [
+    { name: "Câu chủ đề", c: "var(--l1)" }, { name: "Lý lẽ", c: "var(--l2)" }, { name: "Bằng chứng", c: "var(--l3)" },
+    { name: "Phân tích", c: "var(--l4)" }, { name: "Kết đoạn", c: "var(--l5)" }
+  ];
+  var BOOKS = [
+    { title: "Học trực tiếp hay học online?", cover: "var(--teal)", s: [
+      "Học trực tiếp tại trường mang lại hiệu quả học tập tốt hơn học online.",
+      "Khi ngồi trong lớp, học sinh dễ tập trung hơn vì không bị điện thoại, mạng xã hội hay các ứng dụng khác gây xao nhãng.",
+      "Một khảo sát năm 2022 cho thấy 68% học sinh tự nhận thấy mình mất tập trung nhiều hơn khi học online so với học trực tiếp.",
+      "Con số này cho thấy môi trường lớp học truyền thống giúp học sinh duy trì sự chú ý tốt hơn, từ đó tiếp thu bài giảng hiệu quả hơn.",
+      "Vì vậy, dù học online tiện lợi, học trực tiếp vẫn là lựa chọn tốt hơn để đảm bảo chất lượng học tập."], note: "Số liệu khảo sát chỉ để minh hoạ." },
+    { title: "Có nên đi cắm trại?", cover: "var(--orange)", s: [
+      "Học sinh nên được tham gia các chuyến cắm trại do trường tổ chức.",
+      "Những hoạt động ngoài trời như vậy giúp học sinh rèn tính tự lập và làm quen với bạn bè theo cách khác với lớp học thông thường.",
+      "Theo chia sẻ của nhiều phụ huynh có con từng tham gia trại hè, các em trở nên chủ động hơn trong sinh hoạt cá nhân sau chuyến đi.",
+      "Điều đó cho thấy một môi trường mới, tách khỏi sự hỗ trợ thường ngày của gia đình, chính là cơ hội để học sinh trưởng thành nhanh hơn.",
+      "Vì vậy, phụ huynh nên cân nhắc và ủng hộ con tham gia các chương trình cắm trại của trường."], note: "Lời chia sẻ của phụ huynh chỉ để minh hoạ." },
+    { title: "Mạng xã hội để học?", cover: "var(--teal-ink)", s: [
+      "Học sinh nên được phép sử dụng mạng xã hội để phục vụ việc học.",
+      "Mạng xã hội, nếu biết chọn lọc nội dung, có thể giúp học sinh tiếp cận kiến thức nhanh và sinh động hơn.",
+      "Nhiều học sinh hiện nay tham gia các nhóm học tập trên Facebook hoặc theo dõi các kênh chia sẻ kiến thức trên TikTok, Instagram.",
+      "Điều này chứng minh mạng xã hội, nếu dùng đúng cách, có thể là công cụ học tập hiệu quả chứ không chỉ để giải trí.",
+      "Vì vậy, thay vì cấm hoàn toàn, nhà trường nên hướng dẫn học sinh sử dụng mạng xã hội một cách có ích."], note: "Ví dụ chỉ để minh hoạ." }
+  ];
+
+  var current = 0, marked = false;
+  var booksEl = document.getElementById("books"), reader = document.getElementById("reader");
+  booksEl.innerHTML = BOOKS.map(function (b, i) {
+    return '<button class="book" type="button" data-i="' + i + '" aria-pressed="' + (i === 0) + '"><span class="cover" style="background:' + b.cover + '"></span><h3>' + b.title + "</h3><p>" + b.s[0] + "</p></button>";
+  }).join("");
+  booksEl.addEventListener("click", function (e) {
+    var b = e.target.closest(".book"); if (!b) return;
+    current = +b.getAttribute("data-i");
+    booksEl.querySelectorAll(".book").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    drawReader(); reader.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+  function drawReader() {
+    var b = BOOKS[current];
+    reader.className = "reader" + (marked ? " marked" : "");
+    reader.innerHTML = '<div class="tools"><h2>' + b.title + '</h2><label class="toggle" for="mk"><input type="checkbox" id="mk"' + (marked ? " checked" : "") + "> Tô màu 5 lớp bánh</label></div>" +
+      '<p class="text">' + b.s.map(function (t, i) { return '<span style="--hl:color-mix(in srgb, ' + PARTS[i].c + ' 45%, transparent)" title="' + PARTS[i].name + '">' + t + "</span>"; }).join(" ") + "</p>" +
+      '<div class="legend">' + PARTS.map(function (p) { return '<span><i style="background:' + p.c + '"></i>' + p.name + "</span>"; }).join("") + "</div>" +
+      '<p class="note">' + b.note + "</p>";
+    document.getElementById("mk").onchange = function (e) { marked = e.target.checked; reader.classList.toggle("marked", marked); };
+  }
+  drawReader();
+
+  // sao trên trời
+  var sky = document.getElementById("sky"), html = "";
+  for (var i = 0; i < 40; i++) html += '<i style="left:' + (Math.random() * 100) + "%;top:" + (Math.random() * 55) + "%;animation-delay:" + (Math.random() * 3).toFixed(2) + 's"></i>';
+  sky.innerHTML = html;
+
+  function setTime(t) {
+    document.body.setAttribute("data-time", t);
+    document.getElementById("b-day").setAttribute("aria-pressed", String(t === "day"));
+    document.getElementById("b-night").setAttribute("aria-pressed", String(t === "night"));
+    var name = MS.getName();
+    document.getElementById("mood").textContent = t === "day"
+      ? "Nắng đẹp rồi" + (name ? ", " + name : "") + ". Ra ghế đá đọc vài trang nhé."
+      : "Đèn lồng đã sáng" + (name ? ", " + name : "") + ". Đọc thêm một trang trước khi ngủ nhé.";
+  }
+  document.getElementById("b-day").onclick = function () { setTime("day"); };
+  document.getElementById("b-night").onclick = function () { setTime("night"); };
+  var h = new Date().getHours();
+  setTime(h >= 6 && h < 18 ? "day" : "night");
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nghị luận Vỡ Lòng · Khoá 1</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/ms.css">
+<style>
+  /* Khoá 1 — sân khấu một cột: Cá Heo + bong bóng thoại ở trên, hoạt động ở dưới.
+     Màu riêng của chuỗi Nghị luận: xanh biển tươi + cam Mở Sách; 5 lớp bánh hamburger. */
+  :root {
+    --sea: #e6f6f6;
+    --l1: #f0a640;  /* nắp bánh  — câu chủ đề */
+    --l2: #5fb760;  /* xà lách   — lý lẽ */
+    --l3: #93553a;  /* thịt      — bằng chứng */
+    --l4: #ffc93c;  /* phô mai   — phân tích */
+    --l5: #d98a32;  /* đế bánh   — kết đoạn */
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --sea: #122a2b; } }
+  :root[data-theme="dark"] { --sea: #122a2b; }
+
+  body { background: var(--paper); }
+  .topbar .wrap { flex-wrap: wrap; row-gap: 6px; }
+  .back { font-weight: 600; text-decoration: none; color: var(--teal-ink); white-space: nowrap; }
+  .starbar { display: flex; align-items: center; gap: 8px; }
+  .starbar .stars svg { width: 26px; height: 26px; transition: transform .3s ease; }
+  .starbar .stars svg.pop { animation: pop .7s ease; }
+  @keyframes pop { 0% { transform: scale(.4) rotate(-40deg); } 60% { transform: scale(1.5) rotate(15deg); } 100% { transform: scale(1) rotate(0); } }
+  .steps { display: flex; gap: 6px; align-items: center; }
+  .steps i { width: 10px; height: 10px; border-radius: 50%; background: var(--star-off); }
+  .steps i.done { background: var(--teal); }
+  .steps i.now { background: var(--orange); width: 26px; border-radius: 6px; }
+  .steps-wrap { display: flex; gap: 10px; align-items: center; font-size: .85rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+  .stage { padding-block: 22px 60px; display: grid; gap: 20px; max-width: 820px; min-width: 0; width: 100%; }
+  .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--orange-ink); }
+  .stage h1 { font-size: clamp(1.7rem, 4.4vw, 2.4rem); color: var(--teal-ink); margin-top: 2px; }
+
+  /* Cá Heo + bong bóng */
+  .talk { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 14px; align-items: end; }
+  .nem { width: 112px; height: auto; overflow: visible; }
+  .nem .body { fill: var(--teal); } .nem .belly { fill: var(--paper); } .nem .dark { fill: var(--teal-ink); }
+  .nem .eye { fill: #18282a; } .nem .cap { fill: var(--orange); } .nem .smile { stroke: #18282a; }
+  .nem.happy { animation: jump .8s ease; }
+  .nem.think { animation: tilt 1s ease; }
+  @keyframes jump { 0%,100% { transform: translateY(0) rotate(0); } 35% { transform: translateY(-22px) rotate(-8deg); } 60% { transform: translateY(0) rotate(4deg); } }
+  @keyframes tilt { 0%,100% { transform: rotate(0); } 30% { transform: rotate(-7deg); } 60% { transform: rotate(5deg); } }
+  .bubble { position: relative; background: var(--sea); border-radius: 20px 20px 20px 6px; padding: 14px 18px; font-size: 1.05rem; line-height: 1.55; min-width: 0; }
+  .bubble b.who { display: block; font: 700 .8rem var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--teal-ink); margin-bottom: 2px; }
+
+  .panel { display: grid; gap: 14px; }
+  .q { font-weight: 600; font-size: 1.08rem; }
+
+  /* lựa chọn trắc nghiệm */
+  .opts { display: grid; gap: 10px; }
+  .opt { display: grid; grid-template-columns: 38px minmax(0, 1fr) 28px; gap: 12px; align-items: center; text-align: left; width: 100%; padding: 14px 16px; border-radius: var(--r-md); border: 2px solid var(--line); background: var(--paper); color: var(--ink); font: 500 1rem/1.5 var(--font-body); cursor: pointer; }
+  .opt:hover:not([disabled]) { border-color: var(--teal); }
+  .opt .k { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--paper-3); font-weight: 700; }
+  .opt .mk { font-weight: 800; font-size: 1.2rem; text-align: center; }
+  .opt[disabled] { cursor: default; }
+  .opt.right { border-color: var(--ok); background: var(--ok-soft); }
+  .opt.right .k { background: var(--ok); color: var(--paper); }
+  .opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  .opt.wrong .k { background: var(--bad); color: var(--paper); }
+  .opt.right .mk { color: var(--ok); } .opt.wrong .mk { color: var(--bad); }
+
+  /* lớp bánh */
+  .layer { display: inline-block; width: 46px; height: 14px; border-radius: 8px; flex: none; }
+  .layer.l1 { background: var(--l1); border-radius: 23px 23px 6px 6px; height: 18px; }
+  .layer.l2 { background: var(--l2); height: 10px; border-radius: 10px 2px 10px 2px; }
+  .layer.l3 { background: var(--l3); }
+  .layer.l4 { background: var(--l4); height: 9px; border-radius: 2px; }
+  .layer.l5 { background: var(--l5); border-radius: 6px 6px 16px 16px; height: 14px; }
+
+  /* Màn 2: các phần bánh */
+  .parts { display: grid; gap: 10px; }
+  .part { border: 2px solid var(--line); border-radius: var(--r-md); background: var(--paper); overflow: hidden; }
+  .part > button { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 50px minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; padding: 14px 16px; }
+  .part > button:focus-visible { outline: 3px solid var(--orange); outline-offset: -3px; }
+  .part .nm { font-weight: 700; }
+  .part .nm small { display: block; font-weight: 500; color: var(--ink-2); font-size: .85rem; }
+  .part .tog { font-weight: 700; color: var(--teal-ink); font-size: .9rem; }
+  .part .more { padding: 0 16px 16px 78px; display: grid; gap: 10px; }
+  .part .sent { font-size: 1.02rem; padding: 10px 14px; border-left: 4px solid var(--teal); background: var(--paper-2); border-radius: 0 10px 10px 0; }
+  .part .say { color: var(--teal-ink); font-weight: 500; }
+  .part.seen { border-color: var(--teal); }
+  .note { font-size: .82rem; color: var(--ink-2); font-style: italic; }
+
+  /* Màn 3: khay nhãn + câu */
+  .tray { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; background: var(--paper-2); border-radius: var(--r-md); border: 1px dashed var(--line); min-height: 64px; align-items: center; }
+  .tray .empty { color: var(--ink-2); font-size: .9rem; }
+  .tag { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 6px 14px; border-radius: 999px; border: 2px solid var(--line); background: var(--paper); color: var(--ink); font: 600 .95rem var(--font-body); cursor: pointer; }
+  .tag[aria-pressed="true"] { border-color: var(--orange); background: var(--orange-soft); box-shadow: 0 0 0 3px color-mix(in srgb, var(--orange) 30%, transparent); }
+  .tag .layer { width: 28px; }
+  .slots { display: grid; gap: 10px; }
+  .slot { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 12px 14px; border: 2px solid var(--line); border-radius: var(--r-md); background: var(--paper); }
+  .slot p { font-size: 1rem; }
+  .slot .drop { justify-self: start; min-height: 40px; padding: 6px 14px; border-radius: 999px; border: 2px dashed var(--teal); background: transparent; color: var(--teal-ink); font: 600 .9rem var(--font-body); cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+  .slot .drop.filled { border-style: solid; background: var(--teal-soft); }
+  .slot.right { border-color: var(--ok); background: var(--ok-soft); }
+  .slot.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  .slot .why { font-size: .9rem; color: var(--bad); font-weight: 500; }
+
+  /* Màn 4: xếp bánh */
+  .burger { display: grid; gap: 8px; }
+  .bslot { display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 12px; align-items: center; min-height: 58px; padding: 8px 12px; border-radius: var(--r-md); border: 2px dashed var(--line); background: var(--paper-2); }
+  .bslot .nm { font-size: .8rem; font-weight: 700; color: var(--ink-2); text-transform: uppercase; letter-spacing: .06em; }
+  .bslot button { all: unset; box-sizing: border-box; cursor: pointer; font-size: .98rem; display: block; width: 100%; }
+  .bslot button:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; border-radius: 6px; }
+  .bslot.filled { border-style: solid; background: var(--paper); }
+  .bslot.right { border-color: var(--ok); background: var(--ok-soft); }
+  .bslot.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  .pool { display: grid; gap: 8px; }
+  .card { text-align: left; width: 100%; padding: 12px 14px; border-radius: var(--r-md); border: 2px solid var(--line); background: var(--paper); color: var(--ink); font: 500 .98rem/1.5 var(--font-body); cursor: pointer; }
+  .card:hover { border-color: var(--teal); }
+  .sub { font: 700 .82rem var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+
+  /* Màn 5 */
+  .round { display: grid; gap: 12px; padding: 18px; border: 2px solid var(--line); border-radius: var(--r-lg); background: var(--paper); }
+  .round .num { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .para { padding: 12px 16px; background: var(--paper-2); border-radius: 12px; font-size: 1rem; }
+  .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .clock { display: inline-flex; gap: 6px; align-items: center; font-size: .85rem; font-weight: 600; color: var(--orange-ink); }
+  .clock svg { width: 18px; height: 18px; animation: spin 4s linear infinite; }
+  .clock circle, .clock path { stroke: currentColor; fill: none; stroke-width: 2.2; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Màn 6 */
+  .award { display: grid; gap: 14px; justify-items: center; text-align: center; padding: 26px 18px; border-radius: var(--r-lg); background: var(--sea); }
+  .award .stars svg { width: 44px; height: 44px; }
+  .award .big { font: 800 clamp(2.4rem, 8vw, 3.4rem)/1 var(--font-display); color: var(--teal-ink); font-variant-numeric: tabular-nums; }
+  .badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: var(--orange); color: var(--cta-fg); font-weight: 700; }
+  .next { display: grid; gap: 6px; padding: 16px 18px; border: 2px dashed var(--line); border-radius: var(--r-md); }
+  .recap { display: grid; gap: 8px; }
+  .recap li { display: flex; gap: 10px; align-items: center; }
+  .recap ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .actions .grow { flex: 1; }
+  .namefield { display: flex; gap: 10px; flex-wrap: wrap; }
+  .namefield input { flex: 1 1 200px; min-width: 0; min-height: 48px; padding: 10px 16px; border-radius: 999px; border: 2px solid var(--line); background: var(--paper-2); color: var(--ink); font: 500 1rem var(--font-body); }
+  .rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .rules div { padding: 12px 14px; background: var(--paper-2); border-radius: 12px; font-size: .92rem; }
+  .rules b { display: block; font-family: var(--font-display); font-size: 1.15rem; color: var(--teal-ink); }
+
+
+
+  /* Mục lục bên trái (đóng/mở được) */
+  .navbtn { display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 6px 12px; border-radius: 999px; border: 2px solid var(--line); background: var(--paper); color: var(--ink); font: 600 .9rem var(--font-body); cursor: pointer; }
+  .navbtn svg { width: 18px; height: 18px; } .navbtn path { stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; fill: none; }
+  .navbtn[aria-expanded="true"] { background: var(--teal-soft); border-color: var(--teal); color: var(--teal-ink); }
+  .layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 32px; max-width: 1180px; margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .layout.closed { grid-template-columns: minmax(0, 1fr); max-width: 868px; }
+  .layout.closed .side { display: none; }
+  .side { position: sticky; top: calc(66px + env(safe-area-inset-top, 0px)); align-self: start; max-height: calc(100vh - 86px); overflow: auto;
+    padding-block: 22px; display: grid; gap: 14px; align-content: start; }
+  .side-head { display: flex; justify-content: space-between; align-items: center; }
+  .side-x { display: none; width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--paper-3); color: var(--ink); font-size: 1.4rem; cursor: pointer; }
+  .side-course { font-size: .85rem; color: var(--ink-2); }
+  .side-course b { display: block; font: 700 1.15rem/1.25 var(--font-display); color: var(--teal-ink); margin-top: 2px; }
+  .side-prog { display: grid; gap: 6px; font-size: .82rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .side-prog .bar { height: 8px; border-radius: 999px; background: var(--paper-3); overflow: hidden; }
+  .side-prog .bar i { display: block; height: 100%; width: 0; background: var(--teal); border-radius: 999px; transition: width .4s ease; }
+  .side-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .side-list button { all: unset; box-sizing: border-box; cursor: pointer; width: 100%; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 10px; border-radius: 12px; }
+  .side-list button:hover:not([aria-disabled="true"]) { background: var(--paper-2); }
+  .side-list button:focus-visible { outline: 3px solid var(--orange); outline-offset: 1px; }
+  .side-list .no { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: .85rem; background: var(--paper-3); color: var(--ink-2); }
+  .side-list .tt { font-size: .93rem; line-height: 1.3; }
+  .side-list .tt small { display: block; font-size: .75rem; color: var(--ink-2); letter-spacing: .04em; }
+  .side-list .done .no { background: var(--teal); color: var(--btn-fg); }
+  .side-list [aria-current="step"] { background: var(--orange-soft); }
+  .side-list [aria-current="step"] .no { background: var(--orange); color: var(--cta-fg); }
+  .side-list [aria-current="step"] .tt { font-weight: 700; }
+  .side-list [aria-disabled="true"] { cursor: not-allowed; opacity: .55; }
+  .side-list .stars svg { width: 14px; height: 14px; }
+  .scrim { position: fixed; inset: 0; background: rgba(10, 25, 26, .45); z-index: 39; }
+  @media (max-width: 900px) {
+    .layout, .layout.closed { grid-template-columns: minmax(0, 1fr); max-width: 868px; }
+    .layout .side, .layout.closed .side { display: grid; position: fixed; top: 0; bottom: 0; left: 0; z-index: 40; width: min(320px, 86vw); max-height: none; height: 100vh; height: 100dvh; align-self: stretch; overflow-y: auto;
+      background: var(--paper); box-shadow: var(--shadow); padding: calc(18px + env(safe-area-inset-top, 0px)) 18px calc(18px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));
+      transform: translateX(-105%); transition: transform .25s ease; }
+    .layout.open-m .side { transform: none; }
+    .side-x { display: grid; place-items: center; }
+    .navbtn span { display: none; }
+  }
+
+  /* Bìa khoá (Giới thiệu) */
+  .cover { position: relative; overflow: hidden; border-radius: var(--r-lg); color: #ffffff;
+    background: radial-gradient(120% 90% at 85% 10%, #3fa5a7 0%, #1d6b6d 55%, #134d4f 100%);
+    display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 12px; align-items: center;
+    padding: 28px 28px 54px; min-height: 280px; }
+  .cover .txt { display: grid; gap: 10px; position: relative; z-index: 1; min-width: 0; }
+  .cover .kicker { font-size: .78rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #ffd9b0; }
+  .cover h1 { color: #ffffff; font-size: clamp(2rem, 6vw, 3.1rem); line-height: 1.02; }
+  .cover h1 span { display: block; color: #ffb366; }
+  .cover .sub2 { font-size: 1.05rem; color: #dff3f3; max-width: 34ch; }
+  .cover .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .cover .pills span { font-size: .82rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28); color: #ffffff; font-variant-numeric: tabular-nums; }
+  .cover .art { position: relative; z-index: 1; justify-self: center; width: 100%; max-width: 280px; }
+  .cover .art svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .cover .waves { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: 46px; z-index: 0; }
+  .cover .waves path { fill: var(--paper); }
+  .cover .waves path.back { fill: var(--paper); opacity: .35; }
+  #stage:focus { outline: none; }
+  .cover .nem { width: 120px; height: 100px; }
+  .cover .nem .body { fill: #9ee0e1; } .cover .nem .dark { fill: #50b1b3; } .cover .nem .belly { fill: #ffffff; }
+  .cover .bub { fill: rgba(255,255,255,.18); }
+  .cover .art .burger-l { animation: stack .7s cubic-bezier(.3,1.4,.6,1) both; }
+  .cover .art .burger-l:nth-child(2) { animation-delay: .08s; } .cover .art .burger-l:nth-child(3) { animation-delay: .16s; }
+  .cover .art .burger-l:nth-child(4) { animation-delay: .24s; } .cover .art .burger-l:nth-child(5) { animation-delay: .32s; }
+  @keyframes stack { from { transform: translateY(-26px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .cover .dolph { animation: swim 3.2s ease-in-out infinite; transform-origin: center; }
+  @keyframes swim { 50% { transform: translateY(-6px) rotate(-3deg); } }
+
+  @media (max-width: 600px) {
+    .cover { grid-template-columns: minmax(0, 1fr); padding: 22px 18px 50px; }
+    .cover .art { max-width: 210px; order: -1; }
+    .talk { grid-template-columns: 72px minmax(0, 1fr); }
+    .nem { width: 72px; }
+    .part .more { padding-left: 16px; }
+    .pair, .rules { grid-template-columns: minmax(0, 1fr); }
+    .steps-wrap .lbl { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <button class="navbtn" id="nav-toggle" type="button" aria-controls="side" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Mục lục</span></button>
+    <a class="back" href="../khong-gian-hoc.html">← Không gian học</a>
+    <span class="spacer"></span>
+    <div class="steps-wrap"><span class="lbl" id="step-lbl">Giới thiệu</span><div class="steps" id="steps" aria-hidden="true"></div></div>
+    <div class="starbar" id="starbar"></div>
+  </div>
+</div>
+
+<div class="layout" id="layout">
+  <aside class="side" id="side" aria-label="Mục lục khoá học">
+    <div class="side-head"><span class="sub">Mục lục</span><button class="side-x" id="side-close" type="button" aria-label="Đóng mục lục">×</button></div>
+    <p class="side-course">Nghị luận Vỡ Lòng · Khoá 1<b>Cấu trúc đoạn văn nghị luận</b></p>
+    <div class="side-prog"><div class="bar"><i id="prog-fill"></i></div><span id="prog-txt">Đã học 0/6 bài</span></div>
+    <ol class="side-list" id="side-list"></ol>
+  </aside>
+  <main class="stage" id="stage" tabindex="-1"></main>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+
+<script src="../assets/ms.js"></script>
+<script>
+(function () {
+  var COURSE_ID = "nghi-luan-1", MAX = 5;
+  var LABELS = [
+    { id: 1, name: "Câu chủ đề", food: "Nắp bánh", cls: "l1" },
+    { id: 2, name: "Lý lẽ", food: "Xà lách", cls: "l2" },
+    { id: 3, name: "Bằng chứng", food: "Thịt", cls: "l3" },
+    { id: 4, name: "Phân tích", food: "Phô mai", cls: "l4" },
+    { id: 5, name: "Kết đoạn", food: "Đế bánh", cls: "l5" }
+  ];
+  var NEM_SVG = '<svg class="nem" id="nem" viewBox="0 0 120 100" role="img" aria-label="Cá Heo, bạn học đồng hành">' +
+    '<path class="body" d="M18 62C20 36 50 20 80 23c16 2 28 11 33 21-8 0-14 2-18 6-4 14-20 26-42 28-12 1-22-2-28-6-6 6-14 10-22 10 4-6 9-12 15-20z"/>' +
+    '<path class="dark" d="M54 25c2-12 9-19 18-22-3 8-3 15-1 22z"/>' +
+    '<path class="dark" d="M58 66c-2 10-8 18-16 22 3-8 5-15 7-22z"/>' +
+    '<path class="belly" d="M30 67c16 6 42 4 62-16-6 15-22 24-41 25-9 0-16-3-21-9z" opacity=".9"/>' +
+    '<circle class="eye" cx="88" cy="37" r="3.6"/><circle cx="89.2" cy="35.8" r="1.2" fill="#fff"/>' +
+    '<path class="smile" d="M98 47c3 3 7 3 10 0" fill="none" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<circle cx="96" cy="42" r="3" fill="#ff8300" opacity=".35"/>' +
+    '<path class="cap" d="M74 21l15-7 15 7-15 7z"/><path class="cap" d="M80 24v6c6 3 12 3 18 0v-6l-9 4z"/>' +
+    '<path d="M104 21v9" stroke="#ff8300" stroke-width="2" stroke-linecap="round"/><circle class="cap" cx="104" cy="31" r="2.2"/>' +
+    "</svg>";
+
+  var state = { screen: 0, stars: [false, false, false, false, false], name: MS.getName() };
+  var stage = document.getElementById("stage");
+
+  /* ---------- tiện ích ---------- */
+  function who() { return state.name || "bạn"; }
+  function el(html) { var d = document.createElement("div"); d.innerHTML = html.trim(); return d.firstChild; }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function shuffleNotSame(a) { var s; do { s = shuffle(a); } while (s.every(function (x, i) { return x === a[i]; })); return s; }
+  function layer(cls) { return '<span class="layer ' + cls + '" aria-hidden="true"></span>'; }
+  /* Gọi HS bằng tên: thay đại từ "bạn" bằng tên đã lưu (trừ "bạn bè", "bạn học", "bạn Minh"…) */
+  function named(text) {
+    if (!state.name) return text;
+    var nm = MS.esc(state.name);
+    return text.replace(/(^|[^\p{L}])[Bb]ạn(?![\p{L}])(?!\s+(bè|học|Minh|nhỏ))/gu, function (m, pre) { return pre + nm; });
+  }
+  function say(text, mood) {
+    var b = document.getElementById("bubble-text");
+    if (b) b.innerHTML = named(text);
+    var n = document.getElementById("nem");
+    if (n && mood) { n.classList.remove("happy", "think"); void n.getBoundingClientRect(); n.classList.add(mood); }
+  }
+  function talk(text, raw) {
+    return '<div class="talk">' + NEM_SVG + '<div class="bubble" aria-live="polite"><b class="who">Cá Heo</b><span id="bubble-text">' + (raw ? text : named(text)) + "</span></div></div>";
+  }
+  function head(eyebrow, title) { return '<div><div class="eyebrow">' + eyebrow + "</div><h1>" + title + "</h1></div>"; }
+  function award(i) {
+    if (state.stars[i]) return;
+    state.stars[i] = true; renderStars(i); renderNav();
+  }
+  function starCount() { return state.stars.filter(Boolean).length; }
+  function renderStars(popIndex) {
+    var bar = document.getElementById("starbar");
+    bar.innerHTML = MS.starsHTML(starCount(), MAX);
+    if (popIndex != null) { var svgs = bar.querySelectorAll("svg.on"); var last = svgs[svgs.length - 1]; if (last) last.classList.add("pop"); }
+  }
+  function renderSteps() {
+    var s = ""; for (var i = 0; i <= 6; i++) s += '<i class="' + (i < state.screen ? "done" : i === state.screen ? "now" : "") + '"></i>';
+    document.getElementById("steps").innerHTML = s;
+    document.getElementById("step-lbl").textContent = state.screen ? "Bài " + state.screen + "/6" : "Giới thiệu";
+  }
+
+  var LESSONS = [
+    { t: "Giới thiệu khoá học", k: "Bắt đầu" }, { t: "Nghị luận là gì?", k: "Bài 1", st: [0] }, { t: "Bánh hamburger 5 lớp", k: "Bài 2" },
+    { t: "Gắn đúng nhãn", k: "Bài 3", st: [1] }, { t: "Xếp đúng thứ tự", k: "Bài 4", st: [2] }, { t: "Ôn tập tổng hợp", k: "Bài 5", st: [3, 4] },
+    { t: "Tổng kết", k: "Bài 6" }
+  ];
+  var mq = window.matchMedia("(max-width: 900px)");
+  var layout = document.getElementById("layout"), navBtn = document.getElementById("nav-toggle"), scrim = document.getElementById("scrim");
+  function navOpen() { return mq.matches ? layout.classList.contains("open-m") : !layout.classList.contains("closed"); }
+  function setNav(open) {
+    if (mq.matches) { layout.classList.toggle("open-m", open); scrim.hidden = !open; }
+    else { layout.classList.toggle("closed", !open); scrim.hidden = true; }
+    navBtn.setAttribute("aria-expanded", String(open));
+  }
+  navBtn.onclick = function () { setNav(!navOpen()); };
+  document.getElementById("side-close").onclick = function () { setNav(false); navBtn.focus(); };
+  scrim.onclick = function () { setNav(false); };
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && mq.matches && navOpen()) setNav(false); });
+  if (mq.addEventListener) mq.addEventListener("change", function () { layout.classList.remove("open-m"); scrim.hidden = true; navBtn.setAttribute("aria-expanded", String(navOpen())); });
+  navBtn.setAttribute("aria-expanded", String(navOpen()));
+  function renderNav() {
+    state.reached = Math.max(state.reached || 0, state.screen);
+    var done = 0;
+    document.getElementById("side-list").innerHTML = LESSONS.map(function (L, i) {
+      var isDone = i < state.reached || (i === 6 && state.screen === 6), cur = i === state.screen, open = i <= state.reached;
+      if (i > 0 && isDone) done++;
+      var st = L.st ? MS.starsHTML(L.st.filter(function (k) { return state.stars[k]; }).length, L.st.length) : "";
+      return '<li><button type="button" data-l="' + i + '" class="' + (isDone ? "done" : "") + '"' + (cur ? ' aria-current="step"' : "") + (open ? "" : ' aria-disabled="true"') + ">" +
+        '<span class="no">' + (isDone && !cur ? "✓" : i === 0 ? "★" : i) + '</span><span class="tt"><small>' + L.k + "</small>" + L.t + "</span>" + (open ? st : '<span class="sr-only">Chưa mở</span>') + "</button></li>";
+    }).join("");
+    document.getElementById("prog-fill").style.width = Math.round(done / 6 * 100) + "%";
+    document.getElementById("prog-txt").textContent = "Đã học " + done + "/6 bài";
+  }
+  document.getElementById("side-list").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-l]"); if (!b) return;
+    if (b.getAttribute("aria-disabled") === "true") { MS.toast("Học xong bài trước để mở bài này nhé!"); return; }
+    if (mq.matches) setNav(false);
+    go(+b.getAttribute("data-l"));
+  });
+
+  function go(n) {
+    state.screen = n; renderSteps(); renderNav();
+    var fresh = stage.cloneNode(false); stage.parentNode.replaceChild(fresh, stage); stage = fresh;
+    SCREENS[n]();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    stage.focus({ preventScroll: true });
+  }
+  function nextBtn(label, enabled) {
+    return '<div class="actions"><span class="grow"></span><button class="btn cta" id="next" type="button"' + (enabled ? "" : " disabled") + ">" + label + "</button></div>";
+  }
+  function bindNext(n) { var b = document.getElementById("next"); if (b) b.onclick = function () { go(n); }; }
+  function enableNext() { var b = document.getElementById("next"); if (b) { b.disabled = false; } }
+
+  /* MCQ dùng chung: 1 lần chọn, sai thì hiện đáp án đúng */
+  function mcq(container, options, correct, onDone) {
+    var keys = "ABCD";
+    container.innerHTML = options.map(function (o, i) {
+      return '<button class="opt" type="button" data-i="' + i + '"><span class="k">' + keys[i] + '</span><span>' + o + '</span><span class="mk" aria-hidden="true"></span></button>';
+    }).join("");
+    container.addEventListener("click", function h(e) {
+      var b = e.target.closest(".opt"); if (!b) return;
+      var i = +b.getAttribute("data-i"), ok = i === correct;
+      container.removeEventListener("click", h);
+      container.querySelectorAll(".opt").forEach(function (x, j) {
+        x.disabled = true;
+        if (j === correct) { x.classList.add("right"); x.querySelector(".mk").textContent = "✓"; x.setAttribute("aria-label", x.textContent + " (đáp án đúng)"); }
+        else if (j === i) { x.classList.add("wrong"); x.querySelector(".mk").textContent = "✗"; }
+      });
+      onDone(ok);
+    });
+  }
+
+  /* ---------- NỘI DUNG ---------- */
+  var P1 = [
+    { t: "Học trực tiếp tại trường mang lại hiệu quả học tập tốt hơn học online.", say: "Đây là câu “tuyên bố”: nói ngay quan điểm của người viết, giống như mình giơ tay xin phát biểu vậy!" },
+    { t: "Khi ngồi trong lớp, học sinh dễ tập trung hơn vì không bị điện thoại, mạng xã hội hay các ứng dụng khác gây xao nhãng.", say: "Câu này trả lời câu hỏi “VÌ SAO?” cho câu chủ đề đó!" },
+    { t: "Một khảo sát năm 2022 cho thấy 68% học sinh tự nhận thấy mình mất tập trung nhiều hơn khi học online so với học trực tiếp.", note: true, say: "Đây là “chứng cứ”, như mình quay camera lại làm bằng chứng vậy đó!" },
+    { t: "Con số này cho thấy môi trường lớp học truyền thống giúp học sinh duy trì sự chú ý tốt hơn, từ đó tiếp thu bài giảng hiệu quả hơn.", say: "Câu này nối bằng chứng với lý lẽ: giải thích con số kia CHỨNG MINH điều gì." },
+    { t: "Vì vậy, dù học online tiện lợi, học trực tiếp vẫn là lựa chọn tốt hơn để đảm bảo chất lượng học tập.", say: "Và đây là cú chốt hạ, giống mình cúi chào khi kết thúc màn trình diễn!" }
+  ];
+  var P2 = [
+    "Học sinh nên được tham gia các chuyến cắm trại do trường tổ chức.",
+    "Những hoạt động ngoài trời như vậy giúp học sinh rèn tính tự lập và làm quen với bạn bè theo cách khác với lớp học thông thường.",
+    "Theo chia sẻ của nhiều phụ huynh có con từng tham gia trại hè, các em trở nên chủ động hơn trong sinh hoạt cá nhân sau chuyến đi.",
+    "Điều đó cho thấy một môi trường mới, tách khỏi sự hỗ trợ thường ngày của gia đình, chính là cơ hội để học sinh trưởng thành nhanh hơn.",
+    "Vì vậy, phụ huynh nên cân nhắc và ủng hộ con tham gia các chương trình cắm trại của trường."
+  ];
+  var P3 = [
+    "Học sinh nên được phép sử dụng mạng xã hội để phục vụ việc học.",
+    "Mạng xã hội, nếu biết chọn lọc nội dung, có thể giúp học sinh tiếp cận kiến thức nhanh và sinh động hơn.",
+    "Nhiều học sinh hiện nay tham gia các nhóm học tập trên Facebook hoặc theo dõi các kênh chia sẻ kiến thức trên TikTok, Instagram.",
+    "Điều này chứng minh mạng xã hội, nếu dùng đúng cách, có thể là công cụ học tập hiệu quả chứ không chỉ để giải trí.",
+    "Vì vậy, thay vì cấm hoàn toàn, nhà trường nên hướng dẫn học sinh sử dụng mạng xã hội một cách có ích."
+  ];
+  var HINT = {
+    1: "Câu chủ đề nêu QUAN ĐIỂM chính của cả đoạn, thường đứng đầu.",
+    2: "Lý lẽ trả lời câu hỏi “VÌ SAO?” cho câu chủ đề.",
+    3: "Bằng chứng là ví dụ, sự việc, số liệu hay lời kể có thật.",
+    4: "Phân tích giải thích bằng chứng ấy CHỨNG MINH điều gì.",
+    5: "Kết đoạn chốt lại ý, thường mở đầu bằng “Vì vậy…”."
+  };
+
+
+  function cover() {
+    var dol = NEM_SVG.replace(' id="nem"', '').replace('class="nem"', 'class="nem dolph"').replace('role="img" aria-label="Cá Heo, bạn học đồng hành"', 'aria-hidden="true"');
+    var L = [["var(--l1)", "M30 70c0-26 30-40 70-40s70 14 70 40z"], ["var(--l2)", "M24 74h152c4 0 4 10-2 10-10 0-14 6-24 6s-14-6-26-6-14 6-26 6-14-6-26-6-14 6-26 6-14-6-24-6c-6 0-6-10 2-10z"],
+             ["var(--l3)", "M30 92h140a8 8 0 0 1 0 22H30a8 8 0 0 1 0-22z"], ["var(--l4)", "M26 118h148l-8 10-12-6-14 8-14-8-16 8-14-8-16 8-14-8-14 8-12-6-10 4z"],
+             ["var(--l5)", "M30 130h140c0 18-30 24-70 24s-70-6-70-24z"]];
+    var burger = '<g transform="translate(14 64)">' + L.map(function (x) { return '<g class="burger-l"><path d="' + x[1] + '" fill="' + x[0] + '"/></g>'; }).join("") +
+      '<g class="burger-l"><circle cx="70" cy="48" r="2.4" fill="#fff6e0"/><circle cx="96" cy="42" r="2.4" fill="#fff6e0"/><circle cx="122" cy="50" r="2.4" fill="#fff6e0"/></g></g>';
+    var star = function (x, y, sc, c) { return '<path transform="translate(' + x + ' ' + y + ') scale(' + sc + ')" d="' + MS.STAR_PATH + '" fill="' + c + '"/>'; };
+    return '<section class="cover" aria-labelledby="cv-t">' +
+      '<div class="txt"><span class="kicker">Mở Sách · Nghị luận Vỡ Lòng · Khoá 1</span>' +
+      '<h1 id="cv-t">Bí mật của chiếc <span>bánh hamburger 5 lớp</span></h1>' +
+      '<p class="sub2">Cùng Cá Heo khám phá cấu trúc của một đoạn văn nghị luận: câu chủ đề, lý lẽ, bằng chứng, phân tích và kết đoạn.</p>' +
+      '<div class="pills"><span>Lớp 6–9</span><span>15–20 phút</span><span>6 bài học</span><span>5 Sao Biển</span></div></div>' +
+      '<div class="art"><svg viewBox="0 0 240 230" aria-hidden="true">' +
+      '<circle class="bub" cx="40" cy="40" r="7"/><circle class="bub" cx="58" cy="20" r="4"/><circle class="bub" cx="210" cy="70" r="5"/>' +
+      burger + star(178, 6, 1.5, "#ff8300") + star(6, 170, 1.1, "#ffb366") + star(196, 176, .9, "#ffd9b0") +
+      '<g transform="translate(116 4) scale(.8)">' + dol.replace('<svg', '<svg x="0" y="0" width="120" height="100"') + '</g>' +
+      '</svg></div>' +
+      '<svg class="waves" viewBox="0 0 1200 46" preserveAspectRatio="none" aria-hidden="true"><path class="back" d="M0 20c120 18 240 18 360 0s240-18 360 0 240 18 360 0 120-10 120-10v36H0z"/><path d="M0 30c150-16 300-16 450 0s300 16 450 0 300-14 300-14v30H0z"/></svg>' +
+      '</section>';
+  }
+
+  /* ---------- MÀN 0 ---------- */
+  function s0() {
+    // Màn chào luôn hỏi tên (máy dùng chung: bạn sau sửa lại tên là được). Phải có tên mới bắt đầu.
+    var saved = state.name;
+    stage.innerHTML = cover() +
+      talk("Chào bạn! Mình là Cá Heo, sẽ đi cùng bạn suốt khoá học này. Hôm nay tụi mình cùng khám phá bí mật của một đoạn văn nghị luận. Chỉ khoảng 15 phút thôi, dễ ợt! Mỗi lần bạn trả lời đúng ngay lần đầu, mình tặng bạn 1 Sao Biển. Cố gom đủ 5 sao nhé! Trước tiên, cho mình biết tên bạn nha.", true) +
+      '<div class="rules"><div><b>6 bài học</b>Mỗi bài vài phút: tìm hiểu, luyện tập rồi ôn tập.</div><div><b>5 Sao Biển</b>Đúng ngay lần đầu thì được sao.</div><div><b>Không bị trừ</b>Sai vẫn được học lại đáp án.</div></div>' +
+      '<form class="namefield" id="nf"><label class="sub" for="nm" style="flex-basis:100%">Tên của bạn</label>' +
+      '<input id="nm" placeholder="Ví dụ: Lan Anh" maxlength="30" autocomplete="off" required value="' + MS.esc(saved || "") + '">' +
+      '<button class="btn cta" id="next" type="submit"' + (saved ? "" : " disabled") + '>Bắt đầu cùng Cá Heo!</button></form>';
+    var nm = document.getElementById("nm"), go1 = document.getElementById("next");
+    nm.oninput = function () { go1.disabled = !nm.value.trim(); };
+    document.getElementById("nf").onsubmit = function (e) {
+      e.preventDefault(); var v = nm.value.trim();
+      if (!v) { say("Bạn gõ tên vào ô bên dưới giúp mình nha, để mình gọi tên bạn suốt khoá học!", "think"); nm.focus(); return; }
+      state.name = MS.setName(v); go(1);
+    };
+  }
+
+  /* ---------- MÀN 1 ---------- */
+  function s1() {
+    stage.innerHTML = head("Bài 1 · Khởi động", "Nghị luận là gì?") +
+      talk("Đố bạn nè! Trong 3 câu dưới đây, câu nào đang CỐ THUYẾT PHỤC người đọc tin theo một điều gì đó?") +
+      '<div class="panel"><div class="opts" id="o1"></div></div>' + nextBtn("Tiếp tục", false);
+    mcq(document.getElementById("o1"), [
+      "“Sáng nay lớp em có buổi học online đầu tiên, cô giáo bật màn hình chia sẻ và cả lớp cùng vào Zoom.”",
+      "“Màn hình laptop của em sáng lấp lánh, chữ trên đó nhảy múa như những chú kiến nhỏ.”",
+      "“Học trực tiếp tại trường mang lại hiệu quả học tập tốt hơn học online.”"
+    ], 2, function (ok) {
+      if (ok) { award(0); say("Đúng phóc! +1 Sao Biển. Câu A chỉ đang KỂ chuyện, câu B chỉ đang TẢ hình ảnh, còn câu C đang khẳng định một Ý KIẾN. Đó chính là văn nghị luận!", "happy"); }
+      else say("Gần đúng rồi! Thử nghĩ xem: câu bạn chọn đang kể, đang tả, hay đang nêu ý kiến? Đáp án là câu C nha. Câu A KỂ chuyện, câu B TẢ hình ảnh, còn câu C nêu Ý KIẾN để thuyết phục. Lần sau bạn sẽ bắt được ngay!", "think");
+      enableNext();
+    });
+    bindNext(2);
+  }
+
+  /* ---------- MÀN 2 ---------- */
+  function s2() {
+    var seen = {};
+    stage.innerHTML = head("Bài 2 · Khám phá", "Bánh hamburger 5 lớp") +
+      talk("Giờ mình dẫn bạn xem “phần thân” của một đoạn văn nghị luận. Nó có 5 phần, xếp như một cái bánh hamburger vậy đó! Chạm vào từng lớp bánh để mình giải thích nhé.") +
+      '<p class="q">Đề tài: Học trực tiếp hay học online tốt hơn?</p><div class="parts" id="parts">' +
+      LABELS.map(function (L, i) {
+        return '<div class="part" id="pt' + i + '"><button type="button" aria-expanded="false" aria-controls="pm' + i + '" data-i="' + i + '">' + layer(L.cls) +
+          '<span class="nm">' + (i + 1) + ". " + L.name + "<small>" + L.food + "</small></span><span class=\"tog\">Mở</span></button>" +
+          '<div class="more" id="pm' + i + '" hidden><p class="sent">' + P1[i].t + "</p>" + (P1[i].note ? '<p class="note">Số liệu chỉ để minh hoạ.</p>' : "") + '<p class="say">Cá Heo: ' + P1[i].say + "</p></div></div>";
+      }).join("") + '</div><p class="note" id="count">Đã mở 0/5 lớp bánh.</p>' + nextBtn("Tiếp tục thử thách!", false);
+    document.getElementById("parts").addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-i]"); if (!b) return;
+      var i = +b.getAttribute("data-i"), m = document.getElementById("pm" + i), open = m.hidden;
+      m.hidden = !open; b.setAttribute("aria-expanded", String(open)); b.querySelector(".tog").textContent = open ? "Đóng" : "Mở";
+      if (open) { seen[i] = true; document.getElementById("pt" + i).classList.add("seen"); say(P1[i].say, "happy"); }
+      var n = Object.keys(seen).length;
+      document.getElementById("count").textContent = "Đã mở " + n + "/5 lớp bánh.";
+      if (n === 5) { enableNext(); say("Bạn xem đủ 5 lớp rồi! Nắp bánh, xà lách, thịt, phô mai, đế bánh: câu chủ đề, lý lẽ, bằng chứng, phân tích, kết đoạn. Sẵn sàng thử thách chưa?", "happy"); }
+    });
+    bindNext(3);
+  }
+
+  /* ---------- MÀN 3 ---------- */
+  function s3() {
+    var order = shuffleNotSame([0, 1, 2, 3, 4]);     // vị trí hiển thị -> chỉ số câu gốc
+    var placed = [null, null, null, null, null];      // theo vị trí hiển thị: id nhãn
+    var picked = null, checks = 0, locked = [false, false, false, false, false];
+
+    stage.innerHTML = head("Bài 3 · Luyện tập", "Gắn đúng nhãn") +
+      talk("Tới lượt bạn thử sức rồi! Đoạn văn về chuyện “có nên đi cắm trại không” đã bị xáo trộn thứ tự câu. Chạm một nhãn, rồi chạm vào câu hợp với nhãn đó nha!") +
+      '<div class="panel"><div class="sub">Khay nhãn</div><div class="tray" id="tray"></div><div class="sub">Các câu</div><div class="slots" id="slots"></div></div>' +
+      '<div class="actions"><button class="btn ghost" type="button" id="reveal" hidden>Xem đáp án</button><span class="grow"></span><button class="btn" type="button" id="check" disabled>Kiểm tra</button><button class="btn cta" id="next" type="button" hidden>Tiếp tục</button></div>';
+
+    function draw() {
+      var used = placed.filter(Boolean);
+      var free = LABELS.filter(function (L) { return used.indexOf(L.id) < 0; });
+      document.getElementById("tray").innerHTML = free.length ? free.map(function (L) {
+        return '<button class="tag" type="button" data-id="' + L.id + '" aria-pressed="' + (picked === L.id) + '">' + layer(L.cls) + L.name + "</button>";
+      }).join("") : '<span class="empty">Đã dùng hết nhãn. Bấm “Kiểm tra” nhé!</span>';
+      document.getElementById("slots").innerHTML = order.map(function (src, pos) {
+        var L = placed[pos] ? LABELS[placed[pos] - 1] : null;
+        var cls = locked[pos] ? " right" : (draw.wrong && draw.wrong[pos] ? " wrong" : "");
+        return '<div class="slot' + cls + '"><p>' + P2[src] + (src === 2 ? ' <span class="note">(minh hoạ)</span>' : "") + "</p>" +
+          '<button type="button" class="drop' + (L ? " filled" : "") + '" data-pos="' + pos + '"' + (locked[pos] ? " disabled" : "") + ">" +
+          (L ? layer(L.cls) + L.name + (locked[pos] ? " ✓" : "") : "+ Gắn nhãn") + "</button>" +
+          (draw.wrong && draw.wrong[pos] && !locked[pos] ? '<span class="why">✗ ' + HINT[src + 1] + "</span>" : "") + "</div>";
+      }).join("");
+      document.getElementById("check").disabled = placed.some(function (x) { return !x; });
+    }
+    stage.addEventListener("click", function (e) {
+      var t = e.target.closest(".tag");
+      if (t) { var id = +t.getAttribute("data-id"); picked = picked === id ? null : id; draw(); return; }
+      var d = e.target.closest(".drop");
+      if (d && !d.disabled) {
+        var pos = +d.getAttribute("data-pos");
+        if (picked) { placed[pos] = picked; picked = null; }
+        else if (placed[pos]) { placed[pos] = null; }
+        else { MS.toast("Chọn một nhãn trong khay trước nhé!"); }
+        if (draw.wrong) draw.wrong[pos] = false;
+        draw();
+      }
+    });
+    document.getElementById("check").onclick = function () {
+      checks++;
+      var wrong = order.map(function (src, pos) { return placed[pos] !== src + 1; });
+      var nWrong = wrong.filter(Boolean).length;
+      order.forEach(function (src, pos) { if (!wrong[pos]) locked[pos] = true; });
+      wrong.forEach(function (w, pos) { if (w) placed[pos] = null; });
+      draw.wrong = wrong; draw();
+      if (nWrong === 0) {
+        if (checks === 1) { award(1); say("Xuất sắc! +1 Sao Biển. Bạn gắn nhãn chuẩn không cần chỉnh luôn!", "happy"); }
+        else say("Giờ thì đúng hết rồi! Lần này chưa có sao, nhưng bạn đã nắm được bí quyết rồi đó.", "happy");
+        document.getElementById("check").hidden = true; document.getElementById("reveal").hidden = true;
+        var nx = document.getElementById("next"); nx.hidden = false; nx.onclick = function () { go(4); }; nx.focus();
+      } else {
+        say("Khoan đã! Còn " + nWrong + " câu chưa đúng nhãn. Câu này đang NÊU ý mới, hay đang GIẢI THÍCH cho một câu khác? Đọc gợi ý màu đỏ rồi thử lại nhé!", "think");
+        if (checks >= 2) document.getElementById("reveal").hidden = false;
+      }
+    };
+    document.getElementById("reveal").onclick = function () {
+      order.forEach(function (src, pos) { placed[pos] = src + 1; });
+      draw.wrong = null; draw();
+      say("Đây là đáp án nè. Bạn đọc lại từng câu xem vì sao nó mang nhãn đó, rồi bấm Kiểm tra để đi tiếp.", "think");
+    };
+    draw();
+  }
+
+  /* ---------- MÀN 4 ---------- */
+  function s4() {
+    var pool = shuffleNotSame([0, 1, 2, 3, 4]);
+    var stack = [], checks = 0, result = null;
+    stage.innerHTML = head("Bài 4 · Luyện tập", "Xếp đúng thứ tự") +
+      talk("Thử thách khó hơn nè! 5 câu dưới đây thuộc cùng một đoạn văn về mạng xã hội, nhưng mình lỡ tay làm xáo trộn rồi. Chạm lần lượt từng câu để xếp lại bánh hamburger từ nắp xuống đế giúp mình với!") +
+      '<div class="panel"><div class="sub">Bánh của bạn</div><div class="burger" id="burger"></div><div class="sub" id="pool-lbl">Các câu bị xáo trộn</div><div class="pool" id="pool"></div></div>' +
+      '<div class="actions"><button class="btn ghost" type="button" id="reveal" hidden>Xem đáp án</button><span class="grow"></span><button class="btn" type="button" id="check" disabled>Kiểm tra</button><button class="btn cta" id="next" type="button" hidden>Tiếp tục</button></div>';
+    function draw() {
+      document.getElementById("burger").innerHTML = LABELS.map(function (L, i) {
+        var s = stack[i];
+        var cls = s == null ? "" : " filled" + (result ? (result[i] ? " right" : " wrong") : "");
+        return '<div class="bslot' + cls + '">' + '<div style="display:grid;gap:4px;justify-items:start">' + layer(L.cls) + '<span class="nm">' + (i + 1) + "</span></div>" +
+          (s == null ? '<span class="nm">' + L.food + " · " + L.name + "</span>" : '<button type="button" data-k="' + i + '" aria-label="Bỏ câu này ra: ' + P3[s] + '">' + P3[s] + "</button>") + "</div>";
+      }).join("");
+      var rest = pool.filter(function (x) { return stack.indexOf(x) < 0; });
+      document.getElementById("pool").innerHTML = rest.map(function (x) { return '<button class="card" type="button" data-x="' + x + '">' + P3[x] + "</button>"; }).join("");
+      document.getElementById("pool-lbl").hidden = !rest.length;
+      document.getElementById("check").disabled = stack.length < 5;
+    }
+    stage.addEventListener("click", function (e) {
+      var c = e.target.closest(".card");
+      if (c && stack.length < 5) { stack.push(+c.getAttribute("data-x")); result = null; draw(); return; }
+      var k = e.target.closest("[data-k]");
+      if (k) { stack.splice(+k.getAttribute("data-k"), 1); result = null; draw(); }
+    });
+    document.getElementById("check").onclick = function () {
+      checks++;
+      result = stack.map(function (x, i) { return x === i; });
+      draw();
+      if (result.every(Boolean)) {
+        if (checks === 1) { award(2); say("Chuẩn không cần chỉnh! +1 Sao Biển. Bạn là bậc thầy sắp xếp rồi đó!", "happy"); }
+        else say("Bánh đã đúng thứ tự rồi! Lần này chưa có sao, nhưng bạn nắm được logic rồi đó.", "happy");
+        document.getElementById("check").hidden = true; document.getElementById("reveal").hidden = true;
+        stage.querySelectorAll("[data-k]").forEach(function (b) { b.disabled = true; b.style.pointerEvents = "none"; });
+        var nx = document.getElementById("next"); nx.hidden = false; nx.onclick = function () { go(5); }; nx.focus();
+      } else {
+        say("Nhớ nè: Lý lẽ giải thích cho Câu chủ đề, Bằng chứng chứng minh cho Lý lẽ, Phân tích nối hai câu đó lại, và Kết đoạn luôn đứng CUỐI CÙNG. Chạm vào câu màu đỏ để bỏ ra rồi xếp lại nhé!", "think");
+        if (checks >= 2) document.getElementById("reveal").hidden = false;
+      }
+    };
+    document.getElementById("reveal").onclick = function () { stack = [0, 1, 2, 3, 4]; result = null; draw(); say("Đây là thứ tự đúng nè. Đọc từ nắp xuống đế xem các câu nối ý với nhau thế nào, rồi bấm Kiểm tra.", "think"); };
+    draw();
+  }
+
+  /* ---------- MÀN 5 ---------- */
+  function s5() {
+    var res = { a: null, b: null, c: null };
+    stage.innerHTML = head("Bài 5 · Ôn tập tổng hợp", "Ba câu hỏi cuối") +
+      talk("Ba câu cuối cùng thôi! Câu (a) đáng 1 sao. Câu (b) và (c) đúng cả hai thì thêm 1 sao nữa. Vượt qua là bạn ẵm trọn 5 sao luôn đó!") +
+      '<section class="round" id="ra"><div class="num"><span class="sub">Câu (a) · 1 sao</span></div>' +
+      '<p class="q">Đoạn văn dưới đây thiếu mất 1 trong 5 phần. Đó là phần nào?</p>' +
+      '<p class="para">Mỗi học sinh nên dành ít nhất 15 phút đọc sách mỗi ngày. Đọc sách đều đặn giúp các em mở rộng vốn từ và hiểu biết về thế giới xung quanh. Bạn Minh lớp 6 kể rằng sau một học kì đọc truyện mỗi tối, bài văn của bạn được cô khen dùng từ phong phú hơn hẳn. Câu chuyện của Minh cho thấy thói quen đọc nhỏ mỗi ngày có thể tạo ra thay đổi lớn trong cách diễn đạt.</p>' +
+      '<p class="note">Câu chuyện về bạn Minh là ví dụ minh hoạ.</p><div class="opts" id="oa"></div></section>' +
+      '<section class="round" id="rb" hidden><div class="num"><span class="sub">Câu (b)</span></div>' +
+      '<p class="q">Đoạn nào có đủ cấu trúc 5 phần?</p><div class="pair">' +
+      '<p class="para"><b>Đoạn 1.</b> Học sinh nên tự tay dọn dẹp lớp học của mình. Việc này giúp các em có trách nhiệm hơn với không gian chung. Dọn dẹp cũng rất vui. Vì vậy, nhà trường nên giao việc trực nhật cho học sinh.</p>' +
+      '<p class="para"><b>Đoạn 2.</b> Học sinh nên tự tay dọn dẹp lớp học của mình. Việc này giúp các em có trách nhiệm hơn với không gian chung. Ở Nhật Bản, học sinh thường cùng nhau lau dọn lớp học và hành lang mỗi ngày. Điều đó cho thấy khi tự tay giữ gìn, các em sẽ biết quý trọng nơi mình học và ít xả rác hơn. Vì vậy, nhà trường nên giao việc trực nhật cho học sinh.</p>' +
+      '</div><div class="opts" id="ob"></div></section>' +
+      '<section class="round" id="rc" hidden><div class="num"><span class="sub">Câu (c)</span></div>' +
+      '<p class="q">Phần nào có nhiệm vụ CHỨNG MINH cho lý lẽ bằng số liệu, ví dụ thực tế hay một câu nói?</p><div class="opts" id="oc"></div></section>' +
+      nextBtn("Xem kết quả", false);
+
+    mcq(document.getElementById("oa"), ["Câu chủ đề", "Bằng chứng", "Kết đoạn", "Lý lẽ"], 2, function (ok) {
+      res.a = ok;
+      if (ok) { award(3); say("Đúng! Đoạn này dừng lại mà chưa chốt ý: thiếu mất câu Kết đoạn. +1 Sao Biển!", "happy"); }
+      else say("Chưa đúng rồi. Đoạn này có đủ câu chủ đề, lý lẽ, bằng chứng (chuyện bạn Minh) và phân tích, nhưng chưa có câu chốt ý. Thiếu Kết đoạn đó!", "think");
+      var b = document.getElementById("rb"); b.hidden = false; b.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    mcq(document.getElementById("ob"), ["Đoạn 1", "Đoạn 2"], 1, function (ok) {
+      res.b = ok;
+      say(ok ? "Chính xác! Đoạn 1 có ý kiến và lý lẽ nhưng thiếu bằng chứng và phân tích, nên chưa đủ sức thuyết phục." : "Nhìn kỹ lại nhé: Đoạn 1 nhảy từ lý lẽ sang kết đoạn luôn, không có bằng chứng và phân tích. Đoạn 2 mới đủ 5 phần.", ok ? "happy" : "think");
+      var c = document.getElementById("rc"); c.hidden = false; c.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    mcq(document.getElementById("oc"), ["Câu chủ đề", "Lý lẽ", "Bằng chứng", "Kết đoạn"], 2, function (ok) {
+      res.c = ok;
+      if (res.b && res.c) { award(4); say("Ngon lành! Câu (b) và (c) đều đúng: +1 Sao Biển. Bạn nắm chắc 5 phần luôn rồi!", "happy"); }
+      else if (ok) say("Đúng rồi, là Bằng chứng! Nhưng vì câu (b) chưa đúng nên lần này chưa có sao. Không sao hết!", "happy");
+      else say("Đáp án là Bằng chứng nha: phần đưa ra số liệu, ví dụ thực tế hay câu nói để chứng minh cho lý lẽ.", "think");
+      enableNext();
+    });
+    bindNext(6);
+  }
+
+  /* ---------- MÀN 6 ---------- */
+  function s6() {
+    var n = starCount();
+    var p = MS.saveProgress(COURSE_ID, n);
+    var msg = n === 5 ? "Bạn giỏi quá trời luôn! Bạn là nhà nghị luận nhí chính hiệu rồi đó!"
+      : n >= 3 ? "Khá lắm! Còn vài chỗ nữa là bạn nắm trọn cấu trúc 5 phần rồi!"
+      : "Không sao hết, mình học lại phần nào cần nhé. Mình luôn ở đây chờ bạn quay lại!";
+    var badge = n === 5 ? "Nhà nghị luận nhí" : n >= 3 ? "Thợ làm bánh chăm chỉ" : "Bạn nhỏ tò mò";
+    stage.innerHTML = named(head("Bài 6 · Tổng kết", "Bạn làm được rồi!") +
+      talk((state.name ? MS.esc(state.name) + " ơi, xong" : "Xong") + " rồi! " + msg) +
+      '<div class="award"><div class="big">' + n + "/5</div>" + MS.starsHTML(n, MAX) + '<span class="badge">Huy hiệu: ' + badge + "</span>" +
+      (p && p.runs > 1 ? '<span class="note">Kỷ lục của bạn: ' + p.best + "/5 sao</span>" : "") + "</div>" +
+      '<div class="recap"><div class="sub">Hôm nay bạn đã học</div><ul>' +
+      LABELS.map(function (L) { return "<li>" + layer(L.cls) + "<span><b>" + L.name + "</b> · " + HINT[L.id] + "</span></li>"; }).join("") + "</ul></div>" +
+      '<div class="next"><span class="sub">Khoá 2 · sắp ra mắt</span><p>Hôm nay bạn đã học cách NHÌN RA 5 phần của đoạn văn nghị luận. Ở Khoá 2, tụi mình sẽ học cách TỰ VIẾT hai phần dễ bắt tay vào làm nhất: <b>Bằng chứng</b> và <b>Phân tích</b>. Hẹn gặp lại bạn nhé!</p></div>' +
+      '<div class="actions"><button class="btn ghost" type="button" id="again">Học lại từ đầu</button><a class="btn ghost" href="../vuon-doc-sach.html">Ra vườn đọc đoạn mẫu</a><span class="grow"></span><a class="btn cta" href="../khong-gian-hoc.html">Về Không gian học</a></div>');
+    document.getElementById("again").onclick = function () { state.stars = [false, false, false, false, false]; state.reached = 0; renderStars(); go(0); };
+    say(document.getElementById("bubble-text").innerHTML, n >= 3 ? "happy" : "think");
+  }
+
+  var SCREENS = [s0, s1, s2, s3, s4, s5, s6];
+  renderStars(); go(0);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Không gian học · Mở Sách</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/ms.css">
+<style>
+  /* Phòng học: các kệ (chuỗi lớp), mỗi kệ là một dãy khoá học */
+  .head .wrap { padding-block: 28px 8px; display: grid; gap: 8px; }
+  .head h1 { font-size: clamp(1.9rem, 4.5vw, 2.6rem); color: var(--teal-ink); }
+  .head p { color: var(--ink-2); max-width: 60ch; }
+  main .wrap { padding-block: 18px 56px; display: grid; gap: 34px; }
+
+  .shelf h2 { font-size: 1.45rem; }
+  .shelf .prog { font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--orange-ink); }
+  .shelf-top { display: grid; gap: 2px; margin-bottom: 14px; }
+  .row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: stretch; position: relative; padding-bottom: 18px; }
+  .row::after { content: ""; position: absolute; left: -6px; right: -6px; bottom: 0; height: 10px; border-radius: 4px; background: var(--teal-ink); opacity: .85; }
+  .row.single { grid-template-columns: minmax(0, 360px); }
+
+  .course { display: grid; grid-template-rows: auto 1fr auto; gap: 10px; background: var(--paper); border: 2px solid var(--line); border-radius: var(--r-md); padding: 18px; position: relative; }
+  .course.open { border-color: var(--teal); box-shadow: var(--shadow); }
+  .course.soon { background: var(--paper-2); }
+  .course .spine { position: absolute; left: 0; top: 14px; bottom: 14px; width: 6px; border-radius: 0 4px 4px 0; background: var(--orange); }
+  .course.soon .spine { background: var(--star-off); }
+  .course .code { font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+  .course h3 { font-size: 1.3rem; margin-top: 2px; }
+  .course p { color: var(--ink-2); font-size: .95rem; }
+  .facts { display: flex; gap: 6px; flex-wrap: wrap; }
+  .course .end { display: grid; gap: 10px; }
+  .course .best { font-size: .85rem; color: var(--ink-2); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .course .btn { width: 100%; }
+
+  @media (max-width: 820px) { .row { grid-template-columns: minmax(0, 1fr); } .row.single { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <a class="brand" href="index.html"><img src="assets/logo-mark.png" alt=""><span><b>Mở Sách</b><small>Không gian trực tuyến</small></span></a>
+    <span class="spacer"></span>
+    <span class="crumb" id="hello"></span>
+  </div>
+</div>
+
+<header class="head">
+  <div class="wrap">
+    <h1>Không gian học</h1>
+    <p>Mỗi kệ là một chuỗi lớp của Mở Sách. Mỗi khoá tự học khoảng 15–20 phút, có Nêm đi cùng và Sao Biển để sưu tầm.</p>
+  </div>
+</header>
+
+<main><div class="wrap" id="shelves"></div></main>
+
+<script src="assets/ms.js"></script>
+<script>
+(function () {
+  var name = MS.getName();
+  document.getElementById("hello").textContent = name ? "Chào " + name + " · " + MS.totalStars() + " sao biển" : "";
+
+  var root = document.getElementById("shelves");
+  root.innerHTML = MS.SERIES.map(function (s) {
+    var list = MS.COURSES.filter(function (c) { return c.series === s.id; });
+    return '<section class="shelf" aria-labelledby="sh-' + s.id + '"><div class="shelf-top"><span class="prog">' + MS.esc(s.program) + '</span><h2 id="sh-' + s.id + '">' + MS.esc(s.name) + '</h2></div>' +
+      '<div class="row' + (list.length === 1 ? " single" : "") + '">' + list.map(card).join("") + "</div></section>";
+  }).join("");
+
+  function card(c) {
+    var open = c.status === "open";
+    var p = MS.getProgress(c.id);
+    var best = p ? '<div class="best">' + MS.starsHTML(p.best, c.maxStars) + "<span>Tốt nhất: " + p.best + "/" + c.maxStars + "</span></div>" : "";
+    return '<article class="course ' + (open ? "open" : "soon") + '"><span class="spine" aria-hidden="true"></span>' +
+      '<div><div class="code"><span>' + MS.esc(c.code) + "</span>" + (open ? '<span class="chip open">Đang mở</span>' : '<span class="chip soon">Sắp mở</span>') + "</div>" +
+      "<h3>" + MS.esc(c.title) + "</h3></div>" +
+      "<div style=\"display:grid;gap:10px;align-content:start\"><p>" + MS.esc(c.blurb) + '</p><div class="facts"><span class="chip teal">' + MS.esc(c.grade) + '</span><span class="chip orange">' + MS.esc(c.minutes) + "</span></div></div>" +
+      '<div class="end">' + best + (open ? '<a class="btn cta" href="' + c.url + '">' + (p ? "Học lại" : "Bắt đầu học") + "</a>" : '<button class="btn ghost" type="button" disabled>Sắp ra mắt</button>') + "</div></article>";
+  }
+})();
+</script>
+</body>
+</html>

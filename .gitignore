@@ -1,0 +1,4 @@
+.DS_Store
+# gói zip để thả lên Netlify, tạo lại khi cần
+Mo-Sach-web.zip
+.claude/settings.local.json

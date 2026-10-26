@@ -1,0 +1,1641 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Sảnh 3D Mở Sách</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lora:wght@500;600&display=swap">
+<link rel="stylesheet" href="assets/ms.css">
+<link rel="stylesheet" href="assets/sach/reader.css">
+<style>
+  /* Sảnh 3D: canvas toàn màn hình + HUD nổi phía trên */
+  html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+  body { background: #dff3f2; touch-action: none; -webkit-user-select: none; user-select: none; }
+  body::before { display: none; }
+  #c { position: fixed; inset: 0; width: 100%; height: 100%; display: block; outline: none; }
+  body.overview #c { cursor: pointer; }
+
+  .hud { position: fixed; z-index: 10; pointer-events: none; }
+  .hud > * { pointer-events: auto; }
+  .hud-top { top: calc(10px + env(safe-area-inset-top, 0px)); left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 14px 6px 6px; border-radius: 999px; background: color-mix(in srgb, var(--paper) 92%, transparent); box-shadow: var(--shadow); color: var(--ink); font-weight: 600; }
+  .pill .av { width: 32px; height: 32px; border-radius: 50%; flex: none; background: var(--orange); overflow: hidden; display: grid; place-items: center; }
+  .pill .av img { width: 100%; height: 100%; object-fit: cover; }
+  .pill .nm { max-width: 11ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pill .st { display: inline-flex; align-items: center; gap: 3px; color: var(--orange-ink); font-weight: 700; }
+  .pill .st svg { width: 18px; height: 18px; }
+  .pill .st path { fill: var(--star); }
+  .room-chip { padding: 6px 14px; background: var(--teal-ink); color: #fff; font-family: var(--font-display); font-size: 1.05rem; }
+  .guide-chip { padding: 4px 6px 4px 14px; background: var(--orange-soft); color: var(--orange-ink); font-size: .88rem; }
+  .guide-chip > span { max-width: 26ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .guide-chip button { appearance: none; border: 0; width: 34px; height: 34px; border-radius: 50%; background: var(--paper); color: var(--ink); cursor: pointer; font-size: 1.1rem; }
+  .hud-top .grow { flex: 1; }
+  .hbtn { appearance: none; border: 0; cursor: pointer; min-height: 44px; min-width: 44px; padding: 6px 14px; border-radius: 999px; background: color-mix(in srgb, var(--paper) 92%, transparent); color: var(--teal-ink); font: 600 .92rem/1.2 var(--font-body); box-shadow: var(--shadow); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .hbtn.main { background: var(--cta-bg); color: var(--cta-fg); }
+  .hbtn[aria-pressed="true"] { background: var(--teal-ink); color: #fff; }
+  .hbtn svg { width: 18px; height: 18px; flex: none; }
+
+  /* thanh chọn trong phòng: mùa (vườn), lễ hội (phòng lễ hội) */
+  .roombar { position: fixed; z-index: 10; left: 50%; transform: translateX(-50%); top: calc(var(--hud-b, 64px) + 8px); display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: center; padding: 6px; border-radius: 999px; background: color-mix(in srgb, var(--paper) 92%, transparent); box-shadow: var(--shadow); max-width: calc(100% - 24px); }
+  .roombar b { font: 700 .82rem var(--font-body); color: var(--ink-2); padding: 0 6px 0 8px; }
+  .roombar button { appearance: none; border: 2px solid var(--line); background: var(--paper); color: var(--ink); min-height: 40px; padding: 4px 12px; border-radius: 999px; font: 600 .9rem var(--font-body); cursor: pointer; }
+  .roombar button[aria-pressed="true"] { background: var(--cta-bg); border-color: var(--cta-bg); color: var(--cta-fg); }
+  .roombar .sep { width: 1px; align-self: stretch; background: var(--line); margin: 4px 2px; }
+
+  .joy { position: fixed; z-index: 10; left: calc(22px + env(safe-area-inset-left, 0px)); bottom: calc(26px + env(safe-area-inset-bottom, 0px)); width: 128px; height: 128px; border-radius: 50%; background: color-mix(in srgb, var(--paper) 55%, transparent); box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--teal) 70%, transparent); touch-action: none; display: grid; place-items: center; }
+  .joy-knob { width: 56px; height: 56px; border-radius: 50%; background: var(--teal); box-shadow: 0 4px 10px rgba(0,0,0,.2); pointer-events: none; }
+
+  .act { position: fixed; z-index: 11; left: 50%; transform: translateX(-50%); bottom: calc(28px + env(safe-area-inset-bottom, 0px)); display: grid; justify-items: center; gap: 6px; max-width: calc(100% - 32px); }
+  .act button { appearance: none; border: 0; cursor: pointer; min-height: 56px; padding: 10px 26px; border-radius: 999px; background: var(--cta-bg); color: var(--cta-fg); font: 700 1.15rem/1.1 var(--font-display); box-shadow: 0 6px 18px rgba(168,80,0,.35); }
+  .act button[aria-disabled="true"] { background: var(--paper-3); color: var(--ink-2); box-shadow: var(--shadow); cursor: default; }
+  .act .sub { background: color-mix(in srgb, var(--paper) 92%, transparent); color: var(--ink); padding: 4px 12px; border-radius: 999px; font-size: .85rem; font-weight: 600; text-align: center; box-shadow: var(--shadow); max-width: 36ch; }
+  .act kbd { font: 600 .75rem var(--font-body); background: rgba(0,0,0,.12); padding: 1px 6px; border-radius: 6px; margin-left: 6px; }
+  body.touch .act { left: auto; right: max(16px, env(safe-area-inset-right, 0px)); transform: none; justify-items: end; }
+  body.touch .act kbd { display: none; }
+  body.touch .act .sub { max-width: 22ch; }
+
+  .hint { position: fixed; z-index: 9; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); margin: 0; font-size: .82rem; color: var(--ink-2); background: color-mix(in srgb, var(--paper) 85%, transparent); padding: 4px 12px; border-radius: 999px; transition: opacity .6s; }
+  .toast { bottom: auto; top: calc(var(--hud-b, 64px) + 64px); }
+
+  /* bảng chung */
+  .layer { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; background: rgba(15, 35, 36, .45); }
+  .panel { width: min(560px, 100%); max-height: calc(100dvh - 32px); overflow: auto; background: var(--paper); color: var(--ink); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 20px; display: grid; gap: 14px; align-content: start; }
+  .panel h2 { font-size: 1.5rem; color: var(--teal-ink); }
+  .panel h3 { font-size: 1rem; color: var(--ink-2); font-family: var(--font-body); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+  .panel .head { display: flex; align-items: center; gap: 10px; }
+  .panel .head h2 { flex: 1; }
+  .panel p.note { color: var(--ink-2); font-size: .92rem; }
+  .xbtn { appearance: none; border: 0; width: 44px; height: 44px; border-radius: 50%; background: var(--paper-3); color: var(--ink); font-size: 1.4rem; cursor: pointer; flex: none; }
+  .list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .list button { width: 100%; appearance: none; border: 2px solid var(--line); background: var(--paper-2); color: var(--ink); border-radius: var(--r-md); padding: 10px 14px; min-height: 52px; display: flex; align-items: center; gap: 10px; text-align: left; font: 600 1rem var(--font-body); cursor: pointer; }
+  .list button:hover { border-color: var(--teal); }
+  .list button .t { flex: 1; min-width: 0; }
+  .list button small { display: block; font-weight: 500; color: var(--ink-2); font-size: .82rem; }
+  .list .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--teal); flex: none; }
+  .list .dot.o { background: var(--orange); }
+  .list .dot.s { background: var(--star-off); }
+  .list .dot.g { background: #ffc83d; }
+  .list button[aria-pressed="true"] { border-color: var(--orange); background: var(--orange-soft); }
+  .list button[aria-disabled="true"] { opacity: .6; }
+
+  /* tủ đồ: bảng bên cạnh để vẫn thấy nhân vật */
+  .layer.side { background: transparent; place-items: end; pointer-events: none; }
+  .layer.side .panel { pointer-events: auto; width: min(380px, 100%); max-height: calc(100dvh - 32px); }
+  @media (max-width: 600px) { .layer.side .panel { max-height: 48dvh; } }
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .grid2 button { min-height: 60px; }
+
+  /* màn bắt đầu */
+  .start .brandrow { display: flex; align-items: center; gap: 12px; }
+  .start .brandrow img { width: 48px; }
+  .start .brandrow p { color: var(--ink-2); font-size: .95rem; }
+  .start label.f { display: grid; gap: 6px; font-weight: 600; }
+  .start input { min-height: 50px; padding: 10px 16px; border-radius: 999px; border: 2px solid var(--line); background: var(--paper-2); color: var(--ink); font: 500 1.05rem var(--font-body); width: 100%; }
+  .start input:focus { border-color: var(--teal); outline: none; }
+  .chars { display: grid; gap: 6px; }
+  .chars .cg { font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--teal-ink); margin-top: 4px; }
+  .chars-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .chars button { appearance: none; border: 3px solid var(--line); background: var(--paper-2); border-radius: var(--r-md); padding: 6px 4px 8px; cursor: pointer; display: grid; justify-items: center; gap: 2px; color: var(--ink); font: 700 .9rem/1.15 var(--font-display); text-align: center; }
+  .chars button img, .chars button .sw { width: 100%; max-width: 110px; aspect-ratio: 1; border-radius: 12px; }
+  .chars button[aria-checked="true"] { border-color: var(--orange); background: var(--orange-soft); }
+  .start .err { color: var(--bad); font-size: .9rem; min-height: 1.2em; }
+  .start .alt { font-size: .9rem; color: var(--ink-2); }
+
+  /* bảng vàng, ảnh kỷ niệm, hướng dẫn */
+  .medal { width: 40px; height: 40px; border-radius: 50%; flex: none; display: grid; place-items: center; font: 800 1rem var(--font-display); background: var(--paper-3); color: var(--ink-2); }
+  .medal.gold { background: #ffc83d; color: #1f1406; }
+  .medal.done { background: var(--teal); color: #fff; }
+  .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .photos figure { margin: 0; display: grid; gap: 6px; }
+  .photos img, .photos .ph { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 12px; background: var(--paper-3); border: 4px solid var(--orange); }
+  .photos .ph { display: grid; place-items: center; color: var(--ink-2); font-size: .85rem; }
+  .photos figcaption { font-size: .88rem; color: var(--ink-2); text-align: center; }
+  .keys { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 14px; margin: 0; }
+  .keys dt { font-weight: 700; color: var(--teal-ink); }
+  .keys dd { margin: 0; color: var(--ink); }
+
+  /* phòng khám phá lễ hội */
+  .panel.fest { --fest: #4a2f73; --fest-ink: #ff9a33; padding: 0 0 20px; gap: 12px; }
+  .panel.fest > :not(.fest-head) { margin-inline: 20px; }
+  .fest-head { display: flex; gap: 10px; align-items: flex-start; background: var(--fest); color: #fff; padding: 16px 16px 14px 20px; border-radius: var(--r-lg) var(--r-lg) 0 0; }
+  .fest-head > div { flex: 1; min-width: 0; }
+  .fest-head h2 { color: #fff; font-size: 1.6rem; }
+  .fest-head .kicker { color: var(--fest-ink); font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .panel .kicker { font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+  .led-body { display: grid; gap: 8px; }
+  .led-body h3 { text-transform: none; letter-spacing: 0; font-family: var(--font-display); font-size: 1.25rem; color: var(--ink); }
+  .led-body p { font-size: 1.05rem; line-height: 1.6; max-width: 60ch; }
+  .fact { background: var(--orange-soft); color: var(--ink); border-radius: var(--r-md); padding: 10px 14px; }
+  .fact b { color: var(--orange-ink); }
+  .words { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .words b { font-size: .85rem; color: var(--ink-2); margin-right: 4px; }
+  .word { background: var(--teal-soft); color: var(--teal-ink); border-radius: 999px; padding: 4px 12px; font-size: .9rem; }
+  .word i { font-style: normal; font-weight: 700; }
+  .panel .nav { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .panel .nav span { color: var(--ink-2); font-size: .9rem; }
+  #quiz-body { display: grid; gap: 12px; }
+  .fish-pond { position: relative; height: 300px; border-radius: var(--r-md); overflow: hidden; background: linear-gradient(#7fd3e0, #3fa9bd); }
+  .fish-pond::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 20% 30%, rgba(255,255,255,.25) 0 6%, transparent 7%), radial-gradient(circle at 70% 70%, rgba(255,255,255,.2) 0 5%, transparent 6%); }
+  .fish-btn { position: absolute; left: 0; appearance: none; border: 0; cursor: pointer; min-width: 74px; height: 40px; padding: 0 16px 0 12px; border-radius: 50% 40% 40% 50% / 50%; background: var(--fc, #ff8300); color: #1f1406; font: 800 1.2rem var(--font-display); animation: swim var(--dur, 9s) linear infinite alternate; animation-delay: var(--delay, 0s); box-shadow: 0 2px 0 rgba(0,0,0,.15); }
+  .fish-btn::after { content: ""; position: absolute; right: -14px; top: 8px; border: 12px solid transparent; border-left: 16px solid var(--fc, #ff8300); }
+  .fish-btn.flip { animation-name: swim-back; }
+  .fish-btn.slip { animation-play-state: paused; outline: 3px solid var(--bad); }
+  .fish-btn:disabled { visibility: hidden; }
+  @keyframes swim { from { transform: translateX(-10px); } to { transform: translateX(calc(var(--w, 480px) - 90px)); } }
+  @keyframes swim-back { from { transform: translateX(calc(var(--w, 480px) - 90px)); } to { transform: translateX(-10px); } }
+  @media (prefers-reduced-motion: reduce) { .fish-btn { animation-duration: 40s; } }
+  .poem-lines { display: grid; gap: 4px; padding: 14px 18px; background: var(--paper-2); border-left: 0; border-radius: var(--r-md); font: 600 1.15rem/1.7 var(--font-display); color: var(--ink); }
+  .poem-by { text-align: right; color: var(--ink-2); font-style: italic; margin-top: -6px; }
+  #kite-wish { min-height: 50px; padding: 10px 16px; border-radius: 999px; border: 2px solid var(--line); background: var(--paper-2); color: var(--ink); font: 500 1.05rem var(--font-body); width: 100%; -webkit-user-select: text; user-select: text; }
+  #kite-wish:focus { border-color: var(--teal); outline: none; }
+  .kite-colors { display: flex; gap: 10px; }
+  .kite-colors button { width: 44px; height: 44px; border-radius: 10px; border: 3px solid transparent; cursor: pointer; transform: rotate(45deg) scale(.8); }
+  .kite-colors button[aria-checked="true"] { border-color: var(--ink); }
+  #kite .err { color: var(--bad); font-size: .9rem; min-height: 1.2em; margin: 0; }
+  #quiz-body h3 { text-transform: none; letter-spacing: 0; font-family: var(--font-display); font-size: 1.3rem; color: var(--ink); }
+  #quiz-body .big { font: 700 1.3rem var(--font-display); color: var(--ink); }
+  .xep-hint { color: var(--ink-2); font-weight: 600; }
+  .xep-slots { display: flex; flex-wrap: wrap; gap: 6px 16px; min-height: 48px; padding: 4px 0; }
+  .xep-word { display: inline-flex; gap: 4px; }
+  .xep-slot { min-width: 38px; height: 44px; padding: 0 6px; border-radius: 10px; border: 2px dashed var(--line); display: grid; place-items: center; font: 700 1.25rem var(--font-display); color: var(--ink); background: var(--paper-2); }
+  .xep-slot.wide { min-width: 56px; font-size: 1.05rem; }
+  .xep-slot.on { border-style: solid; border-color: var(--teal); background: var(--teal-soft); }
+  .xep-slots.ok .xep-slot { border-color: var(--ok); background: var(--ok-soft); }
+  .xep-slots.no .xep-slot { border-color: var(--bad); background: var(--bad-soft); }
+  .xep-tiles { display: flex; flex-wrap: wrap; gap: 8px; }
+  .xep-tile { appearance: none; min-width: 48px; height: 52px; padding: 0 10px; border-radius: 12px; border: 0; background: var(--orange); color: #1f1406; font: 700 1.35rem var(--font-display); cursor: pointer; box-shadow: 0 3px 0 var(--orange-ink); }
+  .xep-tile.wide { font-size: 1.1rem; padding: 0 14px; }
+  .xep-tile:disabled { opacity: .25; cursor: default; box-shadow: none; }
+  .list button.ok { border-color: var(--ok); background: var(--ok-soft); }
+  .list button.no { border-color: var(--bad); background: var(--bad-soft); opacity: .8; }
+  .list button:disabled { cursor: default; }
+  .list li.lh { font: 700 .85rem var(--font-body); letter-spacing: .04em; text-transform: uppercase; color: var(--teal-ink); padding: 8px 2px 0; }
+  .list .rank { width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center; font: 800 1.05rem var(--font-display); background: var(--teal-soft); color: var(--teal-ink); }
+  .list .rank.r1 { background: #ffc83d; color: #1f1406; } .list .rank.r2 { background: #cfd8dc; color: #1f1406; } .list .rank.r3 { background: #e0a06a; color: #1f1406; }
+  .why { min-height: 1.4em; color: var(--ink); font-weight: 600; }
+  .prompt { font-size: 1.05rem; font-weight: 600; }
+  .hints { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: .92rem; display: grid; gap: 2px; }
+  #write-text { width: calc(100% - 40px); min-height: 140px; padding: 12px 14px; border-radius: var(--r-md); border: 2px solid var(--line); background: var(--paper-2); color: var(--ink); font: 500 1rem/1.6 var(--font-body); resize: vertical; -webkit-user-select: text; user-select: text; }
+  #write-text:focus { border-color: var(--teal); outline: none; }
+  .pbar { display: block; height: 8px; border-radius: 999px; background: var(--paper-3); margin-top: 8px; overflow: hidden; }
+  .pbar span { display: block; height: 100%; background: var(--orange); }
+  /* thẻ sách + trình đọc */
+  .bc-row { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 16px; align-items: start; }
+  .bc-row img { width: 140px; max-width: 100%; aspect-ratio: 320 / 440; border-radius: 6px 10px 10px 6px; box-shadow: var(--shadow); }
+  .bc-info { display: grid; gap: 8px; }
+  .bc-info .chip { justify-self: start; text-transform: none; letter-spacing: 0; font-size: .85rem; }
+  @media (max-width: 420px) { .bc-row { grid-template-columns: 96px minmax(0, 1fr); } .bc-row img { width: 96px; } }
+  .list img.mini { width: 40px; aspect-ratio: 320 / 440; border-radius: 3px 6px 6px 3px; flex: none; }
+  .roombar button.explore { background: var(--teal-ink); border-color: var(--teal-ink); color: #fff; }
+
+  /* phòng chiếu phim: xem → nghĩ → viết */
+  .panel.fest.film { --fest: #1f2340; --fest-ink: #ffb35c; }
+  .steps { display: flex; gap: 6px; flex-wrap: wrap; }
+  .steps button { flex: 1 1 0; min-width: 0; min-height: 44px; border-radius: 999px; border: 2px solid var(--line); background: var(--paper-2); color: var(--ink); font: 700 .95rem var(--font-body); cursor: pointer; }
+  .steps button[aria-current="step"] { background: var(--orange); border-color: var(--orange); color: #1f1406; }
+  .steps button .ok { color: var(--teal-ink); }
+  .screen-box { position: relative; aspect-ratio: 16 / 9; border-radius: var(--r-md); overflow: hidden; background: #11131f; }
+  .screen-box.vertical { aspect-ratio: 9 / 16; width: min(100%, 300px); margin-inline: auto; }
+  .screen-box iframe, .screen-box video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
+  .demo-film { position: absolute; inset: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: center; padding: 14px; color: #fff; }
+  .demo-film img { height: 100%; max-height: 220px; aspect-ratio: 320 / 440; border-radius: 6px; }
+  .demo-film p { color: #fff6ea; font-size: .95rem; }
+  .demo-film b { font-family: var(--font-display); font-size: 1.15rem; display: block; color: #ffb35c; }
+  .scenes { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; counter-reset: sc; }
+  .scenes li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; align-items: start; background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px 12px; line-height: 1.55; }
+  .scenes li::before { counter-increment: sc; content: counter(sc); display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--teal-ink); color: #fff; font: 800 1rem var(--font-display); }
+  .scenes.hide li:not(.shown) { display: none; }
+  #film-body { display: grid; gap: 12px; }
+  #film-body h3 { text-transform: none; letter-spacing: 0; font-family: var(--font-display); font-size: 1.25rem; color: var(--ink); }
+  #film-text { width: 100%; min-height: 130px; padding: 12px 14px; border-radius: var(--r-md); border: 2px solid var(--line); background: var(--paper-2); color: var(--ink); font: 500 1rem/1.6 var(--font-body); resize: vertical; -webkit-user-select: text; user-select: text; }
+  #film-text:focus { border-color: var(--teal); outline: none; }
+  @media (max-width: 480px) { .demo-film { grid-template-columns: minmax(0, 1fr); } .demo-film img { display: none; } }
+
+  /* lớp phủ khoá học (trang 2D trong iframe) */
+  .ov { position: fixed; inset: 0; z-index: 40; background: var(--paper); display: grid; grid-template-rows: auto 1fr; grid-template-columns: minmax(0, 1fr); }
+  .ov .bar { display: flex; align-items: center; gap: 10px; padding: calc(8px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) 8px max(12px, env(safe-area-inset-left, 0px)); border-bottom: 1px solid var(--line); background: var(--paper-2); }
+  .ov .bar b { flex: 1; min-width: 0; font-family: var(--font-display); color: var(--teal-ink); font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ov iframe { width: 100%; height: 100%; border: 0; background: var(--paper); }
+
+  .nogl { position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; background: var(--paper); z-index: 60; text-align: center; }
+  .nogl div { display: grid; gap: 12px; max-width: 420px; justify-items: center; }
+  .loading { position: fixed; inset: 0; display: grid; place-items: center; z-index: 5; font: 700 1.2rem var(--font-display); color: var(--teal-ink); }
+
+  @media (max-width: 600px) {
+    .roombar { left: 12px; right: 12px; transform: none; max-width: none; flex-wrap: nowrap; overflow-x: auto; border-radius: 22px; justify-content: safe center; }
+    .roombar b { display: none; }
+    .roombar button { flex: none; padding: 4px 10px; font-size: .85rem; }
+    .pill .nm { max-width: 7ch; }
+    .hbtn .lbl { display: none; }
+    .room-chip { font-size: .95rem; }
+  }
+</style>
+</head>
+<body>
+<canvas id="c" tabindex="0" aria-label="Sảnh 3D Không gian Mở Sách. Dùng nút Đi nhanh để chọn phòng hoặc hoạt động."></canvas>
+<div class="loading" id="loading">Đang mở cửa sảnh…</div>
+
+<div class="hud hud-top" id="hud" hidden>
+  <div class="pill" aria-label="Thẻ thư viện"><span class="av" id="hud-av"></span><span class="nm" id="hud-name"></span><span class="st" id="hud-stars" aria-label="Tổng Sao Biển"></span></div>
+  <span class="pill room-chip" id="room-chip" aria-live="polite">Sảnh chính</span>
+  <span class="pill guide-chip" id="guide-chip" hidden><span id="guide-text">Cá Heo đang dẫn đường</span><button type="button" id="guide-stop" aria-label="Dừng dẫn đường">×</button></span>
+  <span class="grow"></span>
+  <button class="hbtn main" type="button" id="b-menu" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg><span>Đi nhanh</span></button>
+  <button class="hbtn" type="button" id="b-top" aria-pressed="false" aria-label="Nhìn từ trên cao"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3 3 5.5v15L9 18l6 3 6-2.5v-15L15 6 9 3zm0 2.2 6 3v10.6l-6-3V5.2zM5 6.8l2-.8v10.6l-2 .8V6.8zm12 .2 2-.8v10.6l-2 .8V7z"/></svg><span class="lbl">Trên cao</span></button>
+  <button class="hbtn" type="button" id="b-closet" aria-haspopup="dialog" aria-label="Tủ đồ"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3a3 3 0 0 0-3 3h2a1 1 0 1 1 1.6.8L12 7.3V9L3.5 15.2A1.5 1.5 0 0 0 4.4 18h15.2a1.5 1.5 0 0 0 .9-2.8L14 10.4V8.4A3 3 0 0 0 12 3zm0 8.3 6.3 4.7H5.7L12 11.3z"/></svg><span class="lbl">Tủ đồ</span></button>
+  <button class="hbtn" type="button" id="b-help" aria-haspopup="dialog" aria-label="Hướng dẫn"><span aria-hidden="true" style="font-weight:800">?</span></button>
+  <a class="hbtn main" id="b-feedback" href="#" target="_blank" rel="noopener" hidden><span>Góp ý</span></a>
+  <a class="hbtn" href="index.html" aria-label="Về bản 2D"><span>2D</span></a>
+</div>
+
+<div class="roombar" id="bar-vuon" hidden role="group" aria-label="Mùa trong vườn">
+  <b>Mùa</b><span id="season-btns" style="display:contents"></span><span class="sep"></span><button type="button" id="b-time" aria-pressed="false">Ban đêm</button>
+</div>
+<div class="roombar" id="bar-lehoi" hidden role="group" aria-label="Chọn lễ hội">
+  <button type="button" id="b-explore" class="explore">Khám phá</button><span class="sep"></span><b>Lễ hội</b><span id="fest-btns" style="display:contents"></span>
+</div>
+
+<div class="joy" id="joy" hidden aria-hidden="true"><div class="joy-knob"></div></div>
+<div class="act" id="act" hidden><button type="button" id="act-btn"></button><span class="sub" id="act-sub"></span></div>
+<p class="hint" id="hint" hidden>WASD hoặc mũi tên để đi · bấm vào đồ vật (hoặc phím E) để tương tác</p>
+
+<!-- Đi nhanh: mọi vật tương tác trong 3D đều có nút tương đương ở đây -->
+<div class="layer" id="menu" hidden role="dialog" aria-modal="true" aria-labelledby="menu-h">
+  <div class="panel">
+    <div class="head"><h2 id="menu-h">Đi nhanh</h2><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <h3>Phòng</h3>
+    <ul class="list" id="menu-rooms"></ul>
+    <h3>Hoạt động</h3>
+    <ul class="list" id="menu-acts"></ul>
+    <h3>Trò chuyện</h3>
+    <ul class="list" id="menu-npcs"></ul>
+    <h3>Nhờ Cá Heo dẫn đường</h3>
+    <ul class="list" id="menu-guide"></ul>
+  </div>
+</div>
+
+<!-- Tủ đồ -->
+<div class="layer side" id="closet" hidden role="dialog" aria-modal="false" aria-labelledby="closet-h">
+  <div class="panel">
+    <div class="head"><h2 id="closet-h">Tủ đồ</h2><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <p class="note" id="closet-note"></p>
+    <div id="closet-list" style="display:grid;gap:12px"></div>
+    <button class="btn ghost" type="button" id="b-char">Đổi nhân vật hoặc tên</button>
+  </div>
+</div>
+
+<div class="layer" id="board" hidden role="dialog" aria-modal="true" aria-labelledby="board-h">
+  <div class="panel">
+    <div class="head"><h2 id="board-h">Bảng vàng</h2><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <p class="note">Huy chương vàng khi đạt đủ 5 Sao Biển trong một khoá. Học lại bao nhiêu lần cũng được, bảng giữ kết quả tốt nhất.</p>
+    <ul class="list" id="board-list"></ul>
+  </div>
+</div>
+
+<div class="layer" id="poem" hidden role="dialog" aria-modal="true" aria-labelledby="poem-h">
+  <div class="panel">
+    <div class="head"><h2 id="poem-h">Cây thơ bốn mùa</h2><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <p class="kicker" id="poem-kicker"></p>
+    <div class="poem-lines" id="poem-lines"></div>
+    <p class="poem-by" id="poem-by"></p>
+    <div class="nav"><span id="poem-count"></span><button class="btn cta" type="button" id="poem-next">Hái bài khác</button></div>
+  </div>
+</div>
+<div class="layer" id="fish" hidden role="dialog" aria-modal="true" aria-labelledby="fish-h">
+  <div class="panel">
+    <div class="head"><h2 id="fish-h">Câu cá chữ</h2><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <div id="fish-body"></div>
+  </div>
+</div>
+<div class="layer" id="kite" hidden role="dialog" aria-modal="true" aria-labelledby="kite-h">
+  <div class="panel">
+    <div class="head"><h2 id="kite-h">Thả diều ước mơ</h2><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <p>Viết một điều con mong ước lên diều rồi thả lên trời nhé. Diều chỉ hiện trên máy này.</p>
+    <input type="text" id="kite-wish" maxlength="40" placeholder="Con ước được đọc thật nhiều truyện tranh" aria-describedby="kite-err">
+    <div class="kite-colors" id="kite-colors" role="radiogroup" aria-label="Màu diều"></div>
+    <p class="err" id="kite-err" role="alert"></p>
+    <div class="nav"><span>Tối đa 40 chữ cái</span><button class="btn cta" type="button" id="kite-go">Thả diều</button></div>
+  </div>
+</div>
+<div class="layer" id="photos" hidden role="dialog" aria-modal="true" aria-labelledby="photos-h">
+  <div class="panel">
+    <div class="head"><h2 id="photos-h">Kỷ niệm Mở Sách</h2><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <div class="photos" id="photos-grid"></div>
+  </div>
+</div>
+
+<!-- Phòng khám phá lễ hội -->
+<div class="layer" id="led" hidden role="dialog" aria-modal="true" aria-labelledby="led-title">
+  <div class="panel fest" id="led-panel">
+    <div class="fest-head"><div><p class="kicker" id="led-kicker"></p><h2 id="led-title"></h2></div><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <div class="led-body" id="led-body" aria-live="polite"></div>
+    <p class="fact" id="led-fact" hidden></p>
+    <p class="words" id="led-words" hidden></p>
+    <div class="nav"><button class="btn ghost sm" type="button" id="led-prev">← Trước</button><span id="led-page"></span><button class="btn cta sm" type="button" id="led-next">Tiếp →</button></div>
+  </div>
+</div>
+<div class="layer" id="quiz" hidden role="dialog" aria-modal="true" aria-labelledby="quiz-h">
+  <div class="panel fest" id="quiz-panel">
+    <div class="fest-head"><div><p class="kicker">Sai không bị trừ, cứ thử nhé!</p><h2 id="quiz-h">Đố vui</h2></div><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <div id="quiz-body"></div>
+  </div>
+</div>
+<div class="layer" id="write" hidden role="dialog" aria-modal="true" aria-labelledby="write-h">
+  <div class="panel fest" id="write-panel">
+    <div class="fest-head"><div><p class="kicker">Đọc trước, rồi mới viết</p><h2 id="write-h">Góc viết</h2></div><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <p class="prompt" id="write-prompt"></p>
+    <ul class="hints" id="write-hints"></ul>
+    <label class="sr-only" for="write-text">Bài viết của bạn</label>
+    <textarea id="write-text" rows="6" maxlength="2000" placeholder="Mình đồng ý / không đồng ý vì…"></textarea>
+    <div class="nav"><span id="write-count"></span><button class="btn cta sm" type="button" id="write-save">Lưu bài</button></div>
+    <p class="note">Bài viết chỉ lưu trên máy này. Bạn có thể chép lại để nộp cho cô giáo.</p>
+  </div>
+</div>
+<div class="layer" id="explore" hidden role="dialog" aria-modal="true" aria-labelledby="explore-h">
+  <div class="panel fest" id="explore-panel">
+    <div class="fest-head"><div><p class="kicker">Phòng Lễ hội</p><h2 id="explore-h">Khám phá</h2></div><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <p class="note" id="explore-note"></p>
+    <ul class="list" id="explore-list"></ul>
+  </div>
+</div>
+
+<!-- Không gian đọc: thẻ sách, thư viện, trình đọc -->
+<div class="layer" id="bookcard" hidden role="dialog" aria-modal="true" aria-labelledby="bc-title">
+  <div class="panel bookcard">
+    <div class="head"><h2 id="bc-title"></h2><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <div class="bc-row"><img id="bc-cover" alt="" draggable="false"><div class="bc-info"><p class="note" id="bc-author"></p><p class="kicker" id="bc-meta"></p><p id="bc-summary"></p><p class="chip teal" id="bc-status"></p></div></div>
+    <p class="fact" id="bc-paper" hidden><b>Sách giấy:</b> cuốn này có ở tủ sách Mở Sách. Bạn mượn sách giấy để đọc; ở đây có gợi ý đọc và câu hỏi cùng làm.</p>
+    <div class="nav"><button class="btn ghost" type="button" id="bc-read">Đọc ngay</button><button class="btn cta" type="button" id="bc-sit">Ngồi ghế đọc</button></div>
+  </div>
+</div>
+<div class="layer" id="library" hidden role="dialog" aria-modal="true" aria-labelledby="lib-h">
+  <div class="panel">
+    <div class="head"><h2 id="lib-h">Thư viện Mở Sách</h2><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <p class="note" id="lib-note"></p>
+    <ul class="list" id="lib-list"></ul>
+  </div>
+</div>
+<!-- Phòng chiếu phim: chọn phim, rồi Xem → Nghĩ → Viết -->
+<div class="layer" id="cinema" hidden role="dialog" aria-modal="true" aria-labelledby="cin-h">
+  <div class="panel">
+    <div class="head"><h2 id="cin-h">Mở Sách Cinema</h2><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <p class="note" id="cin-note"></p>
+    <ul class="list" id="cin-list"></ul>
+  </div>
+</div>
+<div class="layer" id="film" hidden role="dialog" aria-modal="true" aria-labelledby="film-h">
+  <div class="panel fest film" id="film-panel">
+    <div class="fest-head"><div><p class="kicker" id="film-kicker">Phim ngắn</p><h2 id="film-h"></h2></div><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <div class="steps" role="group" aria-label="Các bước"><button type="button" data-step="0">1. Xem</button><button type="button" data-step="1">2. Nghĩ</button><button type="button" data-step="2">3. Viết</button></div>
+    <div id="film-body" aria-live="polite"></div>
+    <div class="nav"><button class="btn ghost sm" type="button" id="film-prev">← Trước</button><span id="film-page"></span><button class="btn cta sm" type="button" id="film-next">Tiếp →</button></div>
+  </div>
+</div>
+<div class="layer" id="top" hidden role="dialog" aria-modal="true" aria-labelledby="top-h">
+  <div class="panel">
+    <div class="head"><h2 id="top-h">Đọc nhiều nhất tháng</h2><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <p class="note" id="top-note"></p>
+    <ul class="list" id="top-list"></ul>
+  </div>
+</div>
+<div class="reader" id="reader" hidden role="dialog" aria-modal="true" aria-label="Đọc sách"></div>
+
+<div class="layer" id="help" hidden role="dialog" aria-modal="true" aria-labelledby="help-h">
+  <div class="panel">
+    <div class="head"><h2 id="help-h">Hướng dẫn</h2><button class="xbtn" type="button" data-close aria-label="Đóng">×</button></div>
+    <dl class="keys">
+      <dt>Đi lại</dt><dd>Phím WASD hoặc mũi tên. Trên điện thoại: kéo nút tròn góc dưới bên trái.</dd>
+      <dt>Tương tác</dt><dd>Bấm (hoặc chạm) thẳng vào đồ vật: cuốn sách, gian hàng lễ hội, ghế lười, cửa… Cũng có thể đến gần rồi bấm nút cam hoặc phím E.</dd>
+      <dt>Phóng to</dt><dd>Dùng hai ngón tay chụm vào hoặc mở ra trên màn hình hay trackpad. Có chuột thì lăn bánh xe.</dd>
+      <dt>Đi nhanh</dt><dd>Đến thẳng một phòng, mở khoá học, hoặc nhờ Cá Heo dẫn đường.</dd>
+      <dt>Trên cao</dt><dd>Xem toàn bộ không gian. Chạm vào một phòng để đến đó.</dd>
+      <dt>Tủ đồ</dt><dd>Đội mũ, đeo kính, quàng nơ. Đồ mới mở khi bạn có thêm Sao Biển hoặc ghé Phòng Lễ hội.</dd>
+      <dt>2D</dt><dd>Máy chạy chậm thì dùng bản 2D, học vẫn đầy đủ.</dd>
+    </dl>
+  </div>
+</div>
+
+<!-- Màn bắt đầu: thẻ thư viện + chọn nhân vật -->
+<div class="layer start" id="start" hidden role="dialog" aria-modal="true" aria-labelledby="start-h">
+  <form class="panel" id="start-form" novalidate>
+    <div class="brandrow"><img src="assets/logo-mark.png" alt=""><div><h2 id="start-h">Sảnh 3D Mở Sách</h2><p>Mở sách, mở tư duy.</p></div></div>
+    <label class="f">Tên trên thẻ thư viện<input id="start-name" maxlength="30" autocomplete="nickname" placeholder="Ví dụ: Minh Anh"></label>
+    <div><h3 style="margin-bottom:8px">Chọn nhân vật</h3><div class="chars" id="chars" role="radiogroup" aria-label="Nhân vật"></div></div>
+    <p class="err" id="start-err" role="alert"></p>
+    <button class="btn cta" type="submit" id="start-go">Vào sảnh</button>
+    <p class="alt">Máy hơi chậm? <a href="index.html">Dùng bản 2D</a>.</p>
+  </form>
+</div>
+
+<div class="ov" id="ov" hidden role="dialog" aria-modal="true" aria-labelledby="ov-title">
+  <div class="bar"><button class="btn sm ghost" type="button" id="ov-close">← Về sảnh 3D</button><b id="ov-title"></b></div>
+  <iframe id="ov-frame" title="Nội dung"></iframe>
+</div>
+
+<div class="nogl" id="nogl" hidden><div><h2>Máy này chưa mở được sảnh 3D</h2><p>Đừng lo, bạn vẫn học được đầy đủ ở bản 2D.</p><a class="btn cta" href="index.html">Vào bản 2D</a></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="assets/ms.js"></script>
+<script src="assets/3d/scene.js"></script>
+<script src="assets/3d/characters.js"></script>
+<script src="assets/anh/anh-ky-niem.js"></script>
+<script src="assets/3d/festival-content.js"></script>
+<script src="assets/3d/daily-content.js"></script>
+<script src="assets/3d/themes.js"></script>
+<script src="assets/sach/thu-vien.js"></script>
+<script src="assets/sach/reader.js"></script>
+<script src="assets/3d/books.js"></script>
+<script src="assets/phim/phim.js"></script>
+<script src="assets/3d/cinema.js"></script>
+<script src="assets/3d/decor.js"></script>
+<script src="assets/3d/npc-content.js"></script>
+<script src="assets/3d/npcs.js"></script>
+<script src="assets/3d/doc-room.js"></script>
+<script src="assets/3d/story-corner.js"></script>
+<script src="assets/3d/garden-play.js"></script>
+<script src="assets/3d/rooms.js"></script>
+<script src="assets/3d/guide.js"></script>
+<script src="assets/3d/controls.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function fail() { $("loading").hidden = true; $("nogl").hidden = false; }
+  if (!window.THREE || !window.MS || !window.MS3D) return fail();
+
+  var app;
+  try { app = MS3D.createScene($("c")); } catch (e) { return fail(); }
+  var world = app.world, scene = app.scene;
+  var getAvatar = function () { return (MS.getAvatar && MS.getAvatar()) || ""; };
+  var setAvatar = function (id) { if (MS.setAvatar) MS.setAvatar(id); };
+  var touch = MS3D.isTouch();
+  // thanh chọn mùa/lễ hội và thông báo luôn nằm ngay dưới HUD (HUD có thể xuống 2–3 dòng trên điện thoại)
+  function placeBars() { var h = $("hud"); if (!h.hidden) document.documentElement.style.setProperty("--hud-b", Math.round(h.getBoundingClientRect().bottom) + "px"); }
+  if (window.ResizeObserver) new ResizeObserver(placeBars).observe($("hud"));
+  window.addEventListener("resize", placeBars);
+  if (touch) document.body.classList.add("touch");
+  // Nút Góp ý: dán link Google Form vào đây là nút hiện lên trên thanh trên cùng
+  var FEEDBACK_URL = "";
+  if (FEEDBACK_URL) { $("b-feedback").href = FEEDBACK_URL; $("b-feedback").hidden = false; }
+
+  /* ---------- Lưu riêng của sảnh 3D (phụ kiện, mùa, lễ hội, đã được dẫn đường) ---------- */
+  var KEY3D = "mosach.space.3d.v1", mem3d = {};
+  function load3d() { try { var r = localStorage.getItem(KEY3D); if (r) return JSON.parse(r) || {}; } catch (e) {} return mem3d; }
+  function st(k, v) {
+    var d = load3d();
+    if (arguments.length > 1) { d[k] = v; mem3d = d; try { localStorage.setItem(KEY3D, JSON.stringify(d)); } catch (e) {} }
+    return d[k];
+  }
+
+  /* ---------- Nhân vật người chơi ---------- */
+  var player = new THREE.Group(); scene.add(player);
+  var avatarMesh = null;
+  var blob = new THREE.Mesh(new THREE.CircleGeometry(0.45, 16), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.18, depthWrite: false }));
+  blob.rotation.x = -Math.PI / 2; blob.position.y = 0.02; player.add(blob);
+  blob.visible = !MS3D.SHADOWS;   // có bóng đổ thật thì bỏ bóng tròn giả
+  world.player = player;          // NPC cần biết người chơi đứng đâu
+  var bookProp = new THREE.Group(); bookProp.position.set(0, 0.62, -0.5); bookProp.rotation.x = -0.6; bookProp.visible = false; player.add(bookProp);
+  MS3D.box(0.24, 0.03, 0.3, 0xff8300, -0.12, 0, 0, bookProp).rotation.z = 0.2;
+  MS3D.box(0.24, 0.03, 0.3, 0xff8300, 0.12, 0, 0, bookProp).rotation.z = -0.2;
+  MS3D.box(0.44, 0.02, 0.27, 0xffffff, 0, 0.025, 0, bookProp);
+  function equip() { return st("acc") || { top: "mu-tot-nghiep" }; }
+  function setPlayerAvatar(id) {
+    if (avatarMesh) player.remove(avatarMesh);
+    avatarMesh = MS3D.makeCharacter(id); player.add(avatarMesh);
+    MS3D.dress(avatarMesh, equip()); MS3D.shadow(avatarMesh);
+  }
+  var heading = 0, sitting = null;
+
+  /* ---------- Ảnh nhỏ cho từng nhân vật (dựng 1 lần) ---------- */
+  var thumbs = {};
+  function makeThumbs() {
+    try {
+      var r = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+      r.setSize(160, 160);
+      var s = new THREE.Scene(); s.add(new THREE.HemisphereLight(0xffffff, 0xb8c9b0, 1));
+      var d = new THREE.DirectionalLight(0xffffff, 0.6); d.position.set(2, 3, -4); s.add(d);
+      var cam = new THREE.PerspectiveCamera(30, 1, 0.1, 20); cam.position.set(0.9, 1.35, -3.1); cam.lookAt(0, 0.85, 0);
+      MS3D.CHARACTERS.forEach(function (c) {
+        var m = MS3D.makeCharacter(c.id); m.rotation.y = 0.35; s.add(m);
+        r.setClearColor(0xe9f3f3, 1); r.render(s, cam); thumbs[c.id] = r.domElement.toDataURL("image/png");
+        s.remove(m);
+      });
+      r.dispose(); if (r.forceContextLoss) r.forceContextLoss();
+    } catch (e) { /* không sao: dùng ô màu thay ảnh */ }
+  }
+  function hex(n) { return "#" + ("000000" + n.toString(16)).slice(-6); }
+
+  /* ---------- Phụ kiện: mở theo Sao Biển hoặc lễ hội đã ghé (không trừ sao) ---------- */
+  function themeName(id) { return MS3D.getFestival(id).name; }
+  function isUnlocked(a) {
+    if (a.need.theme) return !!(st("themes") || {})[a.need.theme];
+    if (a.need.explore) return !!((st("explore") || {})[a.need.explore] || {}).badge;
+    return MS.totalStars() >= (a.need.stars || 0);
+  }
+  var knownUnlocked = null;
+  function checkUnlocks(silent) {
+    var now = MS3D.ACCESSORIES.filter(isUnlocked).map(function (a) { return a.id; });
+    if (knownUnlocked && !silent) {
+      now.forEach(function (id) {
+        if (knownUnlocked.indexOf(id) < 0) {
+          var a = MS3D.ACCESSORIES.filter(function (x) { return x.id === id; })[0];
+          setTimeout(function () { MS.toast("Bạn mở được " + a.name + "! Vào Tủ đồ để thử nhé."); }, 2700);
+        }
+      });
+    }
+    knownUnlocked = now;
+  }
+
+  /* ---------- HUD ---------- */
+  var STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + MS.STAR_PATH + '"/></svg>';
+  function refreshHud() {
+    var name = MS.getName() || "Bạn";
+    $("hud-name").textContent = name;
+    var t = MS.totalStars();
+    $("hud-stars").innerHTML = STAR_SVG + "<span>" + t + "</span>";
+    $("hud-stars").setAttribute("aria-label", t + " Sao Biển");
+    var c = MS3D.getCharacter(getAvatar() || MS3D.CHARACTERS[0].id);
+    $("hud-av").style.background = hex(c.color);
+    $("hud-av").innerHTML = thumbs[c.id] ? '<img alt="" src="' + thumbs[c.id] + '">' : "";
+    MS3D.refreshCourseLabels(world);
+    checkUnlocks();
+  }
+
+  /* ---------- Bảng/lớp phủ ---------- */
+  var openLayer = null, lastFocus = null;
+  function showLayer(el) {
+    if (openLayer && openLayer !== el) hideLayer(openLayer, true);
+    lastFocus = document.activeElement; openLayer = el; el.hidden = false;
+    MS3D.input.enabled = el.id === "closet"; MS3D.clearInput(); $("act").hidden = el.id !== "closet";
+    var f = el.querySelector("input, button, [href]"); if (f) setTimeout(function () { f.focus(); }, 30);
+  }
+  function hideLayer(el, keepFocus) {
+    el.hidden = true; if (openLayer === el) openLayer = null;
+    if (el.id === "film") $("film-body").innerHTML = "";   // dừng phim đang phát
+    MS3D.input.enabled = true; MS3D.updateInput();
+    if (!keepFocus) (lastFocus && lastFocus.focus ? lastFocus : $("c")).focus();
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && openLayer && openLayer.id !== "start") { e.preventDefault(); if (openLayer === $("reader")) { if (!MSReader.closeSettings()) closeReader(); return; } openLayer === $("ov") ? closeOverlay() : hideLayer(openLayer); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-close]"), function (b) { b.onclick = function () { hideLayer(b.closest(".layer")); }; });
+  ["menu", "board", "photos", "poem", "kite", "fish", "help", "led", "quiz", "write", "explore", "bookcard", "library", "cinema", "film", "top"].forEach(function (id) { $(id).addEventListener("click", function (e) { if (e.target === $(id)) hideLayer($(id)); }); });
+
+  function openOverlay(url, title) {
+    if (!url) return;
+    standUp();
+    $("ov-title").textContent = title || "";
+    $("ov-frame").src = url;
+    showLayer($("ov"));
+  }
+  function closeOverlay() {
+    hideLayer($("ov"));
+    $("ov-frame").src = "about:blank";
+    refreshHud();
+  }
+  $("ov-close").onclick = closeOverlay;
+
+  /* ---------- Ngồi ghế lười ---------- */
+  function sitDown(seat, quiet) {
+    sitting = seat; world.sitting = seat;
+    player.position.set(seat.x, seat.y !== undefined ? seat.y : 0.15, seat.z);
+    heading = seat.face; player.rotation.y = heading;
+    if (avatarMesh) avatarMesh.userData.setSit(true);
+    bookProp.visible = true;
+    if (quiet) return;
+    if (seat.msg) { MS.toast(seat.msg); return; }
+    var cb = st("book") && MS3D.getBook(st("book"));
+    MS.toast(cb ? "Bấm “Mở sách” để đọc tiếp “" + cb.title + "”." : "Ghế êm quá! Ra kệ ở Không gian đọc chọn một cuốn sách nhé.");
+  }
+  function standUp() {
+    if (!sitting) return;
+    player.position.set(sitting.stand[0], 0, sitting.stand[1]);
+    sitting = null; world.sitting = null;
+    if (avatarMesh) avatarMesh.userData.setSit(false);
+    bookProp.visible = false;
+  }
+
+  /* ---------- Vườn: Cây thơ bốn mùa (MS3D.SEASON_POEMS) và Thả diều ước mơ (garden-play.js) ---------- */
+  var poemI = 0;
+  function openPoem() {
+    var sid = world.season || "thu", list = (MS3D.SEASON_POEMS || {})[sid] || [];
+    if (!list.length) return;
+    var p = list[poemI++ % list.length], s = MS3D.getSeason(sid);
+    $("poem-kicker").textContent = "Mùa " + s.name;
+    $("poem-lines").innerHTML = p.lines.map(function (l) { return "<span>" + MS.esc(l) + "</span>"; }).join("");
+    $("poem-by").textContent = "— " + p.by;
+    $("poem-count").textContent = "Bài " + ((poemI - 1) % list.length + 1) + "/" + list.length + " của mùa " + s.name.toLowerCase();
+    if (openLayer !== $("poem")) showLayer($("poem"));
+  }
+  $("poem-next").onclick = openPoem;
+  var kiteColor = 0, KITE_HEX = ["#ff8300", "#50b1b3", "#e86a92", "#f6c84c"];
+  KITE_HEX.forEach(function (hx, i) {
+    var b = document.createElement("button"); b.type = "button"; b.style.background = hx; b.setAttribute("role", "radio"); b.setAttribute("aria-label", "Màu " + (i + 1));
+    b.onclick = function () { kiteColor = i; Array.prototype.forEach.call($("kite-colors").children, function (x, j) { x.setAttribute("aria-checked", String(j === i)); }); };
+    $("kite-colors").appendChild(b);
+  });
+  function openKite() {
+    $("kite-wish").value = ""; $("kite-err").textContent = "";
+    $("kite-colors").children[kiteColor].onclick();
+    showLayer($("kite"));
+  }
+  $("kite-wish").addEventListener("input", function () { $("kite-err").textContent = ""; });
+  $("kite-wish").addEventListener("keydown", function (e) { e.stopPropagation(); if (e.key === "Enter") $("kite-go").click(); });
+  $("kite-go").onclick = function () {
+    var w = $("kite-wish").value.trim();
+    if (!w) { $("kite-err").textContent = "Con viết điều ước lên diều trước đã nhé."; $("kite-wish").focus(); return; }
+    var saved = (st("kites") || []).concat([{ w: w, c: kiteColor }]).slice(-3);
+    st("kites", saved);
+    if (world.addKite) world.addKite(w, kiteColor);
+    hideLayer($("kite"));
+    MS.toast("Diều của con bay cao rồi! Mong điều ước thành sự thật nha.");
+  };
+
+  /* ---------- Sân khấu sảnh chính: đứng lên cúi chào, cả sảnh vỗ tay ---------- */
+  function bow() {
+    if (!avatarMesh) return;
+    avatarMesh.rotation.x = 0.45;
+    setTimeout(function () { if (avatarMesh) avatarMesh.rotation.x = 0; }, 650);
+  }
+  function goStage() {
+    var s = world.stage; if (!s) return;
+    standUp();
+    sitting = { stage: true, stand: [1.9, s.front + 1.0] };
+    player.position.set(-1.7, s.y, s.z);
+    heading = Math.PI; player.rotation.y = heading;
+    bow(); s.cheer();
+    MS.toast("Cả sảnh vỗ tay cho " + (MS.getName() || "bạn") + "! Bấm “Cúi chào” để chào thêm, đi để bước xuống.");
+  }
+
+  /* ---------- Dịch chuyển ---------- */
+  var currentRoom = null;
+  function teleport(id, quiet) {
+    var r = MS3D.getRoom(world, id); if (!r) return;
+    standUp();
+    player.position.set(r.spawn[0], 0, r.spawn[1]);
+    heading = r.face || 0; player.rotation.y = heading;
+    app.follow(player.position, 0.016, true);
+    roomTimer = 1;
+    if (guide.isActive()) guide.start(player.position, guide.target());
+    if (!quiet) MS.toast(r.status === "open" ? "Đến " + r.name : r.name + " · Sắp mở");
+  }
+
+  /* ---------- Nhìn từ trên cao ---------- */
+  function setTop(on) {
+    app.setOverview(on);
+    document.body.classList.toggle("overview", on);
+    $("b-top").setAttribute("aria-pressed", String(on));
+    if (on) MS.toast("Chạm vào một phòng để đến đó. Bấm lại nút Trên cao để quay về.");
+  }
+  $("b-top").onclick = function () { setTop(!app.isOverview()); };
+  var ray = new THREE.Raycaster(), ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+  // bấm/chạm thẳng vào đồ vật trong cảnh (sách, gian hàng, ghế, cửa…)
+  function pickAt(e) {
+    var r = $("c").getBoundingClientRect();
+    ray.setFromCamera(new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), app.camera);
+    var hits = ray.intersectObjects(world.pickables, true);
+    for (var i = 0; i < hits.length; i++) {
+      var it = hits[i].object.userData.it;
+      if (!it || (it.festival && it.festival !== world.festival)) continue;
+      return it;
+    }
+    return null;
+  }
+  var lastHover = 0;
+  $("c").addEventListener("pointermove", function (e) {
+    if (e.pointerType !== "mouse" || openLayer || app.isOverview()) return;
+    var now = performance.now(); if (now - lastHover < 90) return; lastHover = now;
+    $("c").style.cursor = pickAt(e) ? "pointer" : "";
+  });
+  $("c").addEventListener("click", function (e) {
+    if (openLayer) return;
+    if (!app.isOverview()) { var it = pickAt(e); if (it) interact(it); return; }
+    var r = $("c").getBoundingClientRect();
+    ray.setFromCamera(new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), app.camera);
+    var hit = new THREE.Vector3();
+    if (!ray.ray.intersectPlane(ground, hit)) return;
+    var room = world.roomAt(hit.x, hit.z);
+    if (room) { setTop(false); teleport(room.id); }
+  });
+
+  /* ---------- Cá Heo dẫn đường ---------- */
+  var guide = MS3D.createGuide(world);
+  function guideTo(placeId) {
+    var pl = world.places.filter(function (p) { return p.id === placeId; })[0];
+    if (!pl) return;
+    standUp(); if (app.isOverview()) setTop(false);
+    guide.start(player.position, pl);
+    $("guide-text").textContent = "Cá Heo dẫn tới: " + pl.name;
+    $("guide-chip").hidden = false;
+    MS.toast("Theo mình nhé! Mình bơi trước, bạn đi theo.");
+  }
+  guide.onArrive = function (pl) {
+    $("guide-chip").hidden = true;
+    MS.toast("Tới rồi! " + pl.name + " ở ngay đây.");
+  };
+  $("guide-stop").onclick = function () { guide.stop(); $("guide-chip").hidden = true; };
+
+  /* ---------- Menu đi nhanh ---------- */
+  function li(html, fn, pressed) { var l = document.createElement("li"), b = document.createElement("button"); b.type = "button"; b.innerHTML = html; b.onclick = fn; if (pressed !== undefined) b.setAttribute("aria-pressed", String(pressed)); l.appendChild(b); return l; }
+  function closeThen(fn) { return function () { hideLayer($("menu")); fn(); }; }
+  function buildMenu() {
+    var ul = $("menu-rooms"); ul.innerHTML = "";
+    world.rooms.forEach(function (r) {
+      var soon = r.status !== "open";
+      ul.appendChild(li('<span class="dot' + (soon ? " s" : "") + '"></span><span class="t">' + MS.esc(r.name) + (soon ? "<small>Sắp mở</small>" : "") + "</span>", closeThen(function () { teleport(r.id); })));
+    });
+    var ua = $("menu-acts"); ua.innerHTML = "";
+    MS.COURSES.forEach(function (c) {
+      if (c.status !== "open" || !c.url) return;
+      var p = MS.getProgress(c.id);
+      ua.appendChild(li('<span class="dot o"></span><span class="t">Mở ' + MS.esc(c.code) + " · " + MS.esc(c.title) + "<small>" + MS.esc(c.grade) + " · " + MS.esc(c.minutes) + (p ? " · đã có " + p.best + " sao" : "") + "</small></span>", closeThen(function () { openOverlay(c.url, c.code + " · " + c.title); })));
+    });
+    var vuon = MS3D.getRoom(world, "vuon");
+    if (vuon && vuon.url) ua.appendChild(li('<span class="dot"></span><span class="t">Đọc đoạn mẫu<small>Vườn đọc sách</small></span>', closeThen(function () { openOverlay(vuon.url, "Vườn đọc sách"); })));
+    ua.appendChild(li('<span class="dot o"></span><span class="t">Tủ Kinh điển Đông – Tây<small>Tóm tắt tác phẩm kinh điển · Không gian đọc</small></span>', closeThen(function () { teleport("doc", true); openLibrary("kinh-dien"); })));
+    ua.appendChild(li('<span class="dot g"></span><span class="t">Sách đọc nhiều nhất tháng<small>Bảng xếp hạng · Không gian đọc</small></span>', closeThen(function () { teleport("doc", true); openTop(); })));
+    ua.appendChild(li('<span class="dot o"></span><span class="t">Thư viện: chọn sách đọc<small>' + MS3D.BOOKS.length + " cuốn · Không gian đọc</small></span>", closeThen(openLibrary)));
+    if (MS3D.FILMS.length) ua.appendChild(li('<span class="dot o"></span><span class="t">Phòng chiếu: chọn phim<small>' + MS3D.FILMS.length + " phim ngắn · xem, nghĩ, viết</small></span>", closeThen(function () { teleport("phim", true); openCinema(); })));
+    ua.appendChild(li('<span class="dot g"></span><span class="t">Xem bảng vàng<small>Huy chương các khoá học</small></span>', closeThen(openBoard)));
+    ua.appendChild(li('<span class="dot"></span><span class="t">Xem ảnh kỷ niệm<small>Cô và trò Mở Sách</small></span>', closeThen(openPhotos)));
+    ua.appendChild(li('<span class="dot o"></span><span class="t">Tủ đồ<small>Mũ, kính, nơ, ba lô, huy hiệu</small></span>', closeThen(openCloset)));
+    ua.appendChild(li('<span class="dot o"></span><span class="t">Khám phá lễ hội<small>' + MS.esc(MS3D.getFestival(world.festival).name) + ": gian hàng, đố vui, góc viết</small></span>", closeThen(function () { teleport("le-hoi", true); openExplore(); })));
+    var un = $("menu-npcs"); un.innerHTML = "";
+    (world.npcs || []).forEach(function (n) {
+      var r = MS3D.getRoom(world, n.room);
+      un.appendChild(li('<span class="dot"></span><span class="t">' + MS.esc(n.name) + "<small>" + MS.esc(r ? r.name : "") + "</small></span>", closeThen(function () { talkTo(n.id); })));
+    });
+    var ug = $("menu-guide"); ug.innerHTML = "";
+    world.places.forEach(function (pl) {
+      ug.appendChild(li('<span class="dot"></span><span class="t">' + MS.esc(pl.name) + "</span>", closeThen(function () { guideTo(pl.id); })));
+    });
+  }
+  $("b-menu").onclick = function () { buildMenu(); showLayer($("menu")); };
+
+  /* ---------- Bảng vàng & ảnh kỷ niệm ---------- */
+  function openBoard() {
+    var ul = $("board-list"); ul.innerHTML = "";
+    MS.COURSES.forEach(function (c) {
+      var p = MS.getProgress(c.id), max = c.maxStars || 5, gold = p && p.best >= max;
+      var l = document.createElement("li");
+      l.innerHTML = '<button type="button" tabindex="-1" style="cursor:default"><span class="medal ' + (gold ? "gold" : p ? "done" : "") + '">' + (p ? p.best : "–") + '</span><span class="t">' + MS.esc(c.code) + " · " + MS.esc(c.title) +
+        "<small>" + (gold ? "Huy chương vàng" : p ? "Đã học, thử lại để đủ " + max + " sao" : c.status === "open" ? "Chưa học" : "Sắp mở") + "</small></span>" + (p ? MS.starsHTML(p.best, max) : "") + "</button>";
+      ul.appendChild(l);
+    });
+    showLayer($("board"));
+  }
+  function openPhotos() {
+    var g = $("photos-grid"), list = MS3D.MEMORY_PHOTOS || [];
+    g.innerHTML = list.length ? list.map(function (p) { return '<figure><img src="' + MS.esc(p.src) + '" alt="' + MS.esc(p.caption || "") + '"><figcaption>' + MS.esc(p.caption || "") + "</figcaption></figure>"; }).join("")
+      : [1, 2, 3].map(function () { return '<figure><div class="ph">Sắp có ảnh</div><figcaption>Cô giáo Mở Sách</figcaption></figure>'; }).join("");
+    showLayer($("photos"));
+  }
+
+  /* ---------- Tủ đồ ---------- */
+  function openCloset() { renderCloset(); showLayer($("closet")); }
+  function renderCloset() {
+    var eq = equip(), stars = MS.totalStars();
+    $("closet-note").textContent = "Bạn đang có " + stars + " Sao Biển. Đồ mới mở thêm khi có nhiều sao hơn (không bị trừ sao).";
+    var box = $("closet-list"); box.innerHTML = "";
+    Object.keys(MS3D.SLOT_NAMES).forEach(function (slot) {
+      var items = MS3D.ACCESSORIES.filter(function (a) { return a.slot === slot; });
+      var h = document.createElement("h3"); h.textContent = MS3D.SLOT_NAMES[slot]; box.appendChild(h);
+      var wrap = document.createElement("ul"); wrap.className = "list grid2"; box.appendChild(wrap);
+      wrap.appendChild(li('<span class="t">Không dùng</span>', function () { var e = equip(); e[slot] = null; st("acc", e); MS3D.dress(avatarMesh, e); MS3D.shadow(avatarMesh); renderCloset(); }, !eq[slot]));
+      items.forEach(function (a) {
+        var ok = isUnlocked(a), on = eq[slot] === a.id;
+        var why = a.need.explore ? "Ghé đủ 6 gian hàng và làm đố vui " + themeName(a.need.explore) : a.need.theme ? "Ghé Phòng Lễ hội dịp " + themeName(a.need.theme) : "Cần " + a.need.stars + " Sao Biển";
+        var item = li('<span class="t">' + MS.esc(a.name) + "<small>" + (on ? "Đang dùng" : ok ? "Bấm để dùng" : why) + "</small></span>", function () {
+          if (!ok) { MS.toast(why + " để mở " + a.name + "."); return; }
+          var e = equip(); e[slot] = on ? null : a.id; st("acc", e); MS3D.dress(avatarMesh, e); MS3D.shadow(avatarMesh); renderCloset();
+        }, on);
+        if (!ok) item.firstChild.setAttribute("aria-disabled", "true");
+        wrap.appendChild(item);
+      });
+    });
+  }
+  $("b-closet").onclick = openCloset;
+
+  $("b-help").onclick = function () { showLayer($("help")); };
+
+  /* ---------- Vườn: 4 mùa + ngày/đêm ---------- */
+  function setSeason(id, announce) {
+    var s = world.setSeason ? world.setSeason(id) : MS3D.getSeason(id);
+    Array.prototype.forEach.call($("season-btns").children, function (b) { b.setAttribute("aria-pressed", String(b.dataset.id === s.id)); });
+    if (announce) MS.toast(s.greet);
+  }
+  MS3D.SEASONS.forEach(function (s) {
+    var b = document.createElement("button"); b.type = "button"; b.textContent = s.name; b.dataset.id = s.id;
+    b.onclick = function () { st("season", s.id); setSeason(s.id, true); };
+    $("season-btns").appendChild(b);
+  });
+  function toggleTime() {
+    world.setTime(world.time === "night" ? "day" : "night");
+    $("b-time").textContent = world.time === "night" ? "Ban ngày" : "Ban đêm";
+    $("b-time").setAttribute("aria-pressed", String(world.time === "night"));
+    MS.toast(world.time === "night" ? "Trời tối rồi, đèn lồng đã sáng" : "Trời sáng rồi");
+  }
+  $("b-time").onclick = toggleTime;
+
+  /* ---------- Phòng Lễ hội ---------- */
+  function setFestival(id, announce) {
+    if (!world.setFestival) return;
+    var f = world.setFestival(id);
+    Array.prototype.forEach.call($("fest-btns").children, function (b) { b.setAttribute("aria-pressed", String(b.dataset.id === f.id)); });
+    if ($("b-explore")) syncBoards();
+    if (announce) {
+      MS.toast(f.greet);
+      if (currentRoom && currentRoom.id === "le-hoi") visitFestival(f.id);
+    }
+  }
+  function visitFestival(id) {
+    var th = st("themes") || {};
+    if (!th[id]) { th[id] = true; st("themes", th); checkUnlocks(); }
+  }
+  MS3D.FESTIVALS.forEach(function (f) {
+    var b = document.createElement("button"); b.type = "button"; b.textContent = f.short; b.dataset.id = f.id;
+    b.onclick = function () { st("festival", f.id); setFestival(f.id, true); };
+    $("fest-btns").appendChild(b);
+  });
+  function nextFestival() {
+    var ids = MS3D.FESTIVALS.map(function (f) { return f.id; }), i = ids.indexOf(world.festival);
+    var id = ids[(i + 1) % ids.length]; st("festival", id); setFestival(id, true);
+  }
+
+  /* ---------- Phòng khám phá lễ hội: 6 gian hàng + đố vui + góc viết ---------- */
+  function content(fid) { return (MS3D.FESTIVAL_CONTENT || {})[fid]; }
+  function ex(fid) { var e = st("explore") || {}; return e[fid] || { seen: {}, quiz: false, badge: false }; }
+  function saveEx(fid, o) { var e = st("explore") || {}; e[fid] = o; st("explore", e); }
+  function seenCount(fid) { var c = content(fid), o = ex(fid); return c ? c.boards.filter(function (b) { return o.seen[b.id]; }).length : 0; }
+  function syncBoards() {
+    MS3D.FESTIVALS.forEach(function (f) {
+      var c = content(f.id), o = ex(f.id); if (!c) return;
+      c.boards.forEach(function (b, i) { MS3D.markFestBoard(world, f.id, i, !!o.seen[b.id]); });
+    });
+    var c = content(world.festival);
+    $("b-explore").textContent = c ? "Khám phá " + seenCount(world.festival) + "/" + c.boards.length : "Khám phá";
+  }
+  function festStyle(el, fid) { var f = MS3D.getFestival(fid); el.style.setProperty("--fest", f.accent); el.style.setProperty("--fest-ink", f.accentInk); }
+  function checkBadge(fid) {
+    var c = content(fid), o = ex(fid);
+    if (!c || o.badge || !o.quiz || seenCount(fid) < c.boards.length) return;
+    o.badge = true; saveEx(fid, o);
+    var a = MS3D.ACCESSORIES.filter(function (x) { return x.need.explore === fid; })[0];
+    checkUnlocks(true);
+    setTimeout(function () { MS.toast("Tuyệt vời! Bạn nhận " + (a ? a.name : "huy hiệu") + ". Vào Tủ đồ để cài lên áo nhé!"); }, 600);
+  }
+  function markSeen(fid, idx) {
+    var c = content(fid), o = ex(fid), b = c && c.boards[idx]; if (!b || o.seen[b.id]) return;
+    o.seen[b.id] = true; saveEx(fid, o); syncBoards(); checkBadge(fid);
+    var n = seenCount(fid);
+    if (n === c.boards.length && !o.quiz) setTimeout(function () { MS.toast("Bạn đã ghé hết 6 gian hàng! Ghé bục Đố vui để nhận huy hiệu nhé."); }, 400);
+  }
+
+  // Gian hàng: đọc từng trang, trang cuối có "Bạn có biết?" và từ mới tiếng Anh
+  var led = { fid: null, idx: 0, page: 0 };
+  function openLed(fid, idx) {
+    var c = content(fid); if (!c) return;
+    led = { fid: fid, idx: idx, page: 0 };
+    festStyle($("led-panel"), fid); renderLed(); showLayer($("led"));
+  }
+  function renderLed() {
+    var c = content(led.fid), b = c.boards[led.idx], pages = b.pages, last = led.page === pages.length - 1, pg = pages[led.page];
+    $("led-kicker").textContent = "Gian hàng " + (led.idx + 1) + "/" + c.boards.length + " · " + MS3D.getFestival(led.fid).name;
+    $("led-title").textContent = b.title;
+    $("led-body").innerHTML = "<h3>" + MS.esc(pg.h) + "</h3>" + pg.p.map(function (t) { return "<p>" + MS.esc(t) + "</p>"; }).join("");
+    $("led-fact").hidden = !last || !b.fact;
+    $("led-fact").innerHTML = "<b>Bạn có biết?</b> " + MS.esc(b.fact || "");
+    $("led-words").hidden = !last || !b.words;
+    $("led-words").innerHTML = "<b>Từ mới</b>" + (b.words || []).map(function (w) { return '<span class="word"><i lang="en">' + MS.esc(w[0]) + "</i> " + MS.esc(w[1]) + "</span>"; }).join("");
+    $("led-page").textContent = (led.page + 1) + " / " + pages.length;
+    $("led-prev").disabled = led.page === 0;
+    if (last) markSeen(led.fid, led.idx);
+    $("led-next").textContent = last ? (nextUnseen(led.fid, led.idx) >= 0 ? "Bảng tiếp theo →" : "Xong") : "Tiếp →";
+  }
+  // bảng chưa xem kế tiếp (vòng lại từ đầu), -1 nếu đã xem hết
+  function nextUnseen(fid, from) {
+    var c = content(fid), o = ex(fid), n = c.boards.length;
+    for (var k = 1; k < n; k++) { var j = (from + k) % n; if (!o.seen[c.boards[j].id]) return j; }
+    return -1;
+  }
+  $("led-prev").onclick = function () { if (led.page > 0) { led.page--; renderLed(); } };
+  $("led-next").onclick = function () {
+    var c = content(led.fid), b = c.boards[led.idx];
+    if (led.page < b.pages.length - 1) { led.page++; renderLed(); return; }
+    var nx = nextUnseen(led.fid, led.idx);
+    if (nx >= 0) { led.idx = nx; led.page = 0; renderLed(); } else hideLayer($("led"));
+  };
+
+  // Đố vui: thứ tự đáp án xáo trộn, sai không bị trừ, thử lại đến khi đúng
+  var qz = null;
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function openQuiz(fid) {
+    var c = content(fid); if (!c) return;
+    qz = { fid: fid, i: 0, first: 0, tried: false };
+    festStyle($("quiz-panel"), fid);
+    $("quiz-h").textContent = "Đố vui " + MS3D.getFestival(fid).name;
+    renderQuiz(); showLayer($("quiz"));
+  }
+  // Thử thách tiếng Việt (góc đông nam sảnh): mỗi lần ghé bục rút 3 câu CHƯA gặp trong MS3D.DAILY_QUIZ
+  // (2 trắc nghiệm + 1 xếp chữ kiểu Vua tiếng Việt), hết kho thì quay vòng. Dùng chung bảng Đố vui.
+  // Bục hoá vàng khi hôm nay đã chơi; đếm số ngày chơi liên tiếp.
+  function dayKey(off) { var d = new Date(); d.setDate(d.getDate() + (off || 0)); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
+  function dailyDone() { var o = st("daily"); return !!(o && o.last === dayKey()); }
+  function quizKey(q) { return q.answer || (q.q + "|" + q.options[0]); }
+  function drawDaily() {
+    var pool = MS3D.DAILY_QUIZ || [], seen = st("dailySeen") || [];
+    var fresh = pool.filter(function (q) { return seen.indexOf(quizKey(q)) < 0; });
+    if (fresh.length < 3) {   // gặp hết kho: quay vòng, tránh lặp lại bộ vừa chơi
+      var last = seen.slice(-3);
+      seen = [];
+      fresh = pool.filter(function (q) { return last.indexOf(quizKey(q)) < 0; });
+    }
+    fresh = shuffle(fresh);
+    var xep = fresh.filter(function (q) { return q.type === "xep"; }), mc = fresh.filter(function (q) { return q.type !== "xep"; });
+    var pick = mc.slice(0, 2).concat(xep.slice(0, 1));
+    fresh.forEach(function (q) { if (pick.length < 3 && pick.indexOf(q) < 0) pick.push(q); });
+    st("dailySeen", seen.concat(pick.map(quizKey)));
+    return pick;
+  }
+  function openDaily() {
+    if (!(MS3D.DAILY_QUIZ || []).length) return;
+    qz = { daily: true, items: drawDaily(), i: 0, first: 0, tried: false };
+    $("quiz-panel").style.setProperty("--fest", "#1d6b6d"); $("quiz-panel").style.setProperty("--fest-ink", "#ffc83d");
+    $("quiz-h").textContent = "Thử thách tiếng Việt";
+    renderQuiz(); showLayer($("quiz"));
+  }
+  function finishDaily(box) {
+    var o = st("daily") || {}, streak = o.last === dayKey() ? (o.streak || 1) : o.last === dayKey(-1) ? (o.streak || 0) + 1 : 1;
+    st("daily", { last: dayKey(), streak: streak });
+    if (world.setDailyDone) world.setDailyDone(true);
+    var left = (MS3D.DAILY_QUIZ || []).length - (st("dailySeen") || []).length;
+    box.innerHTML = '<p class="big">Giỏi quá! Bạn đúng ngay lần đầu ' + qz.first + "/" + qz.items.length + " câu.</p>" +
+      "<p>" + (streak > 1 ? "Bạn đã chơi " + streak + " ngày liên tiếp. " : "") + (left >= 3 ? "Kho còn " + left + " câu bạn chưa gặp." : "Bạn đã gặp hết kho câu đố, lượt sau sẽ quay vòng lại.") + "</p>" +
+      '<div class="nav"><button class="btn ghost" type="button" id="quiz-again">Thêm 3 câu mới</button><button class="btn cta" type="button" id="quiz-done">Xong</button></div>';
+    $("quiz-again").onclick = openDaily;
+    $("quiz-done").onclick = function () { hideLayer($("quiz")); };
+  }
+  // Xếp chữ kiểu Vua tiếng Việt: bấm lần lượt các ô chữ (hoặc ô tiếng) cho đúng thứ tự
+  function renderXep(item, box, total) {
+    var byWord = item.unit === "word", ans = item.answer.normalize("NFC").toLowerCase();
+    var words = ans.split(/\s+/), tiles = byWord ? words.slice() : Array.from(words.join(""));
+    var order = tiles.map(function (_, i) { return i; }), tries = 0;
+    do { order = shuffle(order); tries++; } while (tries < 20 && order.every(function (v, i) { return v === i; }));
+    var picked = [], done = false;
+    qz.tried = false;
+    box.innerHTML = '<p class="kicker">Câu ' + (qz.i + 1) + " / " + total + " · Vua tiếng Việt</p>" +
+      "<h3>" + (byWord ? "Xếp các tiếng thành câu ca dao, tục ngữ" : "Xếp các chữ cái thành từ có nghĩa") + "</h3>" +
+      '<p class="xep-hint">Gợi ý: ' + MS.esc(item.hint || "") + "</p>" +
+      '<div class="xep-slots" id="xep-slots" aria-live="polite"></div>' +
+      '<div class="xep-tiles" id="xep-tiles"></div>' +
+      '<p class="why" id="quiz-why" role="status"></p>' +
+      '<div class="nav"><button class="btn ghost" type="button" id="xep-undo">Xoá chữ cuối</button><button class="btn cta" type="button" id="quiz-next" hidden>Câu tiếp →</button></div>';
+    var slots = $("xep-slots"), tl = $("xep-tiles");
+    function drawSlots() {
+      var k = 0, html = "";
+      words.forEach(function (w) {
+        var n = byWord ? 1 : Array.from(w).length;
+        html += '<span class="xep-word">';
+        for (var j = 0; j < n; j++, k++) html += '<span class="xep-slot' + (byWord ? " wide" : "") + (picked[k] !== undefined ? " on" : "") + '">' + (picked[k] !== undefined ? MS.esc(tiles[picked[k]]) : "") + "</span>";
+        html += "</span>";
+      });
+      slots.innerHTML = html;
+    }
+    var btns = order.map(function (ti) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "xep-tile" + (byWord ? " wide" : "");
+      b.textContent = tiles[ti];
+      b.onclick = function () {
+        if (done || b.disabled) return;
+        picked.push(ti); b.disabled = true; drawSlots();
+        if (picked.length < tiles.length) return;
+        var got = picked.map(function (i) { return tiles[i]; }).join(byWord ? " " : "");
+        if (got === (byWord ? ans : words.join(""))) {
+          done = true; if (!qz.tried) qz.first++;
+          slots.classList.add("ok");
+          btns.forEach(function (x) { x.disabled = true; });
+          var shown = ans.charAt(0).toUpperCase() + ans.slice(1);
+          $("quiz-why").textContent = "Đúng rồi! “" + shown + "”. " + (item.why || "");
+          $("xep-undo").hidden = true; $("quiz-next").hidden = false; $("quiz-next").focus();
+        } else {
+          qz.tried = true; slots.classList.add("no");
+          $("quiz-why").textContent = "Chưa đúng rồi, thử sắp lại nhé!";
+          setTimeout(function () { picked = []; btns.forEach(function (x) { x.disabled = false; }); slots.classList.remove("no"); drawSlots(); }, 900);
+        }
+      };
+      tl.appendChild(b); return b;
+    });
+    var byTile = {}; order.forEach(function (ti, k) { byTile[ti] = btns[k]; });
+    $("xep-undo").onclick = function () { if (done || !picked.length) return; byTile[picked.pop()].disabled = false; drawSlots(); };
+    $("quiz-next").onclick = function () { qz.i++; renderQuiz(); };
+    drawSlots();
+  }
+  // Đom đóm ban đêm (Vườn): mỗi con đố một câu đố dân gian (MS3D.RIDDLES), không lặp lại câu vừa đố
+  var riddleI = Math.floor(Math.random() * 9);
+  function openRiddle() {
+    var list = MS3D.RIDDLES || []; if (!list.length) return;
+    qz = { riddle: true, items: [list[riddleI++ % list.length]], i: 0, first: 0, tried: false };
+    $("quiz-panel").style.setProperty("--fest", "#1f2d4a"); $("quiz-panel").style.setProperty("--fest-ink", "#dfff8a");
+    $("quiz-h").textContent = "Đom đóm đố con";
+    renderQuiz(); showLayer($("quiz"));
+  }
+  function finishRiddle(box) {
+    var n = (st("fireflies") || 0) + 1; st("fireflies", n);
+    box.innerHTML = '<p class="big">Giỏi quá! Đom đóm bay đi rồi.</p><p>Con đã bắt được ' + n + " con đom đóm. Ngày xưa, Ông Trạng Nguyễn Hiền học bài nhờ ánh sáng đom đóm đó!</p>" +
+      '<div class="nav"><span></span><button class="btn cta" type="button" id="quiz-done">Bắt con khác</button></div>';
+    $("quiz-done").onclick = function () { hideLayer($("quiz")); };
+  }
+
+  /* ---------- Câu cá chữ (Vườn): cá bơi trong ao mang chữ cái / tiếng, câu đúng thứ tự để xếp thành từ hoặc tục ngữ ---------- */
+  var fs = null;
+  function openFish() {
+    var pool = shuffle(MS3D.FISH_ROUNDS || []);
+    var words = pool.filter(function (r) { return r.unit !== "word"; }), sayings = pool.filter(function (r) { return r.unit === "word"; });
+    fs = { rounds: words.slice(0, 2).concat(sayings.slice(0, 1)), i: 0, caught: 0 };
+    showLayer($("fish")); renderFish();   // mở bảng trước để đo được bề ngang ao
+  }
+  function renderFish() {
+    var box = $("fish-body");
+    if (fs.i >= fs.rounds.length) {
+      var total = (st("fishCaught") || 0) + fs.caught; st("fishCaught", total);
+      box.innerHTML = '<p class="big">Mẻ cá hôm nay: ' + fs.caught + " chữ!</p><p>Tổng cộng con đã câu được " + total + " chữ ở hồ Cá Heo.</p>" +
+        '<div class="nav"><button class="btn ghost" type="button" id="fish-again">Câu tiếp</button><button class="btn cta" type="button" id="fish-done">Xong</button></div>';
+      $("fish-again").onclick = openFish; $("fish-done").onclick = function () { hideLayer($("fish")); };
+      return;
+    }
+    var r = fs.rounds[fs.i], byWord = r.unit === "word", ans = r.answer.normalize("NFC").toLowerCase();
+    var words = ans.split(/\s+/), need = byWord ? words.slice() : Array.from(words.join(""));
+    var D = MS3D.FISH_DECOYS || { letters: [], words: [] };
+    var decoys = shuffle(byWord ? D.words : D.letters).filter(function (x) { return need.indexOf(x) < 0; }).slice(0, byWord ? 2 : 3);
+    var tiles = shuffle(need.concat(decoys)), got = 0, done = false;
+    box.innerHTML = '<p class="kicker">Lượt ' + (fs.i + 1) + " / " + fs.rounds.length + (byWord ? " · Câu tục ngữ" : " · Từ") + "</p>" +
+      '<p class="xep-hint">Gợi ý: ' + MS.esc(r.hint) + "</p>" +
+      '<div class="xep-slots" id="fish-slots"></div>' +
+      '<div class="fish-pond" id="fish-pond"></div>' +
+      '<p class="why" id="fish-why" role="status">Câu lần lượt từng ' + (byWord ? "tiếng" : "chữ cái") + " theo đúng thứ tự nhé.</p>" +
+      '<div class="nav"><span></span><button class="btn cta" type="button" id="fish-next" hidden>Lượt tiếp →</button></div>';
+    var slots = $("fish-slots"), pond = $("fish-pond"), FC = ["#ff8300", "#ffc83d", "#e86a92", "#ffffff", "#9be3e0"];
+    function drawSlots() {
+      var k = 0, html = "";
+      words.forEach(function (w) {
+        var n = byWord ? 1 : Array.from(w).length;
+        html += '<span class="xep-word">';
+        for (var j = 0; j < n; j++, k++) html += '<span class="xep-slot' + (byWord ? " wide" : "") + (k < got ? " on" : "") + '">' + (k < got ? MS.esc(need[k]) : "") + "</span>";
+        html += "</span>";
+      });
+      slots.innerHTML = html;
+    }
+    var pw = pond.clientWidth || 480, rows = Math.max(3, Math.min(7, Math.ceil(tiles.length / 2)));
+    pond.style.setProperty("--w", pw + "px");
+    tiles.forEach(function (t, i) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "fish-btn" + (Math.floor(i / rows) % 2 ? " flip" : "");   // hai con cùng hàng bơi ngược chiều
+      b.textContent = t; b.setAttribute("aria-label", "Cá mang chữ " + t);
+      b.style.top = (8 + (i % rows) * (284 / rows)) + "px";
+      b.style.setProperty("--fc", FC[i % FC.length]);
+      b.style.setProperty("--dur", (7 + (i * 1.7) % 6).toFixed(1) + "s");
+      b.style.setProperty("--delay", (-(i * 2.3) % 7).toFixed(1) + "s");
+      b.onclick = function () {
+        if (done || b.disabled) return;
+        if (t === need[got]) {
+          b.disabled = true; got++; fs.caught++; drawSlots();
+          $("fish-why").textContent = "Dính rồi! Chữ “" + t + "”.";
+          if (got === need.length) {
+            done = true; slots.classList.add("ok");
+            $("fish-why").textContent = "Đúng rồi! “" + ans.charAt(0).toUpperCase() + ans.slice(1) + "”. " + (r.why || "");
+            $("fish-next").hidden = false; $("fish-next").focus();
+          }
+        } else {
+          b.classList.add("slip"); $("fish-why").textContent = "Ối, cá tuột mất rồi! Chữ này chưa đúng chỗ, con thử con cá khác nhé.";
+          setTimeout(function () { b.classList.remove("slip"); }, 700);
+        }
+      };
+      pond.appendChild(b);
+    });
+    $("fish-next").onclick = function () { fs.i++; renderFish(); };
+    drawSlots();
+  }
+
+  function renderQuiz() {
+    var c = qz.daily || qz.riddle ? { quiz: qz.items } : content(qz.fid), box = $("quiz-body");
+    if (qz.i >= c.quiz.length && qz.riddle) return finishRiddle(box);
+    if (qz.i >= c.quiz.length && qz.daily) return finishDaily(box);
+    if (qz.i >= c.quiz.length) {
+      var o = ex(qz.fid); o.quiz = true; saveEx(qz.fid, o);
+      var left = c.boards.length - seenCount(qz.fid);
+      box.innerHTML = '<p class="big">Xong rồi! Bạn đúng ngay lần đầu ' + qz.first + "/" + c.quiz.length + " câu.</p>" +
+        "<p>" + (left > 0 ? "Còn " + left + " gian hàng chưa ghé. Ghé hết để nhận huy hiệu nhé!" : "Bạn đã khám phá trọn vẹn phòng lễ hội này.") + "</p>" +
+        '<div class="nav"><button class="btn ghost" type="button" id="quiz-again">Chơi lại</button><button class="btn cta" type="button" id="quiz-done">Xong</button></div>';
+      $("quiz-again").onclick = function () { openQuiz(qz.fid); };
+      $("quiz-done").onclick = function () { hideLayer($("quiz")); };
+      checkBadge(qz.fid);
+      return;
+    }
+    var item = c.quiz[qz.i];
+    if (item.type === "xep") return renderXep(item, box, c.quiz.length);
+    var right = item.options[0];
+    qz.tried = false;
+    box.innerHTML = '<p class="kicker">Câu ' + (qz.i + 1) + " / " + c.quiz.length + '</p><h3>' + MS.esc(item.q) + '</h3><ul class="list" id="quiz-opts"></ul><p class="why" id="quiz-why" role="status"></p><div class="nav"><span></span><button class="btn cta" type="button" id="quiz-next" hidden>Câu tiếp →</button></div>';
+    shuffle(item.options).forEach(function (opt) {
+      var l = document.createElement("li"), b = document.createElement("button"); b.type = "button"; b.innerHTML = '<span class="t">' + MS.esc(opt) + "</span>";
+      b.onclick = function () {
+        if (opt === right) {
+          if (!qz.tried) qz.first++;
+          b.classList.add("ok");
+          Array.prototype.forEach.call($("quiz-opts").querySelectorAll("button"), function (x) { x.disabled = true; });
+          $("quiz-why").textContent = "Đúng rồi! " + item.why;
+          $("quiz-next").hidden = false; $("quiz-next").focus();
+        } else {
+          qz.tried = true; b.classList.add("no"); b.disabled = true;
+          $("quiz-why").textContent = "Chưa đúng, bạn thử đáp án khác nhé." + (qz.daily || qz.riddle ? "" : " Gợi ý: ghé lại các gian hàng.");
+        }
+      };
+      l.appendChild(b); $("quiz-opts").appendChild(l);
+    });
+    $("quiz-next").onclick = function () { qz.i++; renderQuiz(); };
+  }
+
+  // Góc viết: đề nghị luận ngắn, gợi ý theo mô hình hamburger, lưu trên máy này
+  var writeFid = null;
+  function openWrite(fid) {
+    var c = content(fid); if (!c) return;
+    writeFid = fid; festStyle($("write-panel"), fid);
+    $("write-prompt").textContent = c.write.prompt;
+    $("write-hints").innerHTML = (MS3D.WRITE_HINTS || []).map(function (h) { return "<li><b>" + MS.esc(h[0]) + ":</b> " + MS.esc(h[1]) + "</li>"; }).join("");
+    $("write-text").value = (st("writes") || {})[fid] || "";
+    countSentences(); showLayer($("write"));
+  }
+  function countSentences() {
+    var t = $("write-text").value.trim(), n = t ? t.split(/[.!?…]+/).filter(function (s) { return s.trim().length > 2; }).length : 0;
+    $("write-count").textContent = n + " câu" + (n >= 3 ? " · tốt lắm!" : " · cần 3–5 câu");
+  }
+  $("write-text").addEventListener("input", countSentences);
+  $("write-save").onclick = function () {
+    var w = st("writes") || {}; w[writeFid] = $("write-text").value.slice(0, 2000); st("writes", w);
+    MS.toast("Đã lưu bài viết trên máy này.");
+  };
+
+  // Danh sách khám phá (tương đương mọi trạm trong phòng, dùng được khi không quen 3D)
+  function openExplore() {
+    var fid = world.festival, c = content(fid), f = MS3D.getFestival(fid), o = ex(fid);
+    if (!c) return;
+    festStyle($("explore-panel"), fid);
+    $("explore-h").textContent = "Khám phá " + f.name;
+    var n = seenCount(fid);
+    $("explore-note").innerHTML = "Đã ghé " + n + "/" + c.boards.length + " gian hàng. " + (o.badge ? "Bạn đã có huy hiệu của lễ này." : "Ghé hết các gian hàng và làm đố vui để nhận huy hiệu.") +
+      '<span class="pbar"><span style="width:' + Math.round(n / c.boards.length * 100) + '%"></span></span>';
+    var ul = $("explore-list"); ul.innerHTML = "";
+    c.boards.forEach(function (b, i) {
+      ul.appendChild(li('<span class="dot' + (o.seen[b.id] ? "" : " s") + '"></span><span class="t">' + (i + 1) + ". " + MS.esc(b.title) + "<small>" + (o.seen[b.id] ? "Đã khám phá" : "Chưa xem") + "</small></span>", function () { openLed(fid, i); }));
+    });
+    ul.appendChild(li('<span class="dot' + (o.quiz ? " g" : " o") + '"></span><span class="t">Đố vui<small>' + (o.quiz ? "Đã làm" : c.quiz.length + " câu") + "</small></span>", function () { openQuiz(fid); }));
+    ul.appendChild(li('<span class="dot' + ((st("writes") || {})[fid] ? " g" : " o") + '"></span><span class="t">Góc viết<small>Viết ý kiến của bạn</small></span>', function () { openWrite(fid); }));
+    showLayer($("explore"));
+  }
+  $("b-explore").onclick = openExplore;
+
+  /* ---------- Không gian đọc: chọn sách → ngồi ghế → đọc ---------- */
+  function readLog() { return st("reading") || {}; }
+  function saveRead(id, o) { var r = readLog(); r[id] = o; st("reading", r); }
+  function bookStatus(b) {
+    var r = readLog()[b.id];
+    if (r && r.done) return b.paper ? "Đã làm gợi ý đọc" : "Đã đọc xong";
+    if (r && r.page > 0) return "Đang đọc trang " + (r.page + 1) + "/" + b.pages.length;
+    return "Chưa đọc";
+  }
+  var cardBook = null;
+  function openBookCard(id) {
+    var b = MS3D.getBook(id); if (!b) return;
+    cardBook = b;
+    $("bc-cover").src = MS3D.coverURL(b);
+    $("bc-title").textContent = b.title;
+    $("bc-author").textContent = b.author || "";
+    $("bc-meta").textContent = [b.grade, b.minutes, b.paper ? "gợi ý đọc " + b.pages.length + " bước" : b.pages.length + " trang"].filter(Boolean).join(" · ");
+    $("bc-summary").textContent = b.summary || "";
+    $("bc-status").textContent = bookStatus(b);
+    $("bc-paper").hidden = !b.paper;
+    var sum = b.shelf === "kinh-dien";
+    $("bc-read").textContent = b.paper ? "Xem gợi ý đọc" : sum ? "Đọc tóm tắt" : "Đọc ngay";
+    $("bc-sit").textContent = b.paper ? "Ngồi ghế xem gợi ý" : sum ? "Ngồi ghế đọc tóm tắt" : "Ngồi ghế đọc";
+    showLayer($("bookcard"));
+  }
+  // Ngồi xuống ghế lười gần nhất rồi mở sách
+  $("bc-sit").onclick = function () {
+    var b = cardBook; st("book", b.id); hideLayer($("bookcard"), true);
+    var p = player.position, best = null, bd = 1e9;
+    world.interactables.forEach(function (it) {
+      if (it.kind !== "seat") return;
+      var d = Math.hypot(it.seat.x - p.x, it.seat.z - p.z); if (d < bd) { bd = d; best = it; }
+    });
+    if (best) { sitDown(best.seat, true); setTimeout(function () { openReader(b.id); }, 700); } else openReader(b.id);
+  };
+  $("bc-read").onclick = function () { var b = cardBook; st("book", b.id); hideLayer($("bookcard"), true); openReader(b.id); };
+
+  // Trình đọc sách (assets/sach/reader.js): bìa, lật trang 3D, 4 loại giấy, 3 kiểu đọc
+  function openReader(id) {
+    var b = MS3D.getBook(id); if (!b) return;
+    var r = readLog()[id] || {};
+    var start = r.done ? 0 : (typeof r.pos === "number" ? r.pos : (r.page > 0 ? r.page + 2 : 0));
+    showLayer($("reader"));
+    MSReader.open($("reader"), b, {
+      cover: MS3D.coverURL(b), start: start, note: r.note || "", prefs: st("readerPrefs") || {},
+      titlePrefix: b.paper ? "Gợi ý đọc · " : "",
+      onPrefs: function (p) { st("readerPrefs", p); },
+      onPos: function (pos, total, note) {
+        var o = readLog()[id] || {};
+        saveRead(id, { pos: pos, page: Math.max(0, Math.min(b.pages.length - 1, pos - 2)), done: !!o.done, note: (note || "").slice(0, 1000) });
+      },
+      onDone: function (note) {
+        var was = (readLog()[id] || {}).done;
+        saveRead(id, { pos: 0, page: b.pages.length - 1, done: true, note: (note || "").slice(0, 1000) });
+        var log = readLog(), cnt = Object.keys(log).filter(function (k) { return log[k].done; }).length;
+        closeReader();
+        MS.toast(was ? "Đã lưu suy nghĩ của bạn." : "Bạn đã đọc xong “" + b.title + "”! Nhật ký đọc: " + cnt + " cuốn.");
+      },
+      onClose: closeReader
+    });
+    var cb = $("reader").querySelector(".rd-btn"); if (cb) setTimeout(function () { cb.focus(); }, 40);
+  }
+  function closeReader() { MSReader.close(); hideLayer($("reader")); }
+
+  // Thư viện chia theo kệ; onlyShelf: chỉ hiện một kệ (vd. "kinh-dien" khi chạm tủ kinh điển)
+  var SIDE_NAME = { dong: "Phương Đông", tay: "Phương Tây" };
+  function openLibrary(onlyShelf) {
+    var ul = $("lib-list"); ul.innerHTML = "";
+    var done = MS3D.BOOKS.filter(function (b) { return (readLog()[b.id] || {}).done; }).length;
+    var shelves = (window.MS_SHELVES || []).filter(function (sh) { return !onlyShelf || sh.id === onlyShelf; });
+    function head(t) { var h = document.createElement("li"); h.className = "lh"; h.textContent = t; ul.appendChild(h); }
+    function row(b) {
+      var l = document.createElement("li"), btn = document.createElement("button"); btn.type = "button";
+      btn.innerHTML = '<img class="mini" alt="" src="' + MS3D.coverURL(b) + '"><span class="t">' + MS.esc(b.title) + "<small>" + MS.esc(bookStatus(b)) + " · " + MS.esc(b.minutes || "") + (b.side ? " · " + SIDE_NAME[b.side] : "") + "</small></span>";
+      btn.onclick = function () { hideLayer($("library"), true); openBookCard(b.id); };
+      l.appendChild(btn); ul.appendChild(l);
+    }
+    shelves.forEach(function (sh) {
+      var list = MS3D.BOOKS.filter(function (b) { return (b.shelf || "") === sh.id; });
+      if (!list.length) return;
+      if (sh.type === "case") ["dong", "tay"].forEach(function (sd) {
+        var part = list.filter(function (b) { return b.side === sd; });
+        if (part.length) { head(sh.name + " · " + SIDE_NAME[sd]); part.forEach(row); }
+      });
+      else { if (!onlyShelf) head(sh.name); list.forEach(row); }
+    });
+    $("lib-h").textContent = onlyShelf ? "Tủ " + ((shelves[0] || {}).name || "sách") : "Thư viện Mở Sách";
+    $("lib-note").textContent = onlyShelf === "kinh-dien"
+      ? "Tóm tắt các tác phẩm kinh điển do Mở Sách viết lại. Đọc tóm tắt rồi tìm đọc sách thật nhé!"
+      : "Nhật ký đọc: bạn đã đọc xong " + done + "/" + MS3D.BOOKS.length + " cuốn.";
+    showLayer($("library"));
+  }
+
+  // Bảng xếp hạng sách đọc nhiều nhất tháng (dữ liệu MS_TOP_BOOKS trong thu-vien.js)
+  function openTop() {
+    var d = window.MS_TOP_BOOKS || { list: [] }, ul = $("top-list"); ul.innerHTML = "";
+    $("top-h").textContent = "Đọc nhiều nhất · " + (d.month || "tháng này");
+    d.list.forEach(function (r, i) {
+      var b = MS3D.getBook(r.id); if (!b) return;
+      ul.appendChild(li('<span class="rank r' + (i + 1) + '">' + (i + 1) + '</span><img class="mini" alt="" src="' + MS3D.coverURL(b) + '"><span class="t">' + MS.esc(b.title) + "<small>" + r.reads + " lượt đọc · " + MS.esc(bookStatus(b)) + "</small></span>", function () { hideLayer($("top"), true); openBookCard(b.id); }));
+    });
+    var done = MS3D.BOOKS.filter(function (b) { return (readLog()[b.id] || {}).done; }).length;
+    $("top-note").textContent = (d.demo ? "Số liệu minh hoạ. " : "") + "Bạn đã đọc xong " + done + " cuốn. Đọc thêm để giúp cuốn sách mình thích leo hạng nhé!";
+    showLayer($("top"));
+  }
+
+  // Trò chuyện với NPC: dừng lại, vẫy tay, nói một câu
+  function talkTo(id) {
+    var n = MS3D.getNPC(world, id); if (!n) return;
+    var line = n.talk(); if (line) MS.toast(n.name + ": " + line);
+  }
+
+  /* ---------- Phòng chiếu phim: chọn phim → Xem → Nghĩ → Viết (dữ liệu ở assets/phim/phim.js) ---------- */
+  function filmLog() { return st("films") || {}; }
+  function filmRec(id) { return filmLog()[id] || { step: 0, shown: 1, think: {}, tries: {}, note: "", done: false }; }
+  function saveFilm(id, o) { var l = filmLog(); l[id] = o; st("films", l); }
+  function filmStatus(f) {
+    var r = filmLog()[f.id];
+    if (!r) return "Chưa xem";
+    if (r.done) return "Đã viết cảm nhận";
+    return ["Đang xem", "Đang trả lời câu hỏi", "Đang viết"][r.step || 0];
+  }
+  function openCinema() {
+    var ul = $("cin-list"); ul.innerHTML = "";
+    var done = 0;
+    MS3D.FILMS.forEach(function (f) {
+      if ((filmLog()[f.id] || {}).done) done++;
+      var l = document.createElement("li"), btn = document.createElement("button"); btn.type = "button";
+      btn.innerHTML = '<img class="mini" alt="" src="' + MS3D.posterURL(f) + '"><span class="t">' + MS.esc(f.title) + (f.demo ? " (minh hoạ)" : "") + "<small>" + MS.esc(filmStatus(f)) + " · " + MS.esc(f.minutes) + " · " + MS.esc(f.grade) + "</small></span>";
+      btn.onclick = function () { hideLayer($("cinema"), true); openFilm(f.id); };
+      l.appendChild(btn); ul.appendChild(l);
+    });
+    $("cin-note").textContent = "Mỗi phim có 3 bước: Xem, Nghĩ, Viết. Nhật ký xem phim: " + done + "/" + MS3D.FILMS.length + " phim.";
+    showLayer($("cinema"));
+  }
+
+  var film = null, fr = null, qOrder = {};
+  function openFilm(id, step) {
+    film = MS3D.getFilm(id); if (!film) return;
+    fr = filmRec(id); if (step !== undefined) fr.step = step;
+    qOrder = {};
+    if (world.setScreen) world.setScreen(film);
+    $("film-h").textContent = film.title;
+    $("film-kicker").textContent = "Phim ngắn · " + film.minutes + (film.demo ? " · minh hoạ" : "");
+    showLayer($("film")); renderFilm();
+  }
+  function hasPlayer(f) { return !!(f.youtube || f.video || f.facebook); }
+  function filmSave() { saveFilm(film.id, fr); }
+  function renderFilm() {
+    var s = fr.step, body = $("film-body"), n = film.scenes.length;
+    Array.prototype.forEach.call(document.querySelectorAll("#film-panel .steps button"), function (b, i) {
+      var ok = i === 0 ? fr.seen : i === 1 ? Object.keys(fr.think).length >= film.think.length : fr.done;
+      b.innerHTML = (i + 1) + ". " + ["Xem", "Nghĩ", "Viết"][i] + (ok ? ' <span class="ok" aria-label="xong">✓</span>' : "");
+      if (i === s) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+    });
+    $("film-prev").hidden = s === 0;
+    $("film-next").hidden = false;
+    if (s === 0) {
+      var demo = !hasPlayer(film);
+      var player = film.youtube
+        ? '<iframe src="https://www.youtube-nocookie.com/embed/' + encodeURIComponent(film.youtube) + '?rel=0" title="' + MS.esc(film.title) + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>'
+        : film.facebook ? '<iframe src="https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(film.facebook) + '&show_text=false&width=300" title="' + MS.esc(film.title) + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>'
+        : film.video ? '<video controls playsinline preload="metadata" src="' + MS.esc(film.video) + '"></video>'
+        : '<div class="demo-film"><img alt="" src="' + MS3D.posterURL(film) + '"><div><b>Phim minh hoạ</b><p>Phim thật sẽ được gắn vào đây. Bây giờ cậu “xem” bằng kịch bản tranh bên dưới: đọc từng cảnh, tưởng tượng như đang ngồi trong rạp nhé.</p></div></div>';
+      if (demo) fr.shown = Math.max(1, Math.min(n, fr.shown || 1));
+      var lis = film.scenes.map(function (t, i) { return '<li class="' + (!demo || i < fr.shown ? "shown" : "") + '">' + MS.esc(t) + "</li>"; }).join("");
+      body.innerHTML = '<div class="screen-box' + (film.vertical && !demo ? " vertical" : "") + '">' + player + '</div><p>' + MS.esc(film.summary) + "</p>" +
+        (n ? '<h3>' + (demo ? "Kịch bản tranh" : "Các cảnh chính") + '</h3><ol class="scenes hide">' + lis + "</ol>" : "");
+      var more = demo && fr.shown < n;
+      if (!more) { fr.seen = true; filmSave(); }
+      $("film-page").textContent = demo ? "Cảnh " + fr.shown + "/" + n : "";
+      $("film-next").textContent = more ? "Cảnh tiếp →" : "Sang bước Nghĩ →";
+      $("film-next").onclick = function () {
+        if (more) { fr.shown++; filmSave(); renderFilm(); var all = $("film-body").querySelectorAll(".scenes li.shown"); if (all.length) all[all.length - 1].scrollIntoView({ block: "nearest" }); return; }
+        fr.step = 1; fr.qi = 0; filmSave(); renderFilm();
+      };
+    } else if (s === 1) {
+      var qi = Math.min(fr.qi || 0, film.think.length - 1), q = film.think[qi], picked = fr.think[qi];
+      var tries = fr.tries[qi] || 0, hasBest = typeof q.best === "number";
+      var solved = picked !== undefined && (!hasBest || picked === q.best || picked === "reveal");
+      if (!qOrder[qi]) { qOrder[qi] = q.options.map(function (o, i) { return i; }); if (hasBest) qOrder[qi].sort(function () { return Math.random() - 0.5; }); }
+      body.innerHTML = '<p class="kicker">Câu ' + (qi + 1) + "/" + film.think.length + (hasBest ? " · tìm chi tiết trong phim" : " · không có đúng sai") + '</p><h3>' + MS.esc(q.q) + '</h3><ul class="list" id="film-opts"></ul><p class="why" id="film-why"></p>';
+      var why = $("film-why");
+      qOrder[qi].forEach(function (oi) {
+        var o = q.options[oi], l = document.createElement("li"), b = document.createElement("button"); b.type = "button";
+        b.innerHTML = '<span class="t">' + MS.esc(o.t) + "</span>";
+        var right = hasBest ? oi === q.best : oi === picked;
+        if (solved && (hasBest ? right : oi === picked)) b.classList.add("ok");
+        if (solved) b.disabled = true;
+        b.onclick = function () {
+          if (!hasBest || oi === q.best) { fr.think[qi] = oi; filmSave(); renderFilm(); $("film-why").textContent = o.r; return; }
+          fr.tries[qi] = (fr.tries[qi] || 0) + 1; filmSave();
+          b.classList.add("no"); b.disabled = true; why.textContent = o.r;
+          if (fr.tries[qi] >= 2 && !$("film-reveal")) addReveal();
+        };
+        l.appendChild(b); $("film-opts").appendChild(l);
+      });
+      function addReveal() {
+        var r = document.createElement("button"); r.type = "button"; r.className = "btn ghost sm"; r.id = "film-reveal"; r.textContent = "Xem đáp án";
+        r.onclick = function () { fr.think[qi] = "reveal"; filmSave(); renderFilm(); $("film-why").textContent = "Đáp án: " + q.options[q.best].t + ". " + q.options[q.best].r; };
+        why.after(r);
+      }
+      if (solved) why.textContent = picked === "reveal" ? "Đáp án: " + q.options[q.best].t + ". " + q.options[q.best].r : q.options[picked].r;
+      else if (hasBest && tries >= 2) addReveal();
+      $("film-page").textContent = "";
+      $("film-next").disabled = !solved;
+      $("film-next").textContent = qi < film.think.length - 1 ? "Câu tiếp →" : "Sang bước Viết →";
+      $("film-next").onclick = function () { if (qi < film.think.length - 1) fr.qi = qi + 1; else fr.step = 2; filmSave(); renderFilm(); };
+      $("film-prev").onclick = function () { if (qi > 0) fr.qi = qi - 1; else fr.step = 0; filmSave(); renderFilm(); };
+      return;
+    } else {
+      body.innerHTML = '<p class="prompt">' + MS.esc(film.write.prompt) + '</p><ul class="hints">' + (MS3D.WRITE_HINTS || []).map(function (h) { return "<li><b>" + MS.esc(h[0]) + ":</b> " + MS.esc(h[1]) + "</li>"; }).join("") +
+        '</ul><label class="sr-only" for="film-text">Bài viết của cậu</label><textarea id="film-text" rows="6" maxlength="2000" placeholder="Mình đồng ý / không đồng ý vì…"></textarea><p class="note">Bài viết chỉ lưu trên máy này. Cậu có thể chép lại để nộp cho cô giáo.</p>';
+      var ta = $("film-text"); ta.value = fr.note || "";
+      function count() { var t = ta.value.trim(), c = t ? t.split(/[.!?…]+/).filter(function (x) { return x.trim().length > 2; }).length : 0; $("film-page").textContent = c + " câu" + (c >= 3 ? " · tốt lắm!" : " · cần 3–5 câu"); }
+      ta.addEventListener("input", count); count();
+      $("film-next").textContent = "Lưu bài";
+      $("film-next").onclick = function () {
+        var was = fr.done; fr.note = ta.value.slice(0, 2000); fr.done = fr.note.trim().length > 0; filmSave(); renderFilm();
+        var log = filmLog(), cnt = Object.keys(log).filter(function (k) { return log[k].done; }).length;
+        MS.toast(!fr.done ? "Đã lưu. Viết thêm vài câu nhé!" : was ? "Đã lưu bài viết trên máy này." : "Hoàn thành “" + film.title + "”! Nhật ký xem phim: " + cnt + " phim.");
+      };
+    }
+    $("film-next").disabled = false;
+    $("film-prev").onclick = function () { fr.step = Math.max(0, s - 1); if (fr.step === 1) fr.qi = film.think.length - 1; filmSave(); renderFilm(); };
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("#film-panel .steps button"), function (b) {
+    b.onclick = function () { fr.step = +b.dataset.step; if (fr.step === 1 && fr.qi === undefined) fr.qi = 0; filmSave(); renderFilm(); };
+  });
+
+  /* ---------- Tương tác ---------- */
+  var DOLPHIN_LINES = [
+    "Chào bạn! Mình là Cá Heo. Đọc trước rồi mới viết nha!",
+    "Một đoạn nghị luận giống cái bánh hamburger đó, bạn nhớ không?",
+    "Bạn ghé Không gian học thử Khoá 1 với mình nhé!",
+    "Đêm xuống thì vườn có đèn lồng, đọc sách càng vui."
+  ];
+  var FRIDGE_LINES = ["Có sữa, có trái cây… và một cuốn sách? Ai để sách trong tủ lạnh vậy!", "Lấy một hộp sữa rồi đi đọc tiếp nào.", "Tủ lạnh mát quá, nhớ đóng cửa nha!"];
+  var POPCORN_LINES = ["Bắp rang thơm phức! Nhớ nhai nhỏ nhẹ để không làm phiền bạn bên cạnh nha.", "Ăn bắp, xem phim, rồi viết vài câu cảm nhận. Ngon cả miệng lẫn đầu!", "Hết bắp rồi… đùa thôi, vẫn còn đầy xe!"];
+  var COOLER_LINES = ["Ực ực! Uống đủ nước thì đọc sách mới tỉnh táo.", "Nước mát quá! Nhớ rót vừa đủ uống, đừng để phí nha.", "Một ngụm nước, thêm một chương sách!"];
+  var lineI = 0, near = null;
+  // it0: vật vừa được bấm/chạm trực tiếp; không có thì dùng vật ở gần (nút cam / phím E)
+  function interact(it0) {
+    if (openLayer && openLayer.id !== "closet") return;
+    if (it0 && sitting && it0.kind !== "seat") standUp();
+    else if (sitting && sitting.stage && !it0) { bow(); world.stage.cheer(); return; }
+    else if (sitting && (sitting.listen || sitting.swing || sitting.hammock) && !it0) { standUp(); return; }
+    else if (sitting && !it0) { var cb = st("book") && MS3D.getBook(st("book")); if (cb) openReader(cb.id); else standUp(); return; }
+    else if (sitting && it0) standUp();
+    var it = it0 || near;
+    if (!it) return;
+    if (it.kind === "door-click") { var inside = currentRoom && currentRoom.id === it.target; return teleport(inside ? "sanh" : it.target); }
+    if (it.disabled) { MS.toast(it.sub || "Sắp mở"); return; }
+    switch (it.kind) {
+      case "door": return teleport(it.target);
+      case "course": return openOverlay(it.url, it.sub);
+      case "link": return openOverlay(it.url, it.label);
+      case "time": return toggleTime();
+      case "menu": return $("b-menu").onclick();
+      case "tree": MS.toast(world.treeStatus()); return;
+      case "dolphin": MS.toast(DOLPHIN_LINES[lineI++ % DOLPHIN_LINES.length]); return;
+      case "board": return openBoard();
+      case "photos": return openPhotos();
+      case "seat": return sitDown(it.seat);
+      case "water": world.pantry.water(); MS.toast("Ực ực! Uống đủ nước thì đọc sách mới tỉnh táo."); return;
+      case "microwave": world.pantry.microwave(); MS.toast("Vù vù vù…"); setTimeout(function () { MS.toast("Ting! Đồ ăn nóng rồi. Ăn xong nhớ lau bàn nha."); }, 3000); return;
+      case "fridge": if (world.pantry.toggleFridge()) MS.toast(FRIDGE_LINES[Math.floor(Math.random() * FRIDGE_LINES.length)]); return;
+      case "festival": return nextFestival();
+      case "fest-board": return openLed(it.festival, it.idx);
+      case "book": return openBookCard(it.book);
+      case "fest-quiz": return openQuiz(it.festival);
+      case "daily": return openDaily();
+      case "stage": return goStage();
+      case "fest-write": return openWrite(it.festival);
+      case "cinema": return openCinema();
+      case "film": return openFilm(it.film);
+      case "npc": return talkTo(it.npc);
+      case "cooler": it.pour(); MS.toast(COOLER_LINES[lineI++ % COOLER_LINES.length]); return;
+      case "classics": return openLibrary("kinh-dien");
+      case "topbooks": return openTop();
+      case "toast": if (it.onUse) it.onUse(); MS.toast(it.texts ? it.texts[lineI++ % it.texts.length] : it.text); return;
+      case "poem": return openPoem();
+      case "fish": return openFish();
+      case "firefly": if (world.time !== "night") return; world.catchFirefly(it.fly); return openRiddle();
+      case "kite": return openKite();
+      case "popcorn": MS.toast(POPCORN_LINES[lineI++ % POPCORN_LINES.length]); return;
+    }
+  }
+  MS3D.onInteract = interact;
+  $("act-btn").onclick = function () { interact(); };
+
+  function findNear() {
+    var best = null, bd = 1e9, p = player.position;
+    for (var i = 0; i < world.interactables.length; i++) {
+      var it = world.interactables[i];
+      if (it.festival && it.festival !== world.festival) continue;   // trạm của lễ khác đang ẩn
+      var d = Math.hypot(p.x - it.x, p.z - it.z);
+      if (d < it.r && d < bd) { bd = d; best = it; }
+    }
+    return best;
+  }
+  var SIT_ACT = { label: "Đứng dậy", sub: "Chọn sách ở kệ Không gian đọc để đọc nhé" }, SIT_READ = { label: "Mở sách", sub: "" };
+  var STAGE_ACT = { label: "Cúi chào", sub: "Đi để bước xuống sân khấu" }, LISTEN_ACT = { label: "Đứng dậy", sub: "Đang nghe cô Châu kể chuyện" }, PLAY_ACT = { label: "Đứng dậy", sub: "Đi để đứng dậy" };
+  function sitAct() {
+    if (sitting && sitting.stage) return STAGE_ACT;
+    if (sitting && sitting.listen) return LISTEN_ACT;
+    if (sitting && (sitting.swing || sitting.hammock)) return PLAY_ACT;
+    var b = st("book") && MS3D.getBook(st("book"));
+    if (!b) return SIT_ACT;
+    SIT_READ.sub = b.title + " · đi để đứng dậy"; return SIT_READ;
+  }
+  function showAct(it) {
+    if (it === near) return;
+    near = it;
+    if (!it) { $("act").hidden = true; return; }
+    var label = it.kind === "fridge" && world.pantry && world.pantry.isOpen ? "Đóng tủ lạnh" : it.label;
+    $("act-btn").innerHTML = MS.esc(label) + (touch ? "" : "<kbd>E</kbd>");
+    $("act-btn").setAttribute("aria-disabled", it.disabled ? "true" : "false");
+    $("act-sub").textContent = it.sub || "";
+    $("act-sub").hidden = !it.sub;
+    $("act").hidden = false;
+  }
+
+  /* ---------- Màn bắt đầu ---------- */
+  var chosen = MS3D.getCharacter(getAvatar() || MS3D.CHARACTERS[0].id).id;
+  function buildChars() {
+    var box = $("chars"); box.innerHTML = "";
+    var rows = {};
+    MS3D.CHARACTER_GROUPS.forEach(function (gr) {
+      var h = document.createElement("p"); h.className = "cg"; h.textContent = gr.name; box.appendChild(h);
+      var row = document.createElement("div"); row.className = "chars-row"; box.appendChild(row); rows[gr.id] = row;
+    });
+    function mark() { Array.prototype.forEach.call(box.querySelectorAll("button"), function (x) { x.setAttribute("aria-checked", String(x.dataset.id === chosen)); }); }
+    MS3D.CHARACTERS.forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button"; b.setAttribute("role", "radio"); b.setAttribute("aria-checked", String(c.id === chosen)); b.dataset.id = c.id;
+      b.innerHTML = (thumbs[c.id] ? '<img alt="" src="' + thumbs[c.id] + '">' : '<span class="sw" style="background:' + hex(c.color) + '"></span>') + "<span>" + MS.esc(c.name) + "</span>";
+      b.onclick = function () { chosen = c.id; mark(); };
+      (rows[c.group] || box).appendChild(b);
+    });
+  }
+  function openStart() {
+    $("start-name").value = MS.getName();
+    chosen = MS3D.getCharacter(getAvatar() || chosen).id; buildChars();
+    $("start-err").textContent = "";
+    showLayer($("start"));
+  }
+  $("start-form").onsubmit = function (e) {
+    e.preventDefault();
+    var v = $("start-name").value.trim();
+    if (!v) { $("start-err").textContent = "Bạn ghi tên lên thẻ thư viện trước nhé."; $("start-name").focus(); return; }
+    MS.setName(v); setAvatar(chosen); setPlayerAvatar(chosen);
+    hideLayer($("start")); refreshHud();
+    MS.toast("Chào " + v + "! Chào mừng đến Mở Sách.");
+    $("c").focus();
+    firstGuide();
+  };
+  $("b-char").onclick = function () { hideLayer($("closet"), true); openStart(); };
+
+  /* Lần đầu vào: Cá Heo dẫn tới khoá học đầu tiên đang mở. */
+  function firstGuide() {
+    if (st("guided")) return;
+    st("guided", true);
+    var c = MS.COURSES.filter(function (x) { return x.status === "open" && x.url; })[0];
+    if (c) setTimeout(function () { guideTo("khoa-" + c.id); }, 1200);
+  }
+
+  /* ---------- Vòng lặp ---------- */
+  var SPEED = 4.4, last = performance.now(), t0 = last, roomTimer = 0;
+  function loop(now) {
+    requestAnimationFrame(loop);
+    var dt = Math.min(0.1, (now - last) / 1000); last = now;
+    var t = (now - t0) / 1000;
+    if (openLayer === $("ov") || openLayer === $("reader") || openLayer === $("film")) return; // đang học/đọc: dừng vẽ cho nhẹ máy
+
+    var ix = MS3D.input.x, iz = MS3D.input.z, mag = Math.hypot(ix, iz);
+    if (mag > 0.01 && sitting) standUp();
+    if (mag > 0.01) {
+      world.move(player.position, ix * SPEED * dt, iz * SPEED * dt, 0.38);
+      var want = Math.atan2(-ix, -iz);
+      var diff = ((want - heading + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+      heading += diff * Math.min(1, dt * 12);
+      player.rotation.y = heading;
+    }
+    if (avatarMesh) avatarMesh.userData.animate(dt, mag);
+    for (var i = 0; i < world.updaters.length; i++) world.updaters[i](dt, t);
+    guide.update(dt, t, player);
+    app.follow(player.position, dt);
+
+    if (!openLayer || openLayer.id === "closet") showAct(sitting ? sitAct() : findNear());
+    roomTimer += dt;
+    if (roomTimer > 0.25) {
+      roomTimer = 0;
+      // ẩn biển tên cửa nằm giữa máy quay và nhân vật (đỡ che màn hình)
+      var pp = player.position, top = app.isOverview();
+      (world.doorSigns || []).forEach(function (s) { s.visible = top || !(s.position.z > pp.z + 1.2 && Math.abs(s.position.x - pp.x) < 7); });
+      var r = world.roomAt(player.position.x, player.position.z);
+      if (r && r !== currentRoom) {
+        currentRoom = r;
+        $("room-chip").textContent = r.name;
+        $("bar-vuon").hidden = r.id !== "vuon";
+        $("bar-lehoi").hidden = r.id !== "le-hoi";
+        if (r.id === "le-hoi") visitFestival(world.festival);
+        document.body.dataset.room = r.id;
+      }
+    }
+    app.renderer.render(scene, app.camera);
+  }
+
+  /* ---------- Khởi động ---------- */
+  var fontsReady = (document.fonts && document.fonts.ready) ? Promise.race([document.fonts.ready, new Promise(function (r) { setTimeout(r, 1500); })]) : Promise.resolve();
+  fontsReady.then(function () {
+    try { MS3D.buildWorld(world); } catch (e) { console.error(e); return fail(); }
+    makeThumbs();
+    setPlayerAvatar(getAvatar() || MS3D.CHARACTERS[0].id);
+    setSeason(st("season") || MS3D.seasonForDate());
+    setFestival(st("festival") || MS3D.festivalForDate());
+    if (world.pantry) {
+      world.pantry.isOpen = false;
+      var tf = world.pantry.toggleFridge;
+      world.pantry.toggleFridge = function () { world.pantry.isOpen = !!tf(); near = null; return world.pantry.isOpen; };
+    }
+    if (world.setDailyDone) world.setDailyDone(dailyDone());
+    if (world.addKite) (st("kites") || []).forEach(function (k) { world.addKite(k.w, k.c, true); });   // diều đã thả lần trước
+    var lobby = MS3D.getRoom(world, "sanh");
+    player.position.set(lobby.spawn[0], 0, lobby.spawn[1]);
+    app.follow(player.position, 0.016, true);
+    $("loading").hidden = true;
+    $("hud").hidden = false; placeBars();
+    if (touch) { $("joy").hidden = false; MS3D.setupJoystick($("joy")); }
+    else { $("hint").hidden = false; setTimeout(function () { $("hint").style.opacity = "0"; }, 9000); }
+    checkUnlocks(true);
+    syncBoards();
+    refreshHud();
+    var hash = (location.hash || "").slice(1);
+    if (hash && MS3D.getRoom(world, hash)) teleport(hash, true);
+    if (!MS.getName() || !getAvatar()) openStart();
+    else { MS.toast("Chào " + MS.getName() + "!"); $("c").focus(); firstGuide(); }
+    requestAnimationFrame(loop);
+    // trang kiểm thử có thể đọc trạng thái này
+    window.__ms3d = { world: world, player: player, teleport: teleport, interact: interact, guide: guide, guideTo: guideTo, app: app, setTop: setTop, near: function () { return near; }, sitting: function () { return sitting; } };
+  });
+})();
+</script>
+</body>
+</html>
