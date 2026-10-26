@@ -278,18 +278,33 @@
       }, { passive: false });
       var pts = {}, startDist = 0, startZoom = 1;
       function dist() { var k = Object.keys(pts); return k.length < 2 ? 0 : Math.hypot(pts[k[0]].x - pts[k[1]].x, pts[k[0]].y - pts[k[1]].y); }
+      // một ngón: kéo để ngắm (như kéo bản đồ); kéo quá 10px thì không tính là chạm, khỏi mở nhầm đồ vật
+      var drag = null, dragged = 0;
       el.addEventListener("pointerdown", function (e) {
         if (e.pointerType !== "touch") return;
         pts[e.pointerId] = { x: e.clientX, y: e.clientY };
-        if (Object.keys(pts).length === 2) { startDist = dist(); startZoom = zoom; }
+        var n = Object.keys(pts).length;
+        drag = n === 1 ? { id: e.pointerId, x: e.clientX, y: e.clientY, moved: false } : null;
+        if (n === 2) { startDist = dist(); startZoom = zoom; }
       });
       el.addEventListener("pointermove", function (e) {
         if (!pts[e.pointerId]) return;
+        var prev = pts[e.pointerId];
         pts[e.pointerId] = { x: e.clientX, y: e.clientY };
         if (Object.keys(pts).length === 2 && startDist > 20 && !overview) setZoom(startZoom * startDist / Math.max(20, dist()));
+        if (drag && drag.id === e.pointerId && !overview) {
+          if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 10) drag.moved = true;
+          if (drag.moved) addPan((prev.x - e.clientX) * 1.6, (prev.y - e.clientY) * 1.6);
+        }
       });
-      function up(e) { if (!pts[e.pointerId]) return; delete pts[e.pointerId]; startDist = 0; if (Object.keys(pts).length >= 2) { startDist = dist(); startZoom = zoom; } }
+      function up(e) {
+        if (!pts[e.pointerId]) return;
+        if (drag && drag.id === e.pointerId && drag.moved) dragged = performance.now();
+        delete pts[e.pointerId]; startDist = 0; drag = null;
+        if (Object.keys(pts).length >= 2) { startDist = dist(); startZoom = zoom; }
+      }
       el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
+      el.addEventListener("click", function (e) { if (performance.now() - dragged < 400) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
       // Safari trên Mac: chụm trackpad gửi "gesture…" thay vì wheel (trên iPhone thì đã xử lý bằng pointer ở trên)
       var gZoom = 1;
       el.addEventListener("gesturestart", function (e) { e.preventDefault(); gZoom = zoom; });
