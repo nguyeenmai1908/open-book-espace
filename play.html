@@ -408,7 +408,7 @@
     <dl class="keys">
       <dt>Đi lại</dt><dd>Phím WASD hoặc mũi tên. Trên điện thoại: kéo nút tròn góc dưới bên trái.</dd>
       <dt>Tương tác</dt><dd>Bấm (hoặc chạm) thẳng vào đồ vật: cuốn sách, gian hàng lễ hội, ghế lười, cửa… Cũng có thể đến gần rồi bấm nút cam hoặc phím E.</dd>
-      <dt>Vào phòng</dt><dd>Bấm (hoặc chạm) vào sàn của phòng khác là vào thẳng phòng đó. Bấm sàn sảnh khi đang trong phòng để ra sảnh.</dd>
+      <dt>Vào phòng</dt><dd>Bấm vào sàn của phòng khác là vào thẳng phòng đó (trên điện thoại: chạm hai lần). Bấm sàn sảnh khi đang trong phòng để ra sảnh.</dd>
       <dt>Phóng to</dt><dd>Dùng hai ngón tay chụm vào hoặc mở ra trên màn hình hay trackpad. Có chuột thì lăn bánh xe.</dd>
       <dt>Đi nhanh</dt><dd>Đến thẳng một phòng, mở khoá học, hoặc nhờ Cá Heo dẫn đường.</dd>
       <dt>Trên cao</dt><dd>Xem toàn bộ không gian. Chạm vào một phòng để đến đó.</dd>
@@ -720,11 +720,20 @@
     $("c").style.cursor = it || rm ? "pointer" : "";
     $("c").title = rm ? "Vào " + rm.name : "";
   });
+  // điện thoại: chạm hai lần mới vào phòng (đỡ lỡ tay chạm trúng sàn khi định chạm đồ vật gần cửa)
+  var lastPtr = "mouse", tapRoom = null, tapAt = 0;
+  $("c").addEventListener("pointerdown", function (e) { lastPtr = e.pointerType || "mouse"; });
   $("c").addEventListener("click", function (e) {
     if (openLayer) return;
     if (!app.isOverview()) {
       var it = pickAt(e); if (it) return interact(it);
-      var rm = otherRoom(e); if (rm) teleport(rm.id);
+      var rm = otherRoom(e); if (!rm) return;
+      if (lastPtr === "touch" && !(tapRoom === rm && performance.now() - tapAt < 2500)) {
+        tapRoom = rm; tapAt = performance.now();
+        MS.toast("Chạm lần nữa để vào " + rm.name);
+        return;
+      }
+      tapRoom = null; teleport(rm.id);
       return;
     }
     var room = roomAt(e);
