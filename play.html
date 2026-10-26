@@ -408,6 +408,7 @@
     <dl class="keys">
       <dt>Đi lại</dt><dd>Phím WASD hoặc mũi tên. Trên điện thoại: kéo nút tròn góc dưới bên trái.</dd>
       <dt>Tương tác</dt><dd>Bấm (hoặc chạm) thẳng vào đồ vật: cuốn sách, gian hàng lễ hội, ghế lười, cửa… Cũng có thể đến gần rồi bấm nút cam hoặc phím E.</dd>
+      <dt>Vào phòng</dt><dd>Bấm (hoặc chạm) vào sàn của phòng khác là vào thẳng phòng đó. Bấm sàn sảnh khi đang trong phòng để ra sảnh.</dd>
       <dt>Phóng to</dt><dd>Dùng hai ngón tay chụm vào hoặc mở ra trên màn hình hay trackpad. Có chuột thì lăn bánh xe.</dd>
       <dt>Đi nhanh</dt><dd>Đến thẳng một phòng, mở khoá học, hoặc nhờ Cá Heo dẫn đường.</dd>
       <dt>Trên cao</dt><dd>Xem toàn bộ không gian. Chạm vào một phòng để đến đó.</dd>
@@ -702,20 +703,31 @@
     }
     return null;
   }
+  // phòng nằm dưới con trỏ (theo mặt sàn)
+  function roomAt(e) {
+    var r = $("c").getBoundingClientRect();
+    ray.setFromCamera(new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), app.camera);
+    var hit = new THREE.Vector3();
+    return ray.ray.intersectPlane(ground, hit) ? world.roomAt(hit.x, hit.z) : null;
+  }
+  // bấm vào sàn của một phòng khác (nhìn qua cửa, hoặc sảnh khi đang ở trong phòng) thì vào thẳng phòng đó
+  function otherRoom(e) { var rm = roomAt(e); return rm && rm !== currentRoom ? rm : null; }
   var lastHover = 0;
   $("c").addEventListener("pointermove", function (e) {
     if (e.pointerType !== "mouse" || openLayer || app.isOverview()) return;
     var now = performance.now(); if (now - lastHover < 90) return; lastHover = now;
-    $("c").style.cursor = pickAt(e) ? "pointer" : "";
+    var it = pickAt(e), rm = it ? null : otherRoom(e);
+    $("c").style.cursor = it || rm ? "pointer" : "";
+    $("c").title = rm ? "Vào " + rm.name : "";
   });
   $("c").addEventListener("click", function (e) {
     if (openLayer) return;
-    if (!app.isOverview()) { var it = pickAt(e); if (it) interact(it); return; }
-    var r = $("c").getBoundingClientRect();
-    ray.setFromCamera(new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), app.camera);
-    var hit = new THREE.Vector3();
-    if (!ray.ray.intersectPlane(ground, hit)) return;
-    var room = world.roomAt(hit.x, hit.z);
+    if (!app.isOverview()) {
+      var it = pickAt(e); if (it) return interact(it);
+      var rm = otherRoom(e); if (rm) teleport(rm.id);
+      return;
+    }
+    var room = roomAt(e);
     if (room) { setTop(false); teleport(room.id); }
   });
 
