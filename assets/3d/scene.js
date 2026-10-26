@@ -255,12 +255,26 @@
        zoom < 1: máy quay lại gần; > 1: lùi xa. Không áp dụng khi đang nhìn từ trên cao. */
     var ZMIN = 0.45, ZMAX = 1.7, zoom = 1, zoomSmooth = 1;
     function setZoom(z) { zoom = Math.max(ZMIN, Math.min(ZMAX, z)); }
+    /* Kéo hai ngón trên trackpad: máy quay trượt sang chỗ khác để ngắm phòng bên cạnh.
+       Nhân vật đi tiếp thì máy quay từ từ quay về. pan: độ lệch (x, z) của điểm nhìn so với nhân vật. */
+    var PAN_MAX = 18, pan = new THREE.Vector2(), panSmooth = new THREE.Vector2(), lastT = null;
+    function addPan(dx, dz) {
+      var k = 0.022 * zoom;
+      pan.x += dx * k; pan.y += dz * k;
+      if (pan.length() > PAN_MAX) pan.setLength(PAN_MAX);
+    }
     (function zoomInput(el) {
+      var padUntil = 0;
       el.addEventListener("wheel", function (e) {
         if (overview) return;
         e.preventDefault();   // trackpad chụm (ctrlKey) không phóng to cả trang
         var d = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
-        setZoom(zoom * Math.exp(d * (e.ctrlKey ? 0.01 : 0.0015)));
+        if (e.ctrlKey) { setZoom(zoom * Math.exp(d * 0.01)); return; }
+        // trackpad kéo hai ngón: có deltaX, hoặc bước lăn không tròn 120 như bánh xe chuột (giữ 0,8 giây cho cả cú vuốt)
+        var now = performance.now(), wd = e.wheelDeltaY;
+        if (e.deltaMode === 0 && (e.deltaX || !wd || wd % 120 !== 0)) padUntil = now + 800;
+        if (now < padUntil) { addPan(e.deltaX, d); return; }
+        setZoom(zoom * Math.exp(d * 0.0015));   // bánh xe chuột: phóng to / thu nhỏ
       }, { passive: false });
       var pts = {}, startDist = 0, startZoom = 1;
       function dist() { var k = Object.keys(pts); return k.length < 2 ? 0 : Math.hypot(pts[k[0]].x - pts[k[1]].x, pts[k[0]].y - pts[k[1]].y); }
@@ -287,6 +301,14 @@
         camera.position.lerp(o.pos, kk); camTarget.lerp(o.look, kk); camera.lookAt(camTarget);
         return;
       }
+      // nhân vật bước đi: máy quay trượt về lại nhân vật
+      if (lastT && Math.hypot(target.x - lastT.x, target.z - lastT.z) > 0.001) pan.multiplyScalar(Math.max(0, 1 - dt * 4));
+      lastT = { x: target.x, z: target.z };
+      if (snap) pan.set(0, 0);
+      var B = MS3D.WORLD_BOUNDS;   // điểm nhìn không trượt ra ngoài bản đồ
+      if (B) { pan.x = Math.max(B[0] - target.x, Math.min(B[1] - target.x, pan.x)); pan.y = Math.max(B[2] - target.z, Math.min(B[3] - target.z, pan.y)); }
+      panSmooth.lerp(pan, snap ? 1 : Math.min(1, dt * 10));
+      target = { x: target.x + panSmooth.x, y: target.y, z: target.z + panSmooth.y };
       // nắng chếch trái: bóng đổ sang phải, máy quay thấy được
       if (MS3D.SHADOWS) { sun.position.set(target.x - 8, 14, target.z + 3); sun.target.position.set(target.x, 0, target.z); }
       zoomSmooth += (zoom - zoomSmooth) * (snap ? 1 : Math.min(1, dt * 10));
@@ -306,6 +328,6 @@
       }
     }
 
-    return { renderer: renderer, scene: scene, camera: camera, world: world, follow: follow, resize: resize, setOverview: setOverview, setZoom: setZoom, getZoom: function () { return zoom; }, isOverview: function () { return overview; } };
+    return { renderer: renderer, scene: scene, camera: camera, world: world, follow: follow, resize: resize, setOverview: setOverview, setZoom: setZoom, getZoom: function () { return zoom; }, addPan: addPan, getPan: function () { return pan.clone(); }, isOverview: function () { return overview; } };
   };
 })();
