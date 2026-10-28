@@ -23,7 +23,7 @@
       grade: "Lớp 6–9", minutes: "15–20 phút", maxStars: 5, status: "open", url: "khoa-hoc/nghi-luan-1.html" },
     { id: "nghi-luan-2", series: "nghi-luan", title: "Viết bằng chứng và phân tích", code: "Khoá 2",
       blurb: "Tự viết hai phần dễ bắt tay nhất: bằng chứng và phân tích bằng chứng.",
-      grade: "Lớp 6–9", minutes: "20 phút", maxStars: 5, status: "soon", url: "" },
+      grade: "Lớp 6–9", minutes: "20 phút", maxStars: 5, status: "open", url: "khoa-hoc/nghi-luan-2.html" },
     { id: "nghi-luan-3", series: "nghi-luan", title: "Lý lẽ và câu chủ đề", code: "Khoá 3",
       blurb: "Viết lý lẽ thuyết phục và câu chủ đề rõ ràng, rồi ráp thành đoạn hoàn chỉnh.",
       grade: "Lớp 6–9", minutes: "20 phút", maxStars: 5, status: "soon", url: "" },

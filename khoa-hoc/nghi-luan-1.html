@@ -662,8 +662,8 @@
       (p && p.runs > 1 ? '<span class="note">Kỷ lục của bạn: ' + p.best + "/5 sao</span>" : "") + "</div>" +
       '<div class="recap"><div class="sub">Hôm nay bạn đã học</div><ul>' +
       LABELS.map(function (L) { return "<li>" + layer(L.cls) + "<span><b>" + L.name + "</b> · " + HINT[L.id] + "</span></li>"; }).join("") + "</ul></div>" +
-      '<div class="next"><span class="sub">Khoá 2 · sắp ra mắt</span><p>Hôm nay bạn đã học cách NHÌN RA 5 phần của đoạn văn nghị luận. Ở Khoá 2, tụi mình sẽ học cách TỰ VIẾT hai phần dễ bắt tay vào làm nhất: <b>Bằng chứng</b> và <b>Phân tích</b>. Hẹn gặp lại bạn nhé!</p></div>' +
-      '<div class="actions"><button class="btn ghost" type="button" id="again">Học lại từ đầu</button><a class="btn ghost" href="../vuon-doc-sach.html">Ra vườn đọc đoạn mẫu</a><span class="grow"></span><a class="btn cta" href="../khong-gian-hoc.html">Về Không gian học</a></div>');
+      '<div class="next"><span class="sub">Học tiếp Khoá 2</span><p>Hôm nay bạn đã học cách NHÌN RA 5 phần của đoạn văn nghị luận. Ở Khoá 2, tụi mình sẽ học cách TỰ VIẾT hai phần dễ bắt tay vào làm nhất: <b>Bằng chứng</b> và <b>Phân tích</b>.</p><a class="btn cta" href="nghi-luan-2.html" style="justify-self:start">Học Khoá 2 →</a></div>' +
+      '<div class="actions"><button class="btn ghost" type="button" id="again">Học lại từ đầu</button><a class="btn ghost" href="../vuon-doc-sach.html">Ra vườn đọc đoạn mẫu</a><span class="grow"></span><a class="btn" href="../khong-gian-hoc.html">Về Không gian học</a></div>');
     document.getElementById("again").onclick = function () { state.stars = [false, false, false, false, false]; state.reached = 0; renderStars(); go(0); };
     say(document.getElementById("bubble-text").innerHTML, n >= 3 ? "happy" : "think");
   }
