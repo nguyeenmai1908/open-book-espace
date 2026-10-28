@@ -423,33 +423,36 @@
 
 
   /* ---------- NỘI DUNG KHOÁ 2 ----------
-     Số liệu và nhân vật trong ví dụ là minh hoạ (có ghi chú ngay dưới). Khi tự viết, học trò dùng bằng chứng thật. */
+     Mọi bằng chứng mẫu đều có thật và có nguồn (ghi ngay dưới), không dùng nhân vật bịa như "bạn Lan lớp 7A":
+     bằng chứng phải kiểm chứng được (SGK Ngữ văn 7: "xác thực, tiêu biểu"; Common Core W.7.1: "accurate, credible sources").
+     Chuyện của bản thân khó kiểm chứng nên chỉ để minh hoạ thêm, không làm bằng chứng chính. */
   var TYPES = [
-    { ico: "📊", n: "Số liệu", d: "Con số từ khảo sát, thống kê, nghiên cứu.",
-      ex: "Khảo sát 200 học sinh của trường: 7 trên 10 bạn đọc sách mỗi tối có điểm Văn từ 8 trở lên.", demo: true },
-    { ico: "📰", n: "Sự việc thực tế", d: "Một việc đã xảy ra thật, ai cũng có thể kiểm chứng.",
-      ex: "Từ khi thư viện quận mở cửa đến 9 giờ tối, lượt mượn sách của học sinh tăng gấp đôi.", demo: true },
-    { ico: "💬", n: "Lời của người đáng tin", d: "Câu nói của nhà văn, nhà khoa học, bác sĩ, thầy cô… có ghi rõ là ai nói.",
-      ex: "Nhà văn M. Gorky từng viết: “Hãy yêu sách, nó là nguồn kiến thức, chỉ có kiến thức mới là con đường sống.”" },
-    { ico: "🙋", n: "Trải nghiệm có thật", d: "Chuyện của chính mình, hoặc của người mình biết rõ.",
-      ex: "Hè năm ngoái em đọc xong 10 cuốn truyện; vào năm học, em viết bài văn nhanh hơn hẳn." }
+    { ico: "📊", n: "Số liệu từ nghiên cứu", d: "Con số do một nghiên cứu, cuộc khảo sát có tên tuổi đưa ra.",
+      ex: "Đề “Học sinh nên chơi thể thao”: Một nghiên cứu theo dõi 1.002 người lớn ở Mỹ trong 12 tuần mùa thu – đông (Nieman và cộng sự, 2010) cho thấy người tập thể dục từ 5 ngày mỗi tuần trở lên có số ngày bị cảm, viêm họng ít hơn 43% so với người hầu như không tập.", src: "Nguồn: British Journal of Sports Medicine, 2010." },
+    { ico: "🏛️", n: "Khuyến nghị của tổ chức uy tín", d: "Lời khuyên chính thức của một tổ chức chuyên môn (y tế, giáo dục…).",
+      ex: "Đề “Học sinh không nên thức khuya”: Viện Hàn lâm Y học Giấc ngủ Hoa Kỳ (AASM, 2016) khuyến nghị trẻ 6–12 tuổi cần ngủ 9–12 tiếng mỗi ngày, tuổi 13–18 cần 8–10 tiếng, nhiều hơn người lớn.", src: "Nguồn: Journal of Clinical Sleep Medicine, 2016." },
+    { ico: "💬", n: "Lời của người có uy tín", d: "Câu nói của nhà khoa học, nhà văn, lãnh tụ… ghi rõ ai nói, nói ở đâu.",
+      ex: "Đề “Học sinh nên chơi thể thao”: Trong bài “Sức khoẻ và thể dục” (1946), Chủ tịch Hồ Chí Minh viết: “Mỗi một người dân yếu ớt tức là làm cho cả nước yếu ớt một phần; mỗi một người dân mạnh khoẻ là góp phần cho cả nước mạnh khoẻ.”", src: "Nguồn: Hồ Chí Minh toàn tập, tập 4." },
+    { ico: "🌟", n: "Tấm gương người thật", d: "Việc làm của một người có thật, ai cũng tra lại được.",
+      ex: "Đề “Học sinh nên đọc sách mỗi ngày”: Tỉ phú Bill Gates viết trên blog Gates Notes (2016) rằng từ nhỏ ông đã đọc trung bình khoảng một cuốn sách mỗi tuần; trên blog này, ông thường viết lại những điều mình học được từ các cuốn sách đã đọc.", src: "Nguồn: gatesnotes.com, bài “My favorite books of 2016”." }
   ];
   var TOPICS = [
-    { id: "viec-nha", topic: "Học sinh nên giúp bố mẹ làm việc nhà.", reason: "Làm việc nhà giúp chúng ta tự lập hơn.",
-      ev: "Bạn Minh lớp 7 tự nấu cơm và rửa bát mỗi tối từ đầu năm học. Đến chuyến cắm trại của trường, Minh là người duy nhất trong nhóm biết nấu một bữa cơm cho cả nhóm.",
-      an: "Điều này cho thấy việc nhà hằng ngày giúp ta luyện những kĩ năng cần thiết, để khi không có bố mẹ bên cạnh, ta vẫn tự lo được cho mình." },
-    { id: "ngu-som", topic: "Học sinh nên đi ngủ trước 10 giờ tối.", reason: "Ngủ đủ giấc giúp chúng ta tỉnh táo khi học.",
-      ev: "Các bác sĩ khuyên trẻ từ 6 đến 12 tuổi nên ngủ khoảng 9–12 tiếng mỗi đêm, tuổi 13 đến 18 khoảng 8–10 tiếng. Tuần thi vừa rồi, em ngủ trước 10 giờ mỗi tối và thấy mình nhớ bài nhanh hơn những tuần thức khuya.",
-      an: "Điều này cho thấy khi ngủ đủ giấc, đầu óc được nghỉ ngơi, nên sáng hôm sau ta tỉnh táo và tiếp thu bài tốt hơn." }
+    { id: "van-dong", topic: "Học sinh nên vận động ít nhất một tiếng mỗi ngày.", reason: "Vận động đều đặn giúp cơ thể khoẻ mạnh.",
+      ev: "Tổ chức Y tế Thế giới (WHO, 2020) khuyến nghị trẻ em và thanh thiếu niên từ 5 đến 17 tuổi nên vận động vừa đến mạnh trung bình ít nhất 60 phút mỗi ngày.",
+      an: "Điều này cho thấy vận động hằng ngày không phải chuyện “có cũng được”, mà là nhu cầu của cơ thể đang lớn: các chuyên gia y tế xem đó là mức tối thiểu để chúng ta phát triển khoẻ mạnh.",
+      src: "Nguồn: WHO, Hướng dẫn về hoạt động thể chất và hành vi tĩnh tại, 2020." },
+    { id: "ngu-som", topic: "Học sinh không nên thức khuya.", reason: "Học sinh cần ngủ nhiều hơn người lớn.",
+      ev: "Viện Hàn lâm Y học Giấc ngủ Hoa Kỳ (AASM, 2016) khuyến nghị trẻ 6–12 tuổi cần ngủ 9–12 tiếng mỗi ngày, tuổi 13–18 cần 8–10 tiếng, nhiều hơn người lớn.",
+      an: "Điều này cho thấy cơ thể và bộ não đang lớn của học sinh cần nhiều thời gian nghỉ hơn; thức khuya sẽ lấy mất khoảng thời gian ngủ mà các bác sĩ cho là cần thiết.",
+      src: "Nguồn: Journal of Clinical Sleep Medicine, 2016." }
   ];
   var CHECKS = [
-    { g: "Bằng chứng", items: ["Có thật: mình biết rõ, hoặc nói được lấy từ đâu", "Cụ thể: có tên người, con số hoặc thời gian", "Đúng ý: chứng minh đúng cho lý lẽ ở trên, không lạc sang chuyện khác"] },
+    { g: "Bằng chứng", items: ["Kiểm chứng được: có nói rõ nguồn (ai nói, tổ chức hay nghiên cứu nào, năm nào) để người khác tra lại", "Không phải chuyện riêng của mình mà người khác không kiểm tra được", "Cụ thể: có tên, con số hoặc thời gian", "Đúng ý: chứng minh đúng cho lý lẽ ở trên, không lạc sang chuyện khác"] },
     { g: "Phân tích", items: ["Không chỉ nói lại bằng chứng lần nữa", "Nối về lý lẽ: nói rõ bằng chứng cho thấy điều gì", "Không nói quá: không kết luận “ai cũng”, “không bao giờ”"] }
   ];
   var SAVE_KEY = "mosach.nl2.bai.v1";
   function loadBai() { try { return JSON.parse(localStorage.getItem(SAVE_KEY) || "null") || {}; } catch (e) { return {}; } }
   function saveBai(o) { try { localStorage.setItem(SAVE_KEY, JSON.stringify(o)); } catch (e) {} }
-  var DEMO = '<p class="note">Ví dụ minh hoạ.</p>';
   function ctx(topic, reason) { return '<div class="ctx"><p><b>Câu chủ đề:</b> ' + topic + "</p><p><b>Lý lẽ:</b> " + reason + "</p></div>"; }
   /* hai câu trắc nghiệm liền nhau: đúng ngay cả hai thì được sao */
   function twoQs(qs, starIdx, praise, after) {
@@ -484,7 +487,7 @@
     return '<section class="cover" aria-labelledby="cv-t">' +
       '<div class="txt"><span class="kicker">Mở Sách · Nghị luận Vỡ Lòng · Khoá 2</span>' +
       '<h1 id="cv-t">Tự tay làm <span>lớp thịt và lớp phô mai</span></h1>' +
-      '<p class="sub2">Học cách chọn bằng chứng thuyết phục và viết câu phân tích, hai phần làm nên “sức nặng” của đoạn nghị luận.</p>' +
+      '<p class="sub2">Học cách chọn bằng chứng có thật, kiểm chứng được và viết câu phân tích, hai phần làm nên “sức nặng” của đoạn nghị luận.</p>' +
       '<div class="pills"><span>Lớp 6–9</span><span>20 phút</span><span>6 bài học</span><span>5 Sao Biển</span></div></div>' +
       '<div class="art"><svg viewBox="0 0 240 230" aria-hidden="true">' +
       '<circle class="bub" cx="40" cy="40" r="7"/><circle class="bub" cx="58" cy="20" r="4"/><circle class="bub" cx="210" cy="70" r="5"/>' +
@@ -516,17 +519,17 @@
   /* ---------- MÀN 1: Bằng chứng là gì? ---------- */
   function s1() {
     stage.innerHTML = head("Bài 1 · Khởi động", "Bằng chứng là gì?") +
-      talk("Nhớ lớp thịt không? Bằng chứng là phần đưa ra ví dụ, sự việc, con số hay lời nói CÓ THẬT để chứng minh cho lý lẽ. Thử nè: câu nào dưới đây là bằng chứng?") +
-      ctx("Học sinh nên đọc sách mỗi ngày.", "Đọc sách giúp chúng ta mở rộng vốn từ.") +
-      '<div class="panel"><div class="opts" id="o1"></div><p class="note">Bạn Lan là ví dụ minh hoạ.</p></div>' + nextBtn("Tiếp tục", false);
+      talk("Nhớ lớp thịt không? Bằng chứng là phần đưa ra sự việc, con số, lời nói CÓ THẬT, người khác tra lại được, để chứng minh cho lý lẽ. Thử nè: câu nào dưới đây là bằng chứng?") +
+      ctx("Học sinh nên đọc sách mỗi ngày.", "Đọc sách giúp chúng ta học được nhiều điều mới.") +
+      '<div class="panel"><div class="opts" id="o1"></div><p class="note">Nguồn: gatesnotes.com, bài “My favorite books of 2016”.</p></div>' + nextBtn("Tiếp tục", false);
     mcq(document.getElementById("o1"), [
       "Vì vậy, mỗi bạn hãy dành ra 15 phút đọc sách mỗi tối.",
       "Sách là người bạn tốt nhất của con người.",
-      "Bạn Lan lớp 7A đọc sách 20 phút mỗi tối trong một học kì; cuối kì, cô giáo khen bài văn của Lan dùng từ phong phú hơn hẳn.",
-      "Điều đó cho thấy đọc sách giúp vốn từ của ta lớn dần lên."
+      "Tỉ phú Bill Gates viết trên blog Gates Notes (2016) rằng từ nhỏ ông đã đọc trung bình khoảng một cuốn sách mỗi tuần; trên blog này, ông thường viết lại những điều mình học được từ các cuốn sách đã đọc.",
+      "Điều đó cho thấy đọc sách là một cách học không bao giờ dừng lại."
     ], 2, function (ok) {
-      if (ok) { award(0); say("Chính xác! +1 Sao Biển. Câu C kể một việc có thật, có tên người, có thời gian: đó là bằng chứng. Câu A là kết đoạn, câu B chỉ là một ý kiến chung, còn câu D là phân tích, lát nữa mình học nha!", "happy"); }
-      else say("Chưa đúng rồi. Đáp án là câu C: nó kể một việc có thật, có tên người, có thời gian. Câu A là kết đoạn, câu B chỉ là ý kiến chung chung, còn câu D là phân tích (học ở Bài 4).", "think");
+      if (ok) { award(0); say("Chính xác! +1 Sao Biển. Câu C kể một việc có thật của một người ai cũng biết, có nguồn để tra lại: đó là bằng chứng. Câu A là kết đoạn, câu B chỉ là một ý kiến chung, còn câu D là phân tích, lát nữa mình học nha!", "happy"); }
+      else say("Chưa đúng rồi. Đáp án là câu C: nó kể một việc có thật của một người ai cũng biết, có nguồn để tra lại. Câu A là kết đoạn, câu B chỉ là ý kiến chung chung, còn câu D là phân tích (học ở Bài 4).", "think");
       enableNext();
     });
     bindNext(2);
@@ -536,15 +539,16 @@
   function s2() {
     var seen = {};
     stage.innerHTML = head("Bài 2 · Khám phá", "Bằng chứng tốt: luật 3Đ") +
-      talk("Bằng chứng có 4 loại hay gặp. Chạm vào từng loại để xem ví dụ nhé!") +
-      '<p class="q">Đề tài: Học sinh nên đọc sách mỗi ngày.</p><div class="parts" id="parts">' +
+      talk("Bằng chứng có 4 loại hay gặp. Chạm vào từng loại để xem ví dụ thật nhé!") +
+      '<div class="parts" id="parts">' +
       TYPES.map(function (t, i) {
         return '<div class="part" id="pt' + i + '"><button type="button" aria-expanded="false" aria-controls="pm' + i + '" data-i="' + i + '"><span class="ico" aria-hidden="true">' + t.ico + "</span>" +
           '<span class="nm">' + t.n + "<small>" + t.d + '</small></span><span class="tog">Mở</span></button>' +
-          '<div class="more" id="pm' + i + '" hidden><p class="sent">' + t.ex + "</p>" + (t.demo ? DEMO : "") + "</div></div>";
+          '<div class="more" id="pm' + i + '" hidden><p class="sent">' + t.ex + '</p><p class="note">' + t.src + "</p></div></div>";
       }).join("") + '</div><p class="note" id="count">Đã mở 0/4 loại.</p>' +
       '<section id="rule" hidden class="panel"><div class="sub">Luật 3Đ của bằng chứng tốt</div>' +
-      '<div class="crit"><div><b>Đúng</b>Có thật. Nói được lấy từ đâu, ai nói.</div><div><b>Đủ cụ thể</b>Có tên, con số, thời gian. Không chỉ “nhiều người nói”.</div><div><b>Đúng ý</b>Chứng minh đúng cho lý lẽ, không lạc đề.</div></div>' +
+      '<div class="crit"><div><b>Đúng</b>Có thật và kiểm chứng được: nói rõ nguồn (ai nói, tổ chức nào, năm nào).</div><div><b>Đủ cụ thể</b>Có tên, con số, thời gian. Không chỉ “nhiều người nói”.</div><div><b>Đúng ý</b>Chứng minh đúng cho lý lẽ, không lạc đề.</div></div>' +
+      '<div class="ctx"><p><b>Còn chuyện của chính mình thì sao?</b> Kể chuyện bản thân làm bài văn gần gũi hơn, nhưng người đọc không kiểm tra được, nên đó là bằng chứng YẾU. Chỉ dùng để minh hoạ thêm; bằng chứng chính nên là số liệu, khuyến nghị, lời người có uy tín hoặc tấm gương người thật.</p></div>' +
       '<section class="round"><div class="num"><span class="sub">Thử nhanh · 1 sao</span></div><p class="q">Bằng chứng “Nhiều người nói đọc sách rất tốt.” đang thiếu chữ Đ nào nhất?</p><div class="opts" id="o2"></div></section></section>' +
       nextBtn("Tiếp tục", false);
     document.getElementById("parts").addEventListener("click", function (e) {
@@ -572,36 +576,36 @@
   function s3() {
     var qs = [
       { head: ctx("Học sinh nên chơi ít nhất một môn thể thao.", "Chơi thể thao giúp cơ thể khoẻ mạnh, ít ốm vặt."), q: "Bằng chứng nào mạnh nhất?",
-        o: ["Thể thao rất tốt cho sức khoẻ, ai cũng biết điều đó.", "Bóng đá là môn thể thao được yêu thích nhất thế giới.", "Lớp 6B có 12 bạn tập bơi đều đặn từ đầu năm; cả học kì, các bạn ấy nghỉ ốm ít hơn hẳn các bạn còn lại trong lớp. (minh hoạ)"], r: 2,
-        why: ["Đáp án là câu cuối. Câu đầu chưa Đủ cụ thể (“ai cũng biết” là ai?), câu giữa thì lạc ý: môn được yêu thích nhất đâu chứng minh được chuyện ít ốm.", "Đúng! Câu này cụ thể (12 bạn, lớp 6B, cả học kì) và Đúng ý: nói thẳng về chuyện ít ốm."] },
-      { head: ctx("Nên hạn chế dùng điện thoại trước khi ngủ.", "Ánh sáng màn hình khiến chúng ta khó ngủ."), q: "Bằng chứng nào mạnh nhất?",
-        o: ["Điện thoại giúp chúng ta liên lạc với bạn bè rất tiện.", "Các bác sĩ khuyên nên tắt màn hình khoảng 30 phút đến 1 tiếng trước giờ ngủ, vì ánh sáng màn hình làm cơ thể chậm buồn ngủ.", "Em thấy nhiều người hay dùng điện thoại."], r: 1,
-        why: ["Đáp án là câu giữa: có người đáng tin (bác sĩ), có con số và nói đúng chuyện khó ngủ. Câu đầu lạc ý, câu cuối chưa cụ thể và cũng không nói gì về giấc ngủ.", "Chuẩn! Có người đáng tin (bác sĩ), có con số (30 phút đến 1 tiếng) và Đúng ý về chuyện khó ngủ."] }
+        o: ["Thể thao rất tốt cho sức khoẻ, ai cũng biết điều đó.", "Bóng đá là môn thể thao được yêu thích nhất thế giới.", "Một nghiên cứu theo dõi 1.002 người lớn ở Mỹ trong 12 tuần mùa thu – đông (Nieman và cộng sự, 2010) cho thấy người tập thể dục từ 5 ngày mỗi tuần trở lên có số ngày bị cảm, viêm họng ít hơn 43% so với người hầu như không tập."], r: 2,
+        why: ["Đáp án là câu cuối. Câu đầu chưa Đủ cụ thể (“ai cũng biết” là ai?), câu giữa thì lạc ý: môn được yêu thích nhất đâu chứng minh được chuyện ít ốm.", "Đúng! Câu này có nguồn (nghiên cứu năm 2010), có con số (1.002 người, 43%) và Đúng ý: nói thẳng về chuyện ít ốm."] },
+      { head: ctx("Học sinh không nên thức khuya.", "Học sinh cần ngủ nhiều hơn người lớn."), q: "Bằng chứng nào mạnh nhất?",
+        o: ["Nhiều bạn thích chơi game vào buổi tối.", "Viện Hàn lâm Y học Giấc ngủ Hoa Kỳ (AASM, 2016) khuyến nghị trẻ 6–12 tuổi cần ngủ 9–12 tiếng mỗi ngày, tuổi 13–18 cần 8–10 tiếng, nhiều hơn người lớn.", "Ai cũng biết ngủ rất quan trọng."], r: 1,
+        why: ["Đáp án là câu giữa: có tổ chức uy tín (AASM), có năm, có con số và nói đúng chuyện cần ngủ nhiều. Câu đầu lạc ý, câu cuối chưa cụ thể.", "Chuẩn! Có tổ chức uy tín, có năm, có con số (9–12 tiếng, 8–10 tiếng) và Đúng ý."] }
     ];
     stage.innerHTML = head("Bài 3 · Luyện tập", "Chọn bằng chứng mạnh") +
       talk("Giờ bạn làm giám khảo nha! Mỗi câu có một câu chủ đề và một lý lẽ. Chọn bằng chứng qua được cả 3Đ. Đúng ngay cả hai câu thì được 1 sao!") +
-      rounds(qs) + nextBtn("Tiếp tục", false);
+      rounds(qs) + '<p class="note">Nguồn: British Journal of Sports Medicine, 2010; Journal of Clinical Sleep Medicine, 2016.</p>' + nextBtn("Tiếp tục", false);
     twoQs(qs, 2, "Hai câu đều đúng ngay! +1 Sao Biển. Bạn có mắt nhìn bằng chứng rồi đó!");
     bindNext(4);
   }
 
   /* ---------- MÀN 4: Phân tích ---------- */
   function s4() {
-    var ev1 = "Bạn Lan lớp 7A đọc sách 20 phút mỗi tối trong một học kì; cuối kì, cô giáo khen bài văn của Lan dùng từ phong phú hơn hẳn.";
-    var ev2 = "Lớp 6B có 12 bạn tập bơi đều đặn từ đầu năm; cả học kì, các bạn ấy nghỉ ốm ít hơn hẳn các bạn còn lại trong lớp.";
+    var ev1 = "Tỉ phú Bill Gates viết trên blog Gates Notes (2016) rằng từ nhỏ ông đã đọc trung bình khoảng một cuốn sách mỗi tuần; trên blog này, ông thường viết lại những điều mình học được từ các cuốn sách đã đọc.";
+    var ev2 = "Một nghiên cứu theo dõi 1.002 người lớn ở Mỹ trong 12 tuần mùa thu – đông (Nieman và cộng sự, 2010) cho thấy người tập thể dục từ 5 ngày mỗi tuần trở lên có số ngày bị cảm, viêm họng ít hơn 43% so với người hầu như không tập.";
     var qs = [
-      { head: '<div class="ctx"><p><b>Lý lẽ:</b> Đọc sách giúp chúng ta mở rộng vốn từ.</p><p><b>Bằng chứng:</b> ' + ev1 + "</p></div>", q: "Câu phân tích nào tốt nhất?",
-        o: ["Bạn Lan đọc sách mỗi tối 20 phút và được cô khen.", "Điều này cho thấy đọc sách đều đặn giúp ta gặp nhiều từ mới và biết dùng chúng khi viết.", "Điều này cho thấy ai đọc sách cũng sẽ trở thành nhà văn.", "Ngoài ra, Lan còn học rất giỏi môn Toán."], r: 1,
-        why: ["Đáp án là câu B. Câu A chỉ nói lại bằng chứng, câu C nói quá (“ai cũng”), câu D lạc sang chuyện khác.", "Đúng! Câu B nối bằng chứng về lý lẽ: vì sao Lan giỏi dùng từ, và điều đó chứng minh gì."] },
+      { head: '<div class="ctx"><p><b>Lý lẽ:</b> Đọc sách giúp chúng ta học được nhiều điều mới.</p><p><b>Bằng chứng:</b> ' + ev1 + "</p></div>", q: "Câu phân tích nào tốt nhất?",
+        o: ["Bill Gates đọc khoảng một cuốn sách mỗi tuần từ nhỏ.", "Điều này cho thấy ngay cả một người rất bận rộn vẫn chọn đọc sách đều đặn, vì sách là nguồn để ông không ngừng học thêm điều mới.", "Điều này cho thấy ai đọc sách cũng sẽ trở thành tỉ phú.", "Ngoài ra, Bill Gates còn là người sáng lập công ty Microsoft."], r: 1,
+        why: ["Đáp án là câu B. Câu A chỉ nói lại bằng chứng, câu C nói quá (“ai cũng”), câu D lạc sang chuyện khác.", "Đúng! Câu B nối bằng chứng về lý lẽ: vì sao một người bận rộn vẫn đọc, và điều đó chứng minh gì."] },
       { head: '<div class="ctx"><p><b>Lý lẽ:</b> Chơi thể thao giúp cơ thể khoẻ mạnh, ít ốm vặt.</p><p><b>Bằng chứng:</b> ' + ev2 + "</p></div>", q: "Câu phân tích nào tốt nhất?",
-        o: ["Điều này chứng minh tập bơi thì không bao giờ bị ốm.", "12 bạn lớp 6B tập bơi đều đặn từ đầu năm.", "Điều này cho thấy bơi là môn thể thao vui nhất.", "Điều này cho thấy vận động đều đặn giúp cơ thể có sức đề kháng tốt hơn, nên ít bị ốm."], r: 3,
-        why: ["Đáp án là câu D. Câu A nói quá (“không bao giờ”), câu B chỉ lặp lại bằng chứng, câu C lạc ý (vui hay không đâu phải chuyện khoẻ).", "Chính xác! Câu D giải thích VÌ SAO tập bơi giúp ít ốm, nối thẳng về lý lẽ."] }
+        o: ["Điều này chứng minh ai tập thể dục thì không bao giờ bị cảm.", "Người tập từ 5 ngày mỗi tuần có số ngày bị cảm ít hơn 43%.", "Điều này cho thấy chạy bộ là môn thể thao vui nhất.", "Điều này cho thấy những người vận động đều đặn ít bị ốm vặt hơn, nghĩa là vận động có thể giúp cơ thể chống bệnh tốt hơn."], r: 3,
+        why: ["Đáp án là câu D. Câu A nói quá (“không bao giờ”), câu B chỉ lặp lại bằng chứng, câu C lạc ý (vui hay không đâu phải chuyện khoẻ).", "Chính xác! Câu D nối thẳng về lý lẽ, lại dùng chữ “có thể” cẩn thận, không nói quá."] }
     ];
     stage.innerHTML = head("Bài 4 · Khám phá", "Phân tích bằng chứng") +
       talk("Có bằng chứng rồi, nhưng người đọc vẫn hỏi: “Thì sao?” Lớp phô mai, tức Phân tích, trả lời câu đó: nó nói rõ bằng chứng CHỨNG MINH điều gì cho lý lẽ.") +
       '<div class="panel"><div class="sub">Công thức</div><div class="formula"><span>Bằng chứng</span>→<span class="k">Điều này cho thấy…</span>→<span>Nối về lý lẽ</span></div>' +
       '<div class="sub">3 cái bẫy hay gặp</div><div class="traps"><div><b>Lặp lại</b>Chỉ kể lại bằng chứng một lần nữa.</div><div><b>Lạc ý</b>Nói sang một chuyện không liên quan lý lẽ.</div><div><b>Nói quá</b>Kết luận “ai cũng”, “không bao giờ”, “chắc chắn”.</div></div>' +
-      '<p class="note">Bạn Lan và lớp 6B là ví dụ minh hoạ.</p></div>' +
+      '<p class="note">Nguồn: gatesnotes.com (2016); British Journal of Sports Medicine (2010).</p></div>' +
       rounds(qs) + nextBtn("Tiếp tục", false);
     twoQs(qs, 3, "Hai câu đều né được bẫy! +1 Sao Biển. Bạn làm phô mai khéo ghê!");
     bindNext(5);
@@ -611,13 +615,13 @@
   function s5() {
     var bai = loadBai(), topic = TOPICS.filter(function (t) { return t.id === bai.topic; })[0] || null;
     stage.innerHTML = head("Bài 5 · Tự viết", "Tới lượt bạn làm bánh!") +
-      talk("Đây là phần mình mong nhất! Chọn một đề, rồi tự viết lớp thịt (Bằng chứng) và lớp phô mai (Phân tích). Không cần dài, mỗi phần 1–2 câu là đủ. Viết xong mình cùng kiểm tra nha.") +
+      talk("Đây là phần mình mong nhất! Chọn một đề, rồi tự viết lớp thịt (Bằng chứng) và lớp phô mai (Phân tích). Bằng chứng phải có thật và có nguồn nha: số liệu, khuyến nghị của tổ chức uy tín, lời người có uy tín hoặc tấm gương người thật. Chưa chắc thì nhờ thầy cô, bố mẹ cùng tra. Mỗi phần 1–2 câu là đủ.") +
       '<div class="sub">Chọn đề</div><div class="topics" id="topics">' + TOPICS.map(function (t) {
         return '<button class="topic" type="button" data-t="' + t.id + '" aria-pressed="' + (topic && topic.id === t.id) + '"><b>' + t.topic + "</b>Lý lẽ: " + t.reason + "</button>";
       }).join("") + "</div>" +
       '<section class="panel" id="wr" hidden>' +
       '<div id="wctx"></div>' +
-      '<div class="wbox"><label for="w-ev">' + layer("l3") + 'Bằng chứng của bạn</label><div class="starters" data-for="w-ev"><button type="button">Ví dụ, </button><button type="button">Theo </button><button type="button">Bản thân em </button></div><textarea id="w-ev" maxlength="600" placeholder="Một việc có thật, có tên, con số hoặc thời gian…"></textarea></div>' +
+      '<div class="wbox"><label for="w-ev">' + layer("l3") + 'Bằng chứng của bạn</label><div class="starters" data-for="w-ev"><button type="button">Theo </button><button type="button">Một nghiên cứu của </button><button type="button">Tổ chức … khuyến nghị </button><button type="button">Ví dụ, nhà khoa học … </button></div><textarea id="w-ev" maxlength="600" placeholder="Số liệu, khuyến nghị, lời người có uy tín hoặc tấm gương người thật, có nói rõ nguồn…"></textarea></div>' +
       '<div class="wbox"><label for="w-an">' + layer("l4") + 'Phân tích của bạn</label><div class="starters" data-for="w-an"><button type="button">Điều này cho thấy </button><button type="button">Từ đó có thể thấy </button></div><textarea id="w-an" maxlength="600" placeholder="Điều này cho thấy…"></textarea></div>' +
       '<p class="soft" id="whint" role="status"></p>' +
       '<div class="actions"><span class="grow"></span><button class="btn cta" type="button" id="wcheck" disabled>Viết xong, kiểm tra!</button></div></section>' +
@@ -657,6 +661,8 @@
     document.getElementById("wcheck").onclick = function () {
       // gợi ý nhẹ, không chấm điểm
       var hint = [];
+      if (/(^|[^\p{L}])(em|mình|tôi|tớ)(?![\p{L}])/iu.test(ev.value)) hint.push("Bằng chứng đang kể chuyện của chính bạn. Chuyện riêng người khác khó kiểm tra, thử thay bằng số liệu, khuyến nghị hay tấm gương người thật nha!");
+      else if (!/(theo|nghiên cứu|khảo sát|tổ chức|viện|báo|sách|năm \d{4}|\(\d{4}\))/i.test(ev.value)) hint.push("Bằng chứng chưa nói rõ nguồn. Thêm “Theo…”, tên tổ chức, nghiên cứu hoặc năm để người đọc tra lại được nha!");
       if (!/\d/.test(ev.value) && !/(^|\s)[A-ZĐÂĂÊÔƠƯÁÀẢÃẠ][a-zđâăêôơưáàảãạéèẻẽẹíìỉĩịóòỏõọúùủũụýỳỷỹỵấầẩẫậắằẳẵặếềểễệốồổỗộớờởỡợứừửữự]+/.test(ev.value.replace(/^\s*\S+/, ""))) hint.push("Bằng chứng chưa thấy con số hay tên riêng nào. Thêm vào cho cụ thể hơn nha!");
       if (!/(cho thấy|chứng tỏ|chứng minh|nghĩa là|từ đó|vì vậy mà|nhờ đó)/i.test(an.value)) hint.push("Phân tích nên có những chữ nối như “cho thấy”, “chứng tỏ” để nối về lý lẽ.");
       if (/(ai cũng|không bao giờ|chắc chắn|tất cả mọi)/i.test(an.value)) hint.push("Phân tích có chữ nói quá (“ai cũng”, “không bao giờ”…). Thử nói nhẹ lại xem.");
@@ -681,7 +687,7 @@
       document.getElementById("ckhint").textContent = "";
       award(4); bai.done = true; saveBai(bai);
       var m = document.getElementById("model"); m.hidden = false;
-      m.innerHTML = '<div class="sub">Bài mẫu để bạn so sánh</div><p>' + layer("l3") + " " + topic.ev + "</p><p>" + layer("l4") + " " + topic.an + '</p><p class="note">Bài mẫu chỉ là một cách viết. Bài của bạn khác đi vẫn tốt, miễn qua được danh sách kiểm tra. Nhân vật trong bài mẫu là minh hoạ.</p>';
+      m.innerHTML = '<div class="sub">Bài mẫu để bạn so sánh</div><p>' + layer("l3") + " " + topic.ev + "</p><p>" + layer("l4") + " " + topic.an + '</p><p class="note">' + topic.src + ' Bài mẫu chỉ là một cách viết. Bài của bạn khác đi vẫn tốt, miễn qua được danh sách kiểm tra.</p>';
       m.scrollIntoView({ behavior: "smooth", block: "start" });
       say("Tuyệt vời! +1 Sao Biển cho bài viết đầu tay! Bạn đọc bài mẫu để so, thấy ý hay thì sửa bài mình thêm cũng được nha.", "happy");
       enableNext();
@@ -705,8 +711,8 @@
       '<div class="award"><div class="big">' + n + "/5</div>" + MS.starsHTML(n, MAX) + '<span class="badge">Huy hiệu: ' + badge + "</span>" +
       (p && p.runs > 1 ? '<span class="note">Kỷ lục của bạn: ' + p.best + "/5 sao</span>" : "") + "</div>") + mine +
       '<div class="recap"><div class="sub">Hôm nay bạn đã học</div><ul>' +
-      "<li>" + layer("l3") + "<span><b>Bằng chứng tốt qua luật 3Đ</b> · Đúng, Đủ cụ thể, Đúng ý.</span></li>" +
-      "<li>" + layer("l3") + "<span><b>4 loại bằng chứng</b> · Số liệu, sự việc thực tế, lời người đáng tin, trải nghiệm có thật.</span></li>" +
+      "<li>" + layer("l3") + "<span><b>Bằng chứng tốt qua luật 3Đ</b> · Đúng (kiểm chứng được), Đủ cụ thể, Đúng ý.</span></li>" +
+      "<li>" + layer("l3") + "<span><b>4 loại bằng chứng</b> · Số liệu từ nghiên cứu, khuyến nghị của tổ chức uy tín, lời người có uy tín, tấm gương người thật. Chuyện riêng của mình chỉ để minh hoạ thêm.</span></li>" +
       "<li>" + layer("l4") + "<span><b>Phân tích</b> · “Điều này cho thấy…” rồi nối về lý lẽ.</span></li>" +
       "<li>" + layer("l4") + "<span><b>Né 3 bẫy</b> · Lặp lại, lạc ý, nói quá.</span></li></ul></div>" +
       '<div class="next"><span class="sub">Khoá 3 · sắp ra mắt</span><p>' + named("Bạn đã làm được lớp thịt và lớp phô mai. Ở Khoá 3, tụi mình sẽ học viết <b>Lý lẽ</b> và <b>Câu chủ đề</b>, rồi ráp cả 5 lớp thành một đoạn văn hoàn chỉnh. Hẹn gặp lại bạn nhé!") + "</p></div>" +
