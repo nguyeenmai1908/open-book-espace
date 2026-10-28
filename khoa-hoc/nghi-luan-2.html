@@ -448,7 +448,7 @@
       src: "Nguồn: Journal of Clinical Sleep Medicine, 2016; tạp chí Sleep, 2015." }
   ];
   var CHECKS = [
-    { g: "Bằng chứng", items: ["Kiểm chứng được: có nói rõ nguồn (ai nói, tổ chức hay nghiên cứu nào, năm nào) để người khác tra lại", "Không phải chuyện riêng của mình mà người khác không kiểm tra được", "Cụ thể: có tên, con số hoặc thời gian", "Đúng ý: chứng minh đúng cho lý lẽ ở trên, không lạc sang chuyện khác"] },
+    { g: "Bằng chứng", items: ["Kiểm chứng được: có nói rõ nguồn (ai nói, tổ chức hay nghiên cứu nào, năm nào) để người khác tra lại", "Không phải chuyện riêng của mình mà người khác không kiểm tra được", "Cụ thể: có tên, con số hoặc thời gian", "Đáp ứng đề bài: chứng minh đúng cho lý lẽ ở trên, không lạc sang chuyện khác"] },
     { g: "Phân tích", items: ["Không chỉ nói lại bằng chứng lần nữa", "Nối về lý lẽ: nói rõ bằng chứng cho thấy điều gì", "Không nói quá: không kết luận “ai cũng”, “không bao giờ”"] }
   ];
   var SAVE_KEY = "mosach.nl2.bai.v1";
@@ -548,7 +548,7 @@
           '<div class="more" id="pm' + i + '" hidden><p class="sent">' + t.ex + '</p><p class="note">' + t.src + "</p></div></div>";
       }).join("") + '</div><p class="note" id="count">Đã mở 0/4 loại.</p>' +
       '<section id="rule" hidden class="panel"><div class="sub">Luật 3Đ của bằng chứng tốt</div>' +
-      '<div class="crit"><div><b>Đúng</b>Có thật và kiểm chứng được: nói rõ nguồn (ai nói, tổ chức nào, năm nào).</div><div><b>Đủ cụ thể</b>Có tên, con số, thời gian. Không chỉ “nhiều người nói”.</div><div><b>Đúng ý</b>Chứng minh đúng cho lý lẽ, không lạc đề.</div></div>' +
+      '<div class="crit"><div><b>Đúng</b>Có thật và kiểm chứng được: nói rõ nguồn (ai nói, tổ chức nào, năm nào).</div><div><b>Đủ cụ thể</b>Có tên, con số, thời gian. Không chỉ “nhiều người nói”.</div><div><b>Đáp ứng đề bài</b>Chứng minh đúng cho lý lẽ, bám sát đề, không lạc sang chuyện khác.</div></div>' +
       '<div class="ctx"><p><b>Còn chuyện của chính mình thì sao?</b> Kể chuyện bản thân làm bài văn gần gũi hơn, nhưng người đọc không kiểm tra được, nên đó là bằng chứng YẾU. Chỉ dùng để minh hoạ thêm; bằng chứng chính nên là số liệu, khuyến nghị, lời người có uy tín hoặc tấm gương người thật.</p></div>' +
       '<section class="round"><div class="num"><span class="sub">Thử nhanh · 1 sao</span></div><p class="q">Bằng chứng “Nhiều người nói đọc sách rất tốt.” đang thiếu chữ Đ nào nhất?</p><div class="opts" id="o2"></div></section></section>' +
       nextBtn("Tiếp tục", false);
@@ -561,13 +561,13 @@
       document.getElementById("count").textContent = "Đã mở " + n + "/4 loại.";
       if (n === 4 && document.getElementById("rule").hidden) {
         document.getElementById("rule").hidden = false;
-        say("Giỏi! Nhưng không phải bằng chứng nào cũng mạnh. Bằng chứng tốt phải qua được luật 3Đ: Đúng, Đủ cụ thể, Đúng ý. Thử trả lời câu bên dưới nha!", "happy");
+        say("Giỏi! Nhưng không phải bằng chứng nào cũng mạnh. Bằng chứng tốt phải qua được luật 3Đ: Đúng, Đủ cụ thể, Đáp ứng đề bài. Thử trả lời câu bên dưới nha!", "happy");
         document.getElementById("rule").scrollIntoView({ behavior: "smooth", block: "start" });
       }
     });
-    mcq(document.getElementById("o2"), ["Đúng ý", "Đủ cụ thể", "Không thiếu gì cả"], 1, function (ok) {
+    mcq(document.getElementById("o2"), ["Đáp ứng đề bài", "Đủ cụ thể", "Không thiếu gì cả"], 1, function (ok) {
       if (ok) { award(1); say("Đúng rồi! +1 Sao Biển. “Nhiều người” là ai? Bao nhiêu người? Nói “tốt” là tốt thế nào? Câu này chưa Đủ cụ thể nên người đọc khó tin.", "happy"); }
-      else say("Chưa đúng nè. Câu này có nói về đọc sách nên vẫn Đúng ý, nhưng “nhiều người” là ai, bao nhiêu người? Nó chưa Đủ cụ thể nên khó thuyết phục.", "think");
+      else say("Chưa đúng nè. Câu này có nói về đọc sách nên vẫn Đáp ứng đề bài, nhưng “nhiều người” là ai, bao nhiêu người? Nó chưa Đủ cụ thể nên khó thuyết phục.", "think");
       enableNext();
     });
     bindNext(3);
@@ -578,10 +578,10 @@
     var qs = [
       { head: ctx("Chúng ta nên tập thể dục đều đặn.", "Tập thể dục giúp cơ thể khoẻ mạnh, ít ốm vặt."), q: "Bằng chứng nào mạnh nhất?",
         o: ["Thể thao rất tốt cho sức khoẻ, ai cũng biết điều đó.", "Bóng đá là môn thể thao được yêu thích nhất thế giới.", "Một nghiên cứu theo dõi 1.002 người lớn ở Mỹ trong 12 tuần mùa thu – đông (Nieman và cộng sự, 2010) cho thấy người tập thể dục từ 5 ngày mỗi tuần trở lên có số ngày bị cảm, viêm họng ít hơn 43% so với người hầu như không tập."], r: 2,
-        why: ["Đáp án là câu cuối. Câu đầu chưa Đủ cụ thể (“ai cũng biết” là ai?), câu giữa thì lạc ý: môn được yêu thích nhất đâu chứng minh được chuyện ít ốm.", "Đúng! Câu này có nguồn (nghiên cứu năm 2010), có con số (1.002 người, 43%) và Đúng ý: nói thẳng về chuyện ít ốm. Để ý nghiên cứu làm trên người lớn, nên đề mới nói “chúng ta” chứ không chỉ “học sinh”."] },
+        why: ["Đáp án là câu cuối. Câu đầu chưa Đủ cụ thể (“ai cũng biết” là ai?), câu giữa thì lạc ý: môn được yêu thích nhất đâu chứng minh được chuyện ít ốm.", "Đúng! Câu này có nguồn (nghiên cứu năm 2010), có con số (1.002 người, 43%) và Đáp ứng đề bài: nói thẳng về chuyện ít ốm. Để ý nghiên cứu làm trên người lớn, nên đề mới nói “chúng ta” chứ không chỉ “học sinh”."] },
       { head: ctx("Học sinh không nên thức khuya.", "Học sinh cần ngủ nhiều hơn người lớn."), q: "Bằng chứng nào mạnh nhất?",
         o: ["Nhiều bạn thích chơi game vào buổi tối.", "Viện Hàn lâm Y học Giấc ngủ Hoa Kỳ (AASM) khuyến nghị trẻ 6–12 tuổi ngủ 9–12 tiếng mỗi ngày và tuổi 13–18 ngủ 8–10 tiếng (2016), trong khi người lớn cần từ 7 tiếng trở lên (2015).", "Ai cũng biết ngủ rất quan trọng."], r: 1,
-        why: ["Đáp án là câu giữa: có tổ chức uy tín (AASM), có năm, có con số so sánh trẻ em với người lớn, đúng điều lý lẽ cần chứng minh. Câu đầu lạc ý, câu cuối chưa cụ thể.", "Chuẩn! Có tổ chức uy tín, có năm, có con số (9–12 và 8–10 tiếng so với 7 tiếng của người lớn) và Đúng ý."] }
+        why: ["Đáp án là câu giữa: có tổ chức uy tín (AASM), có năm, có con số so sánh trẻ em với người lớn, đúng điều lý lẽ cần chứng minh. Câu đầu lạc ý, câu cuối chưa cụ thể.", "Chuẩn! Có tổ chức uy tín, có năm, có con số (9–12 và 8–10 tiếng so với 7 tiếng của người lớn) và Đáp ứng đề bài."] }
     ];
     stage.innerHTML = head("Bài 3 · Luyện tập", "Chọn bằng chứng mạnh") +
       talk("Giờ bạn làm giám khảo nha! Mỗi câu có một câu chủ đề và một lý lẽ. Chọn bằng chứng qua được cả 3Đ. Đúng ngay cả hai câu thì được 1 sao!") +
@@ -712,7 +712,7 @@
       '<div class="award"><div class="big">' + n + "/5</div>" + MS.starsHTML(n, MAX) + '<span class="badge">Huy hiệu: ' + badge + "</span>" +
       (p && p.runs > 1 ? '<span class="note">Kỷ lục của bạn: ' + p.best + "/5 sao</span>" : "") + "</div>") + mine +
       '<div class="recap"><div class="sub">Hôm nay bạn đã học</div><ul>' +
-      "<li>" + layer("l3") + "<span><b>Bằng chứng tốt qua luật 3Đ</b> · Đúng (kiểm chứng được), Đủ cụ thể, Đúng ý.</span></li>" +
+      "<li>" + layer("l3") + "<span><b>Bằng chứng tốt qua luật 3Đ</b> · Đúng (kiểm chứng được), Đủ cụ thể, Đáp ứng đề bài.</span></li>" +
       "<li>" + layer("l3") + "<span><b>4 loại bằng chứng</b> · Số liệu từ nghiên cứu, khuyến nghị của tổ chức uy tín, lời người có uy tín, tấm gương người thật. Chuyện riêng của mình chỉ để minh hoạ thêm.</span></li>" +
       "<li>" + layer("l4") + "<span><b>Phân tích</b> · “Điều này cho thấy…” rồi nối về lý lẽ.</span></li>" +
       "<li>" + layer("l4") + "<span><b>Né 3 bẫy</b> · Lặp lại, lạc ý, nói quá.</span></li></ul></div>" +
