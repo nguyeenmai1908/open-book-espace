@@ -390,29 +390,29 @@
   /* ---------- NỘI DUNG ---------- */
   var P1 = [
     { t: "Học trực tiếp tại trường mang lại hiệu quả học tập tốt hơn học online.", say: "Đây là câu “tuyên bố”: nói ngay quan điểm của người viết, giống như mình giơ tay xin phát biểu vậy!" },
-    { t: "Khi ngồi trong lớp, học sinh dễ tập trung hơn vì không bị điện thoại, mạng xã hội hay các ứng dụng khác gây xao nhãng.", say: "Câu này trả lời câu hỏi “VÌ SAO?” cho câu chủ đề đó!" },
-    { t: "Một khảo sát năm 2022 cho thấy 68% học sinh tự nhận thấy mình mất tập trung nhiều hơn khi học online so với học trực tiếp.", note: true, say: "Đây là “chứng cứ”, như mình quay camera lại làm bằng chứng vậy đó!" },
-    { t: "Con số này cho thấy môi trường lớp học truyền thống giúp học sinh duy trì sự chú ý tốt hơn, từ đó tiếp thu bài giảng hiệu quả hơn.", say: "Câu này nối bằng chứng với lý lẽ: giải thích con số kia CHỨNG MINH điều gì." },
+    { t: "Ở lớp, học sinh được thầy cô kèm sát và dễ tập trung hơn, vì không bị điện thoại, mạng xã hội hay các ứng dụng khác gây xao nhãng.", say: "Câu này trả lời câu hỏi “VÌ SAO?” cho câu chủ đề đó!" },
+    { t: "Một nghiên cứu của Đại học Harvard và các cộng sự trên khoảng 2,1 triệu học sinh Mỹ (2022) cho thấy: những trường phải học trực tuyến phần lớn năm học 2020–2021 bị tụt kết quả môn Toán nhiều hơn các trường vẫn học trực tiếp.", src: "Nguồn: Goldhaber, Kane và cộng sự, NBER 2022 (đăng trên American Economic Review: Insights, 2023).", say: "Đây là “chứng cứ”: một nghiên cứu có thật, ai cũng tra lại được!" },
+    { t: "Kết quả này cho thấy khi thiếu sự kèm cặp trực tiếp của thầy cô, việc học dễ bị chững lại; lớp học truyền thống giúp học sinh tiếp thu bài hiệu quả hơn.", say: "Câu này nối bằng chứng với lý lẽ: giải thích kết quả nghiên cứu kia CHỨNG MINH điều gì." },
     { t: "Vì vậy, dù học online tiện lợi, học trực tiếp vẫn là lựa chọn tốt hơn để đảm bảo chất lượng học tập.", say: "Và đây là cú chốt hạ, giống mình cúi chào khi kết thúc màn trình diễn!" }
   ];
   var P2 = [
     "Học sinh nên được tham gia các chuyến cắm trại do trường tổ chức.",
     "Những hoạt động ngoài trời như vậy giúp học sinh rèn tính tự lập và làm quen với bạn bè theo cách khác với lớp học thông thường.",
-    "Theo chia sẻ của nhiều phụ huynh có con từng tham gia trại hè, các em trở nên chủ động hơn trong sinh hoạt cá nhân sau chuyến đi.",
+    "Một nghiên cứu của Hiệp hội Trại hè Hoa Kỳ (ACA) với hơn 5.000 gia đình ở khoảng 80 trại cho thấy phụ huynh, nhân viên trại và chính các em đều ghi nhận các em tự lập hơn, tự tin hơn và kết bạn tốt hơn sau kì trại.",
     "Điều đó cho thấy một môi trường mới, tách khỏi sự hỗ trợ thường ngày của gia đình, chính là cơ hội để học sinh trưởng thành nhanh hơn.",
     "Vì vậy, phụ huynh nên cân nhắc và ủng hộ con tham gia các chương trình cắm trại của trường."
   ];
   var P3 = [
     "Học sinh nên được phép sử dụng mạng xã hội để phục vụ việc học.",
     "Mạng xã hội, nếu biết chọn lọc nội dung, có thể giúp học sinh tiếp cận kiến thức nhanh và sinh động hơn.",
-    "Nhiều học sinh hiện nay tham gia các nhóm học tập trên Facebook hoặc theo dõi các kênh chia sẻ kiến thức trên TikTok, Instagram.",
-    "Điều này chứng minh mạng xã hội, nếu dùng đúng cách, có thể là công cụ học tập hiệu quả chứ không chỉ để giải trí.",
+    "Kênh YouTube của Khan Academy, một tổ chức giáo dục phi lợi nhuận, có hơn 9 triệu người đăng kí theo dõi và hàng nghìn video bài giảng miễn phí về Toán, Khoa học và nhiều môn khác.",
+    "Điều này cho thấy mạng xã hội, nếu biết chọn kênh, có thể trở thành một lớp học miễn phí chứ không chỉ để giải trí.",
     "Vì vậy, thay vì cấm hoàn toàn, nhà trường nên hướng dẫn học sinh sử dụng mạng xã hội một cách có ích."
   ];
   var HINT = {
     1: "Câu chủ đề nêu QUAN ĐIỂM chính của cả đoạn, thường đứng đầu.",
     2: "Lý lẽ trả lời câu hỏi “VÌ SAO?” cho câu chủ đề.",
-    3: "Bằng chứng là ví dụ, sự việc, số liệu hay lời kể có thật.",
+    3: "Bằng chứng là sự việc, số liệu hay lời nói có thật, kiểm chứng được (có nguồn).",
     4: "Phân tích giải thích bằng chứng ấy CHỨNG MINH điều gì.",
     5: "Kết đoạn chốt lại ý, thường mở đầu bằng “Vì vậy…”."
   };
@@ -485,7 +485,7 @@
       LABELS.map(function (L, i) {
         return '<div class="part" id="pt' + i + '"><button type="button" aria-expanded="false" aria-controls="pm' + i + '" data-i="' + i + '">' + layer(L.cls) +
           '<span class="nm">' + (i + 1) + ". " + L.name + "<small>" + L.food + "</small></span><span class=\"tog\">Mở</span></button>" +
-          '<div class="more" id="pm' + i + '" hidden><p class="sent">' + P1[i].t + "</p>" + (P1[i].note ? '<p class="note">Số liệu chỉ để minh hoạ.</p>' : "") + '<p class="say">Cá Heo: ' + P1[i].say + "</p></div></div>";
+          '<div class="more" id="pm' + i + '" hidden><p class="sent">' + P1[i].t + "</p>" + (P1[i].src ? '<p class="note">' + P1[i].src + "</p>" : "") + '<p class="say">Cá Heo: ' + P1[i].say + "</p></div></div>";
       }).join("") + '</div><p class="note" id="count">Đã mở 0/5 lớp bánh.</p>' + nextBtn("Tiếp tục thử thách!", false);
     document.getElementById("parts").addEventListener("click", function (e) {
       var b = e.target.closest("button[data-i]"); if (!b) return;
@@ -507,7 +507,7 @@
 
     stage.innerHTML = head("Bài 3 · Luyện tập", "Gắn đúng nhãn") +
       talk("Tới lượt bạn thử sức rồi! Đoạn văn về chuyện “có nên đi cắm trại không” đã bị xáo trộn thứ tự câu. Chạm một nhãn, rồi chạm vào câu hợp với nhãn đó nha!") +
-      '<div class="panel"><div class="sub">Khay nhãn</div><div class="tray" id="tray"></div><div class="sub">Các câu</div><div class="slots" id="slots"></div></div>' +
+      '<div class="panel"><div class="sub">Khay nhãn</div><div class="tray" id="tray"></div><div class="sub">Các câu</div><div class="slots" id="slots"></div><p class="note">Nguồn: American Camp Association, nghiên cứu “Directions: Youth Development Outcomes of the Camp Experience” (2005).</p></div>' +
       '<div class="actions"><button class="btn ghost" type="button" id="reveal" hidden>Xem đáp án</button><span class="grow"></span><button class="btn" type="button" id="check" disabled>Kiểm tra</button><button class="btn cta" id="next" type="button" hidden>Tiếp tục</button></div>';
 
     function draw() {
@@ -519,7 +519,7 @@
       document.getElementById("slots").innerHTML = order.map(function (src, pos) {
         var L = placed[pos] ? LABELS[placed[pos] - 1] : null;
         var cls = locked[pos] ? " right" : (draw.wrong && draw.wrong[pos] ? " wrong" : "");
-        return '<div class="slot' + cls + '"><p>' + P2[src] + (src === 2 ? ' <span class="note">(minh hoạ)</span>' : "") + "</p>" +
+        return '<div class="slot' + cls + '"><p>' + P2[src] + "</p>" +
           '<button type="button" class="drop' + (L ? " filled" : "") + '" data-pos="' + pos + '"' + (locked[pos] ? " disabled" : "") + ">" +
           (L ? layer(L.cls) + L.name + (locked[pos] ? " ✓" : "") : "+ Gắn nhãn") + "</button>" +
           (draw.wrong && draw.wrong[pos] && !locked[pos] ? '<span class="why">✗ ' + HINT[src + 1] + "</span>" : "") + "</div>";
@@ -570,7 +570,7 @@
     var stack = [], checks = 0, result = null;
     stage.innerHTML = head("Bài 4 · Luyện tập", "Xếp đúng thứ tự") +
       talk("Thử thách khó hơn nè! 5 câu dưới đây thuộc cùng một đoạn văn về mạng xã hội, nhưng mình lỡ tay làm xáo trộn rồi. Chạm lần lượt từng câu để xếp lại bánh hamburger từ nắp xuống đế giúp mình với!") +
-      '<div class="panel"><div class="sub">Bánh của bạn</div><div class="burger" id="burger"></div><div class="sub" id="pool-lbl">Các câu bị xáo trộn</div><div class="pool" id="pool"></div></div>' +
+      '<div class="panel"><div class="sub">Bánh của bạn</div><div class="burger" id="burger"></div><div class="sub" id="pool-lbl">Các câu bị xáo trộn</div><div class="pool" id="pool"></div><p class="note">Nguồn: kênh YouTube Khan Academy (số người theo dõi năm 2025).</p></div>' +
       '<div class="actions"><button class="btn ghost" type="button" id="reveal" hidden>Xem đáp án</button><span class="grow"></span><button class="btn" type="button" id="check" disabled>Kiểm tra</button><button class="btn cta" id="next" type="button" hidden>Tiếp tục</button></div>';
     function draw() {
       document.getElementById("burger").innerHTML = LABELS.map(function (L, i) {
@@ -616,13 +616,13 @@
       talk("Ba câu cuối cùng thôi! Câu (a) đáng 1 sao. Câu (b) và (c) đúng cả hai thì thêm 1 sao nữa. Vượt qua là bạn ẵm trọn 5 sao luôn đó!") +
       '<section class="round" id="ra"><div class="num"><span class="sub">Câu (a) · 1 sao</span></div>' +
       '<p class="q">Đoạn văn dưới đây thiếu mất 1 trong 5 phần. Đó là phần nào?</p>' +
-      '<p class="para">Mỗi học sinh nên dành ít nhất 15 phút đọc sách mỗi ngày. Đọc sách đều đặn giúp các em mở rộng vốn từ và hiểu biết về thế giới xung quanh. Bạn Minh lớp 6 kể rằng sau một học kì đọc truyện mỗi tối, bài văn của bạn được cô khen dùng từ phong phú hơn hẳn. Câu chuyện của Minh cho thấy thói quen đọc nhỏ mỗi ngày có thể tạo ra thay đổi lớn trong cách diễn đạt.</p>' +
-      '<p class="note">Câu chuyện về bạn Minh là ví dụ minh hoạ.</p><div class="opts" id="oa"></div></section>' +
+      '<p class="para">Mỗi học sinh nên dành ít nhất 15 phút đọc sách mỗi ngày. Đọc sách đều đặn giúp các em mở rộng vốn từ và hiểu biết về thế giới xung quanh. Một nghiên cứu của Viện Giáo dục, Đại học London (2013) theo dõi khoảng 6.000 người từ nhỏ đến lớn cho thấy những bạn thường đọc sách vì thích ở tuổi 10 và tuổi 16 có vốn từ tiến bộ nhiều hơn hẳn các bạn ít đọc. Kết quả này cho thấy thói quen đọc nhỏ mỗi ngày có thể tạo ra thay đổi lớn trong vốn từ và cách diễn đạt.</p>' +
+      '<p class="note">Nguồn: Sullivan và Brown, Viện Giáo dục – Đại học London, 2013.</p><div class="opts" id="oa"></div></section>' +
       '<section class="round" id="rb" hidden><div class="num"><span class="sub">Câu (b)</span></div>' +
       '<p class="q">Đoạn nào có đủ cấu trúc 5 phần?</p><div class="pair">' +
       '<p class="para"><b>Đoạn 1.</b> Học sinh nên tự tay dọn dẹp lớp học của mình. Việc này giúp các em có trách nhiệm hơn với không gian chung. Dọn dẹp cũng rất vui. Vì vậy, nhà trường nên giao việc trực nhật cho học sinh.</p>' +
-      '<p class="para"><b>Đoạn 2.</b> Học sinh nên tự tay dọn dẹp lớp học của mình. Việc này giúp các em có trách nhiệm hơn với không gian chung. Ở Nhật Bản, học sinh thường cùng nhau lau dọn lớp học và hành lang mỗi ngày. Điều đó cho thấy khi tự tay giữ gìn, các em sẽ biết quý trọng nơi mình học và ít xả rác hơn. Vì vậy, nhà trường nên giao việc trực nhật cho học sinh.</p>' +
-      '</div><div class="opts" id="ob"></div></section>' +
+      '<p class="para"><b>Đoạn 2.</b> Học sinh nên tự tay dọn dẹp lớp học của mình. Việc này giúp các em có trách nhiệm hơn với không gian chung. Ở Nhật Bản, học sinh nhiều trường dành khoảng 20 phút sau bữa trưa để cùng nhau lau dọn lớp học và hành lang, gọi là giờ o-soji. Điều đó cho thấy khi tự tay giữ gìn, các em sẽ biết quý trọng nơi mình học và ít xả rác hơn. Vì vậy, nhà trường nên giao việc trực nhật cho học sinh.</p>' +
+      '</div><p class="note">Nguồn: Quỹ Japan Forum (TJF), tư liệu về giờ dọn dẹp ở trường Nhật Bản.</p><div class="opts" id="ob"></div></section>' +
       '<section class="round" id="rc" hidden><div class="num"><span class="sub">Câu (c)</span></div>' +
       '<p class="q">Phần nào có nhiệm vụ CHỨNG MINH cho lý lẽ bằng số liệu, ví dụ thực tế hay một câu nói?</p><div class="opts" id="oc"></div></section>' +
       nextBtn("Xem kết quả", false);
@@ -630,7 +630,7 @@
     mcq(document.getElementById("oa"), ["Câu chủ đề", "Bằng chứng", "Kết đoạn", "Lý lẽ"], 2, function (ok) {
       res.a = ok;
       if (ok) { award(3); say("Đúng! Đoạn này dừng lại mà chưa chốt ý: thiếu mất câu Kết đoạn. +1 Sao Biển!", "happy"); }
-      else say("Chưa đúng rồi. Đoạn này có đủ câu chủ đề, lý lẽ, bằng chứng (chuyện bạn Minh) và phân tích, nhưng chưa có câu chốt ý. Thiếu Kết đoạn đó!", "think");
+      else say("Chưa đúng rồi. Đoạn này có đủ câu chủ đề, lý lẽ, bằng chứng (nghiên cứu năm 2013) và phân tích, nhưng chưa có câu chốt ý. Thiếu Kết đoạn đó!", "think");
       var b = document.getElementById("rb"); b.hidden = false; b.scrollIntoView({ behavior: "smooth", block: "start" });
     });
     mcq(document.getElementById("ob"), ["Đoạn 1", "Đoạn 2"], 1, function (ok) {
