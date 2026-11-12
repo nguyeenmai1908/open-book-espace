@@ -10,223 +10,297 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="assets/ms.css">
 <style>
-  /* Trang case study cho portfolio (tiếng Anh, không qua i18n). Ảnh ở assets/portfolio/. */
-  body { background: var(--paper); color: var(--ink); }
-  .wrap { width: min(1100px, 100% - 32px); margin-inline: auto; }
-  section { padding: 56px 0; border-top: 1px solid var(--line); }
+  /* Trang case study cho portfolio (tiếng Anh, không qua i18n). Ảnh ở assets/portfolio/.
+     Bố cục: thanh điều hướng dính trên cùng, nền xám nhạt, mỗi phần là một "tấm" trắng có bóng. */
+  html { scroll-behavior: smooth; }
+  body { background: var(--paper-2); color: var(--ink); margin: 0; }
+  .wrap { width: min(1120px, 100% - 32px); margin-inline: auto; }
   h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; margin: 0; }
-  h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); color: var(--teal-ink); margin-bottom: 14px; }
-  h3 { font-size: 1.2rem; color: var(--ink); }
-  p { line-height: 1.65; margin: 0; }
-  .lead { font-size: 1.12rem; color: var(--ink-2); max-width: 62ch; }
-  .kicker { font: 700 .8rem var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--orange-ink); margin-bottom: 8px; }
+  h2 { font-size: clamp(1.5rem, 2.6vw, 1.9rem); color: var(--ink); }
+  h3 { font-size: 1.08rem; color: var(--ink); }
+  p { line-height: 1.6; margin: 0; }
+  .kicker { font: 700 .74rem var(--font-body); letter-spacing: .09em; text-transform: uppercase; color: var(--orange-ink); margin: 0 0 6px; }
+  .muted { color: var(--ink-2); }
 
-  .hero { padding: 48px 0 32px; }
-  .hero .top { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
-  .hero .top img { width: 44px; }
-  .hero .top b { font-family: var(--font-display); font-size: 1.2rem; color: var(--teal-ink); }
-  .hero h1 { font-size: clamp(2.2rem, 5.5vw, 3.6rem); color: var(--ink); max-width: 18ch; }
+  /* thanh điều hướng */
+  .nav { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .nav .wrap { display: flex; align-items: center; gap: 20px; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--teal-ink); font: 800 1.08rem var(--font-display); white-space: nowrap; }
+  .brand img { width: 30px; }
+  .nav ul { display: flex; gap: 4px; list-style: none; margin: 0 auto 0 0; padding: 0; }
+  .nav ul a { display: block; padding: 6px 10px; border-radius: 8px; color: var(--ink-2); text-decoration: none; font-size: .9rem; font-weight: 500; }
+  .nav ul a:hover, .nav ul a.on { color: var(--teal-ink); background: var(--teal-soft); }
+
+  /* phần chung */
+  section { padding: 22px 0; scroll-margin-top: 72px; }
+  .panel { background: var(--paper); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: clamp(22px, 3.5vw, 40px); }
+  .head { margin-bottom: 22px; }
+  .head p.muted { margin-top: 6px; max-width: 62ch; }
+
+  /* mở đầu */
+  .hero { padding: 40px 0 22px; }
+  .hero-grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 40px; align-items: center; }
+  .hero h1 { font-size: clamp(2.1rem, 4.4vw, 3.2rem); max-width: 14ch; }
   .hero h1 span { color: var(--orange); }
-  .hero .lead { margin-top: 16px; }
-  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; align-items: center; }
-  .cta-row small { color: var(--ink-2); }
-  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 32px; }
-  .facts div { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px 16px; }
-  .facts dt { font: 700 .75rem var(--font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
-  .facts dd { margin: 4px 0 0; font-weight: 600; line-height: 1.45; }
-
+  .hero .lead { margin-top: 14px; font-size: 1.06rem; color: var(--ink-2); max-width: 52ch; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+  .hint { margin-top: 12px; font-size: .84rem; color: var(--ink-2); }
   figure { margin: 0; }
-  figure img { display: block; width: 100%; height: auto; border-radius: var(--r-lg); box-shadow: var(--shadow); background: var(--paper-3); }
-  figcaption { margin-top: 10px; color: var(--ink-2); font-size: .92rem; }
-  .shot-hero { margin-top: 36px; }
+  figure img { display: block; width: 100%; height: auto; border-radius: var(--r-md); background: var(--paper-3); }
+  .hero figure img { box-shadow: var(--shadow); border-radius: var(--r-lg); }
+  .facts { display: grid; grid-template-columns: repeat(4, 1fr); margin: 32px 0 0; padding: 0; background: var(--paper); border-radius: var(--r-md); box-shadow: var(--shadow); }
+  .facts div { padding: 16px 20px; }
+  .facts div + div { border-left: 1px solid var(--line); }
+  .facts dt { font: 700 .7rem var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+  .facts dd { margin: 4px 0 0; font-weight: 600; font-size: .95rem; line-height: 1.4; }
 
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 24px; }
-  .card { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px; display: grid; gap: 8px; align-content: start; }
-  .card .n { font: 800 1.6rem var(--font-display); color: var(--orange); line-height: 1; }
-  .card p { color: var(--ink-2); font-size: .95rem; }
+  /* thử thách */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+  .list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+  .list li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; line-height: 1.5; color: var(--ink-2); }
+  .list li::before { content: ""; width: 10px; height: 10px; margin: 7px 0 0 6px; border-radius: 3px; background: var(--teal); }
+  ol.list { counter-reset: s; }
+  ol.list li::before { counter-increment: s; content: counter(s); width: 24px; height: 24px; margin: 0; border-radius: 50%; display: grid; place-items: center; background: var(--teal-ink); color: #fff; font: 800 .8rem var(--font-display); }
 
-  .room { display: grid; grid-template-columns: 1.25fr 1fr; gap: 28px; align-items: center; padding: 28px 0; }
-  .room + .room { border-top: 1px dashed var(--line); }
-  .room:nth-child(even) { grid-template-columns: 1fr 1.25fr; }
-  .room:nth-child(even) figure { order: 2; }
-  .room ul { margin: 10px 0 0; padding-left: 18px; color: var(--ink-2); line-height: 1.6; }
-  .room .tag { display: inline-block; margin-bottom: 8px; }
+  /* nguyên tắc */
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .card { border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px; display: grid; gap: 6px; align-content: start; }
+  .card .n { font: 800 .9rem var(--font-display); color: var(--orange); }
+  .card p { color: var(--ink-2); font-size: .92rem; line-height: 1.55; }
 
-  .steps { counter-reset: s; display: grid; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; }
-  .steps li { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; line-height: 1.55; }
-  .steps li::before { counter-increment: s; content: counter(s); display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--teal-ink); color: #fff; font: 800 .95rem var(--font-display); }
-  .burger { display: grid; gap: 6px; max-width: 360px; margin-top: 8px; }
-  .burger div { border-radius: 10px; padding: 8px 14px; font-weight: 700; color: #1f1406; }
-  .burger div small { font-weight: 500; opacity: .8; }
-  .note { background: var(--orange-soft); border-left: 4px solid var(--orange); border-radius: 0 var(--r-md) var(--r-md) 0; padding: 14px 18px; margin-top: 20px; }
-  .tech { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-  footer { padding: 40px 0 60px; border-top: 1px solid var(--line); color: var(--ink-2); }
-  footer .cta-row { margin-top: 0; margin-bottom: 18px; }
+  /* các phòng */
+  .rooms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .room { display: grid; gap: 10px; align-content: start; }
+  .room img { aspect-ratio: 16 / 10; object-fit: cover; }
+  .room .chip { justify-self: start; }
+  .room p { color: var(--ink-2); font-size: .92rem; line-height: 1.55; }
 
-  @media (max-width: 760px) {
-    .grid2, .room, .room:nth-child(even) { grid-template-columns: 1fr; }
-    .room:nth-child(even) figure { order: 0; }
-    section { padding: 40px 0; }
+  /* khoá học */
+  .burger { display: grid; gap: 5px; }
+  .burger div { border-radius: 10px; padding: 9px 14px; font-weight: 700; color: #1f1406; display: flex; justify-content: space-between; }
+  .burger small { font-weight: 500; opacity: .75; }
+  .note { background: var(--orange-soft); border-left: 4px solid var(--orange); border-radius: 0 var(--r-sm) var(--r-sm) 0; padding: 12px 16px; margin-top: 18px; font-size: .92rem; line-height: 1.55; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+
+  /* kết */
+  .end { background: var(--teal-ink); color: #fff; text-align: center; }
+  .end h2 { color: #fff; }
+  .end p { color: rgba(255,255,255,.85); margin-top: 6px; }
+  .end .cta-row { justify-content: center; }
+  .end .btn.ghost { color: #fff; box-shadow: inset 0 0 0 2px rgba(255,255,255,.5); }
+  footer { padding: 20px 0 40px; text-align: center; font-size: .86rem; color: var(--ink-2); }
+
+  @media (max-width: 900px) {
+    .nav ul { display: none; }
+    .nav .wrap { justify-content: space-between; }
+    .hero-grid, .split { grid-template-columns: 1fr; gap: 28px; }
+    .facts { grid-template-columns: 1fr 1fr; }
+    .facts div:nth-child(3) { border-left: 0; }
+    .facts div:nth-child(n+3) { border-top: 1px solid var(--line); }
+    .cards, .rooms { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    .cards, .rooms { grid-template-columns: 1fr; }
+    .hero { padding-top: 28px; }
   }
 </style>
 </head>
 <body>
 
-<header class="hero">
+<nav class="nav" aria-label="Sections">
   <div class="wrap">
-    <div class="top"><img src="assets/logo-mark.png" alt=""><b>Open Book eSpace</b></div>
-    <p class="kicker">Case study · Learning experience design</p>
-    <h1>A 3D reading space where kids <span>learn by wandering</span></h1>
-    <p class="lead">Mở Sách is a reading and writing center for children in Vietnam. I designed Open Book eSpace, an online space that feels like walking into the center itself: a lobby, classrooms, a library, a garden, a cinema and a festival hall, each with self-paced activities students can do between classes.</p>
-    <div class="cta-row">
-      <a class="btn cta" href="play.html?portfolio">Explore the 3D space</a>
-      <a class="btn ghost" href="index.html?portfolio">Simple 2D version</a>
-      <small>Works on desktop and phone. Interface in English; lessons and puzzles stay in Vietnamese.</small>
+    <a class="brand" href="#top"><img src="assets/logo-mark.png" alt="">Open Book eSpace</a>
+    <ul>
+      <li><a href="#challenge">Challenge</a></li>
+      <li><a href="#principles">Principles</a></li>
+      <li><a href="#rooms">Rooms</a></li>
+      <li><a href="#course">Course design</a></li>
+      <li><a href="#delivery">Delivery</a></li>
+    </ul>
+    <a class="btn cta sm" href="play.html?portfolio">Explore in 3D</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <p class="kicker">Case study · Learning experience design</p>
+        <h1>A 3D reading space where kids <span>learn by wandering</span></h1>
+        <p class="lead">Mở Sách is a reading and writing center for children in Vietnam. I designed Open Book eSpace: an online version of the center, with rooms students explore and short self-paced activities between classes.</p>
+        <div class="cta-row">
+          <a class="btn cta" href="play.html?portfolio">Explore the 3D space</a>
+          <a class="btn ghost" href="index.html?portfolio">Simple 2D version</a>
+        </div>
+        <p class="hint">Desktop and phone · Interface in English, lessons in Vietnamese</p>
+      </div>
+      <figure>
+        <img src="assets/portfolio/map.jpg" width="1600" height="1000" alt="Bird's-eye view of the whole space: a central hall with five rooms around it — classroom, festival hall, garden, cinema and reading room.">
+      </figure>
     </div>
     <dl class="facts">
       <div><dt>My role</dt><dd>Learning design, content writing, product direction</dd></div>
-      <div><dt>Learners</dt><dd>Primary and lower-secondary students (grades 1–9)</dd></div>
-      <div><dt>Format</dt><dd>Self-paced web app, 15–20 minute activities</dd></div>
-      <div><dt>Built with</dt><dd>Three.js low-poly 3D, plain HTML/JS, no login</dd></div>
+      <div><dt>Learners</dt><dd>Grades 1–9</dd></div>
+      <div><dt>Format</dt><dd>Self-paced web, 15–20 min activities</dd></div>
+      <div><dt>Built with</dt><dd>Three.js, HTML/JS, no login</dd></div>
     </dl>
-    <figure class="shot-hero">
-      <img src="assets/portfolio/map.jpg" width="1600" height="1000" alt="Bird's-eye view of the whole space: a central hall with five rooms around it — classroom, festival hall, garden, cinema and reading room.">
-      <figcaption>The whole space from above. A central hall connects five rooms; colored paths lead to each door.</figcaption>
-    </figure>
   </div>
 </header>
 
 <main>
-<section>
-  <div class="wrap grid2">
+<section id="challenge">
+  <div class="wrap panel split">
     <div>
       <p class="kicker">The challenge</p>
       <h2>Keep children reading and writing between classes</h2>
-      <p>Mở Sách teaches in person. Between lessons, students had no place to practice that felt like the center: warm, playful, and theirs. A plain course list would not compete with games and videos on a child's phone.</p>
+      <p class="muted" style="margin-top:12px">Mở Sách teaches in person. Between lessons, students had no place to practice that felt like the center: warm, playful and theirs. A plain course list can't compete with games and videos on a child's phone.</p>
     </div>
     <div>
       <p class="kicker">Constraints</p>
-      <ul class="steps">
-        <li>Young learners, many on phones, some with slow devices.</li>
-        <li>No accounts and no server: progress is saved on the device, and the site works as static files.</li>
-        <li>All learning content is Vietnamese-language practice, so it has to stay in Vietnamese.</li>
-        <li>Teachers, not developers, need to add books, films and puzzles over time.</li>
+      <ul class="list">
+        <li>Young learners, many on phones, some on slow devices.</li>
+        <li>No accounts, no server: progress lives on the device.</li>
+        <li>The lessons teach Vietnamese, so they stay in Vietnamese.</li>
+        <li>Teachers, not developers, add books, films and puzzles.</li>
       </ul>
     </div>
   </div>
 </section>
 
-<section>
-  <div class="wrap">
-    <p class="kicker">Design principles</p>
-    <h2>Six decisions that shaped the space</h2>
+<section id="principles">
+  <div class="wrap panel">
+    <div class="head">
+      <p class="kicker">Design principles</p>
+      <h2>Six decisions that shaped the space</h2>
+    </div>
     <div class="cards">
-      <div class="card"><span class="n">01</span><h3>3D is the hallway, 2D is the classroom</h3><p>The 3D world is for curiosity and navigation. Every lesson, book or quiz opens as a clean 2D panel with readable text. No long text lives in 3D.</p></div>
-      <div class="card"><span class="n">02</span><h3>Every 3D object has a button twin</h3><p>A “Quick travel” menu lists every room, activity and character, and a 2D version covers slow devices. Nobody is locked out by the 3D.</p></div>
-      <div class="card"><span class="n">03</span><h3>Mistakes are free</h3><p>Sea Stars only add up: one for a correct first try, none lost for a wrong one. A wrong answer gives a hint; two wrong answers reveal the answer with an explanation.</p></div>
-      <div class="card"><span class="n">04</span><h3>Real evidence only</h3><p>Argument-writing courses use verifiable evidence with sources. Anything illustrative is labeled as a sample, so students learn what good evidence looks like.</p></div>
-      <div class="card"><span class="n">05</span><h3>Content is data</h3><p>Books, films, festival stalls, puzzles and character dialogue live in simple data files. Adding a book is adding one entry, not rebuilding a page.</p></div>
-      <div class="card"><span class="n">06</span><h3>Modeled on the real center</h3><p>The seven teacher characters are based on Mở Sách's real teachers, down to Ms. Vi's red dress and the aloe and monstera plants she waters every day.</p></div>
+      <div class="card"><span class="n">01</span><h3>3D is the hallway, 2D is the classroom</h3><p>3D is for curiosity and moving around. Every lesson, book or quiz opens as a clean 2D panel.</p></div>
+      <div class="card"><span class="n">02</span><h3>Every 3D object has a button twin</h3><p>A “Quick travel” menu and a 2D version mean no one is locked out by slow devices.</p></div>
+      <div class="card"><span class="n">03</span><h3>Mistakes are free</h3><p>Stars only add up. A wrong answer gives a hint; two reveal the answer with an explanation.</p></div>
+      <div class="card"><span class="n">04</span><h3>Real evidence only</h3><p>Argument lessons use verifiable evidence with sources; samples are labeled as samples.</p></div>
+      <div class="card"><span class="n">05</span><h3>Content is data</h3><p>Books, films, puzzles and dialogue live in simple files. Adding a book is adding one entry.</p></div>
+      <div class="card"><span class="n">06</span><h3>Modeled on the real center</h3><p>The teacher characters are based on real Mở Sách teachers, down to Ms. Vi watering her plants.</p></div>
     </div>
   </div>
 </section>
 
-<section>
-  <div class="wrap">
-    <p class="kicker">A walk through the rooms</p>
-    <h2>Each room has one clear job</h2>
+<section id="rooms">
+  <div class="wrap panel">
+    <div class="head">
+      <p class="kicker">A walk through the rooms</p>
+      <h2>Each room has one clear job</h2>
+    </div>
     <div class="rooms">
       <div class="room">
         <figure><img src="assets/portfolio/hall.jpg" width="1600" height="1000" loading="lazy" alt="Main hall with a small tree in the middle, a storytelling stage and colored paths to each room."></figure>
-        <div><span class="chip orange tag">Main Hall</span><h3>A tree that grows with you</h3>
-          <ul><li>The Open Book Tree grows leaves, flowers and “book fruit” as students earn Sea Stars.</li><li>A storytelling stage: a student character tells fables, and students can step up and take a bow.</li><li>A daily Vietnamese Challenge with three new puzzles on every visit.</li></ul></div>
+        <span class="chip orange">Main Hall</span><h3>A tree that grows with you</h3>
+        <p>The Open Book Tree grows as students earn Sea Stars. A storytelling stage and three new Vietnamese puzzles every day.</p>
       </div>
       <div class="room">
         <figure><img src="assets/portfolio/learning.jpg" width="1600" height="1000" loading="lazy" alt="Classroom with course desks grouped by series, a whiteboard showing the hamburger paragraph model, and study tables."></figure>
-        <div><span class="chip teal tag">Learning Space</span><h3>Courses as desks, grouped by series</h3>
-          <ul><li>Each course is a desk; its color shows the series, and locked courses look faded.</li><li>The whiteboard shows the “hamburger” model used across the writing courses.</li><li>Opening a desk launches the course as a full-screen 2D lesson.</li></ul></div>
+        <span class="chip teal">Learning Space</span><h3>Courses as desks</h3>
+        <p>Each desk is a course, colored by series. Opening one launches a full-screen 2D lesson.</p>
       </div>
       <div class="room">
         <figure><img src="assets/portfolio/reading-room.jpg" width="1600" height="1000" loading="lazy" alt="Library room with an East and West classics bookcase, a most-read leaderboard, book display stands, bean bags and a reading desk."></figure>
-        <div><span class="chip orange tag">Reading Room</span><h3>Classics made approachable</h3>
-          <ul><li>An East & West classics bookcase: ten classics retold as short summaries written by Mở Sách.</li><li>A monthly “most read” leaderboard turns reading into a friendly race.</li><li>Copyrighted picture books get a reading guide instead of copied pages, and students borrow the paper copy.</li></ul></div>
+        <span class="chip orange">Reading Room</span><h3>Classics made approachable</h3>
+        <p>Ten East &amp; West classics retold as short summaries, plus a monthly “most read” board.</p>
       </div>
       <div class="room">
         <figure><img src="assets/portfolio/garden.jpg" width="1600" height="1000" loading="lazy" alt="Garden with a fountain pond, a swing, benches, a scarecrow and a story corner where children sit around a teacher."></figure>
-        <div><span class="chip teal tag">Reading Garden</span><h3>Play that sneaks in practice</h3>
-          <ul><li>Four seasons and day/night, with a poem tree that offers seasonal Vietnamese poetry.</li><li>Word Fishing: catch letter-fish in order to spell words and proverbs. Fireflies at night ask folk riddles.</li><li>A story corner where a teacher tells true stories of real people who loved learning.</li></ul></div>
+        <span class="chip teal">Reading Garden</span><h3>Play that sneaks in practice</h3>
+        <p>Four seasons, a poem tree, word fishing, firefly riddles at night and a story corner.</p>
       </div>
       <div class="room">
         <figure><img src="assets/portfolio/cinema.jpg" width="1600" height="1000" loading="lazy" alt="Cinema with a screen, red seats, a projector beam, a 'now showing' poster wall and a reflection corner with a teacher."></figure>
-        <div><span class="chip orange tag">Cinema</span><h3>Watch → Think → Write</h3>
-          <ul><li>Short films chosen or made by Mở Sách teachers.</li><li>Each film is followed by tap-to-answer questions (some deliberately have no right answer) and a short written reflection.</li><li>A reflection corner keeps writing close to the screen.</li></ul></div>
+        <span class="chip orange">Cinema</span><h3>Watch → Think → Write</h3>
+        <p>Short films by Mở Sách teachers, followed by open questions and a written reflection.</p>
       </div>
       <div class="room">
         <figure><img src="assets/portfolio/festival.jpg" width="1600" height="1000" loading="lazy" alt="Festival hall decorated as a Christmas fair with striped stalls, a tree, presents and two student characters."></figure>
-        <div><span class="chip teal tag">Festival Hall</span><h3>Culture as a fair</h3>
-          <ul><li>Tết, Mid-Autumn, Halloween and Christmas, chosen automatically by date.</li><li>Six stalls, each with a short reading, a fun fact and new words; a quiz and writing prompt complete the visit.</li><li>Finishing everything earns a badge students can wear on their avatar.</li></ul></div>
+        <span class="chip teal">Festival Hall</span><h3>Culture as a fair</h3>
+        <p>Tết, Mid-Autumn, Halloween and Christmas by date. Six stalls, a quiz and a badge to wear.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section>
-  <div class="wrap grid2">
+<section id="course">
+  <div class="wrap panel split">
     <div>
       <p class="kicker">Course design</p>
       <h2>Argument writing, one layer at a time</h2>
-      <p>The flagship series teaches grades 6–9 to write an argument paragraph. Instead of starting with the topic sentence, the order follows how students actually build an argument: evidence and analysis first, then reasons, then the topic sentence.</p>
-      <ul class="steps">
-        <li><b>Course 1:</b> recognize the 5 parts of a paragraph (no writing yet).</li>
-        <li><b>Course 2:</b> choose strong, real evidence and explain it.</li>
-        <li><b>Course 3:</b> write reasons and a topic sentence, then assemble the full paragraph.</li>
-      </ul>
-      <p style="margin-top:16px">Each course has six short lessons (15–20 minutes in total), a dolphin guide who never scolds, up to five Sea Stars, and shuffled ordering tasks so students can't guess by position.</p>
+      <p class="muted" style="margin:12px 0 16px">The flagship series teaches grades 6–9 to write an argument paragraph, in the order students actually build one: evidence first, the topic sentence last.</p>
+      <ol class="list">
+        <li><span><b>Course 1</b> · recognize the 5 parts of a paragraph</span></li>
+        <li><span><b>Course 2</b> · choose real evidence and explain it</span></li>
+        <li><span><b>Course 3</b> · write reasons and a topic sentence, then the full paragraph</span></li>
+      </ol>
+      <p class="muted" style="margin-top:16px;font-size:.92rem">Six short lessons per course, a dolphin guide who never scolds, up to five Sea Stars.</p>
     </div>
     <div>
       <p class="kicker">The hamburger model</p>
       <div class="burger" role="img" aria-label="Hamburger model: top bun is the topic sentence, lettuce is the reason, patty is the evidence, cheese is the analysis, bottom bun is the conclusion.">
-        <div style="background:#e0a24e">Topic sentence <small>· top bun</small></div>
-        <div style="background:#8fd17a">Reason <small>· lettuce</small></div>
-        <div style="background:#b5714a;color:#fff">Evidence <small>· patty</small></div>
-        <div style="background:#f6c84c">Analysis <small>· cheese</small></div>
-        <div style="background:#e0a24e">Conclusion <small>· bottom bun</small></div>
+        <div style="background:#e0a24e">Topic sentence <small>top bun</small></div>
+        <div style="background:#8fd17a">Reason <small>lettuce</small></div>
+        <div style="background:#b5714a;color:#fff">Evidence <small>patty</small></div>
+        <div style="background:#f6c84c">Analysis <small>cheese</small></div>
+        <div style="background:#e0a24e">Conclusion <small>bottom bun</small></div>
       </div>
-      <div class="note"><b>Why the lessons stay in Vietnamese.</b> The courses and puzzles teach Vietnamese spelling, vocabulary, proverbs and argument writing, so translating them would remove the learning. The English version translates the interface and dialogue and adds short notes explaining each Vietnamese activity.</div>
+      <div class="note"><b>Why lessons stay in Vietnamese.</b> They teach Vietnamese spelling, vocabulary, proverbs and argument writing; translating them would remove the learning. The English version translates the interface and adds short notes on each activity.</div>
+    </div>
+  </div>
+</section>
+
+<section id="delivery">
+  <div class="wrap panel split">
+    <div>
+      <p class="kicker">Accessibility &amp; delivery</p>
+      <h2>Light enough for a child's phone</h2>
+      <p class="muted" style="margin-top:12px">Low-poly shapes and capped resolution keep it smooth on phones, with a joystick and tap-to-travel. Everything also works without 3D, and progress saves on the device.</p>
+      <div class="tags"><span class="chip teal">Three.js</span><span class="chip teal">HTML / CSS / JS</span><span class="chip teal">Works offline</span><span class="chip teal">Mobile + desktop</span><span class="chip teal">Vietnamese / English</span></div>
+    </div>
+    <div>
+      <p class="kicker">What's next</p>
+      <h2>Next steps</h2>
+      <ol class="list" style="margin-top:14px">
+        <li><span>Finish Course 3 of the argument series.</span></li>
+        <li><span>Online saving, so teachers can read students' writing.</span></li>
+        <li><span>Test with students on phones and tablets, then adjust pacing.</span></li>
+      </ol>
     </div>
   </div>
 </section>
 
 <section>
-  <div class="wrap grid2">
-    <div>
-      <p class="kicker">Accessibility & delivery</p>
-      <h2>Light enough for a child's phone</h2>
-      <p>Low-poly shapes, few lights and capped resolution keep it smooth on phones, with a virtual joystick, and a tap on any room takes you there. Everything also works without the 3D. Progress, writing and badges are saved on the device, so no login is needed.</p>
-      <div class="tech"><span class="chip teal">Three.js</span><span class="chip teal">HTML / CSS / JS</span><span class="chip teal">Works offline</span><span class="chip teal">Mobile + desktop</span><span class="chip teal">Vietnamese / English</span></div>
-    </div>
-    <div>
-      <p class="kicker">What's next</p>
-      <h2>Next steps</h2>
-      <ul class="steps">
-        <li>Finish Course 3 of the argument-writing series.</li>
-        <li>Online saving, so teachers can read students' writing and reflections.</li>
-        <li>Test with students on tablets and phones and adjust pacing from what we see.</li>
-      </ul>
+  <div class="wrap panel end">
+    <h2>See it for yourself</h2>
+    <p>Takes about five minutes. No sign-up.</p>
+    <div class="cta-row">
+      <a class="btn cta" href="play.html?portfolio">Explore the 3D space</a>
+      <a class="btn ghost" href="index.html?portfolio">Simple 2D version</a>
     </div>
   </div>
 </section>
 </main>
 
 <footer>
-  <div class="wrap">
-    <div class="cta-row">
-      <a class="btn cta" href="play.html?portfolio">Explore the 3D space</a>
-      <a class="btn ghost" href="index.html?portfolio">Simple 2D version</a>
-    </div>
-    <p>Open Book eSpace · designed for Mở Sách reading & writing center, Vietnam.</p>
-  </div>
+  <div class="wrap">Open Book eSpace · designed for Mở Sách reading &amp; writing center, Vietnam</div>
 </footer>
+
+<script>
+  // đánh dấu mục đang xem trên thanh điều hướng
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll(".nav ul a"));
+    if (!("IntersectionObserver" in window)) return;
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin: "-40% 0px -55% 0px" });
+    links.forEach(function (a) { var s = document.querySelector(a.getAttribute("href")); if (s) io.observe(s); });
+  })();
+</script>
 </body>
 </html>
