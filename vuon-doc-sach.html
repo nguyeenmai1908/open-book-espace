@@ -76,6 +76,7 @@
     <a class="brand" href="index.html"><img src="assets/logo-mark.png" alt=""><span><b>Mở Sách</b><small>Không gian trực tuyến</small></span></a>
     <span class="spacer"></span>
     <a class="back" href="khong-gian-hoc.html" style="font-weight:600;text-decoration:none;color:var(--teal-ink)">Không gian học →</a>
+    <button class="btn ghost sm" type="button" data-lang-toggle>EN</button>
   </div>
 </div>
 
@@ -112,13 +113,16 @@
 
 <main>
   <div class="wrap">
-    <p class="intro">Trên ghế đá có ba cuốn sách nhỏ, mỗi cuốn là một đoạn văn nghị luận mẫu từ khoá <a href="khoa-hoc/nghi-luan-1.html">Nghị luận Vỡ Lòng · Khoá 1</a>. Chọn một cuốn để đọc. Bật “Tô màu 5 lớp bánh” để thấy câu nào là câu chủ đề, lý lẽ, bằng chứng, phân tích hay kết đoạn.</p>
+    <p class="en-note" data-no-i18n><b>Sample argument paragraphs, in Vietnamese.</b> Each little book holds one model paragraph from Course 1. Turn on the colors to see the 5 hamburger layers: topic sentence, reason, evidence, analysis, conclusion.</p>
+    <p class="intro vi-only">Trên ghế đá có ba cuốn sách nhỏ, mỗi cuốn là một đoạn văn nghị luận mẫu từ khoá <a href="khoa-hoc/nghi-luan-1.html">Nghị luận Vỡ Lòng · Khoá 1</a>. Chọn một cuốn để đọc. Bật “Tô màu 5 lớp bánh” để thấy câu nào là câu chủ đề, lý lẽ, bằng chứng, phân tích hay kết đoạn.</p>
     <div class="books" id="books"></div>
     <article class="reader" id="reader" aria-live="polite"></article>
   </div>
 </main>
 
 <script src="assets/ms.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/i18n-en.js"></script>
 <script>
 (function () {
   var PARTS = [

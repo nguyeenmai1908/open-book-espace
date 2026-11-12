@@ -154,6 +154,7 @@
   /* Biển chữ ngắn (tên phòng, "Sắp mở"). Không dùng cho chữ dài. */
   MS3D.label = function (text, opts) {
     opts = opts || {};
+    if (window.MS && MS.tr) text = MS.tr(text);   // bản tiếng Anh: dịch biển chữ (i18n.js)
     var fs = 56, pad = 26;
     var c = document.createElement("canvas"), g = c.getContext("2d");
     var font = "700 " + fs + "px 'Baloo 2', 'Be Vietnam Pro', system-ui, sans-serif";

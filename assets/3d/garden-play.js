@@ -163,7 +163,7 @@
       var c = document.createElement("canvas"); c.width = 256; c.height = 64; var g = c.getContext("2d");
       g.fillStyle = "#c58a4f"; g.fillRect(0, 0, 256, 64);
       g.fillStyle = "#" + ("000000" + s[3].toString(16)).slice(-6); g.fillRect(0, 0, 256, 8); g.fillRect(0, 56, 256, 8);
-      g.fillStyle = "#fffaf0"; g.font = "700 26px 'Baloo 2', 'Be Vietnam Pro', system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(s[0], 128, 34);
+      g.fillStyle = "#fffaf0"; g.font = "700 26px 'Baloo 2', 'Be Vietnam Pro', system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText((window.MS && MS.tr ? MS.tr(s[0]) : s[0]), 128, 34);
       var bd = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 0.32), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), side: THREE.DoubleSide }));
       bd.position.set(px + s[2] * 0.45, s[1], pz + 0.09); scene.add(bd);
     });

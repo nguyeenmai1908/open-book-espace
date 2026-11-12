@@ -46,6 +46,7 @@
     <a class="brand" href="index.html"><img src="assets/logo-mark.png" alt=""><span><b>Mở Sách</b><small>Không gian trực tuyến</small></span></a>
     <span class="spacer"></span>
     <span class="crumb" id="hello"></span>
+    <button class="btn ghost sm" type="button" data-lang-toggle>EN</button>
   </div>
 </div>
 
@@ -59,6 +60,8 @@
 <main><div class="wrap" id="shelves"></div></main>
 
 <script src="assets/ms.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/i18n-en.js"></script>
 <script>
 (function () {
   var name = MS.getName();
@@ -71,13 +74,18 @@
       '<div class="row' + (list.length === 1 ? " single" : "") + '">' + list.map(card).join("") + "</div></section>";
   }).join("");
 
+  // bản tiếng Anh: tên khoá giữ tiếng Việt, thêm tên tiếng Anh nhỏ bên dưới
+  function enTitle(c) {
+    var e = MS.lang && MS.lang() === "en" && window.MS_EN_COURSES && MS_EN_COURSES[c.id];
+    return e ? '<p class="en-note" data-no-i18n>' + MS.esc(e.title) + " · in Vietnamese</p>" : "";
+  }
   function card(c) {
     var open = c.status === "open";
     var p = MS.getProgress(c.id);
     var best = p ? '<div class="best">' + MS.starsHTML(p.best, c.maxStars) + "<span>Tốt nhất: " + p.best + "/" + c.maxStars + "</span></div>" : "";
     return '<article class="course ' + (open ? "open" : "soon") + '"><span class="spine" aria-hidden="true"></span>' +
       '<div><div class="code"><span>' + MS.esc(c.code) + "</span>" + (open ? '<span class="chip open">Đang mở</span>' : '<span class="chip soon">Sắp mở</span>') + "</div>" +
-      "<h3>" + MS.esc(c.title) + "</h3></div>" +
+      "<h3>" + MS.esc(c.title) + "</h3>" + enTitle(c) + "</div>" +
       "<div style=\"display:grid;gap:10px;align-content:start\"><p>" + MS.esc(c.blurb) + '</p><div class="facts"><span class="chip teal">' + MS.esc(c.grade) + '</span><span class="chip orange">' + MS.esc(c.minutes) + "</span></div></div>" +
       '<div class="end">' + best + (open ? '<a class="btn cta" href="' + c.url + '">' + (p ? "Học lại" : "Bắt đầu học") + "</a>" : '<button class="btn ghost" type="button" disabled>Sắp ra mắt</button>') + "</div></article>";
   }

@@ -69,9 +69,9 @@
     var c = document.createElement("canvas"); c.width = 600; c.height = 360; var g = c.getContext("2d");
     g.fillStyle = "#1d6b6d"; g.fillRect(0, 0, 600, 360);
     g.fillStyle = "#ffc83d"; g.font = "800 34px 'Baloo 2', sans-serif"; g.textBaseline = "middle"; g.textAlign = "left";
-    g.fillText("Đọc nhiều nhất tháng", 24, 34);
+    g.fillText((window.MS && MS.tr ? MS.tr("Đọc nhiều nhất tháng") : "Đọc nhiều nhất tháng"), 24, 34);
     g.fillStyle = "#dff3f2"; g.font = "600 20px 'Be Vietnam Pro', sans-serif"; g.textAlign = "right";
-    g.fillText(data.month || "", 576, 36);
+    g.fillText((window.MS && MS.tr ? MS.tr(data.month || "") : data.month || ""), 576, 36);
     var max = Math.max.apply(null, data.list.map(function (r) { return r.reads; }).concat([1]));
     var MEDAL = ["#ffc83d", "#cfd8dc", "#e0a06a", "#50b1b3", "#50b1b3"];
     data.list.slice(0, 5).forEach(function (r, i) {
@@ -82,9 +82,9 @@
       g.fillText(bk ? bk.title : r.id, 80, y - 6);
       g.fillStyle = "rgba(255,255,255,.18)"; g.fillRect(80, y + 12, 400, 10);
       g.fillStyle = "#ff8300"; g.fillRect(80, y + 12, 400 * r.reads / max, 10);
-      g.fillStyle = "#dff3f2"; g.font = "600 18px 'Be Vietnam Pro', sans-serif"; g.textAlign = "right"; g.fillText(r.reads + " lượt", 576, y + 16);
+      g.fillStyle = "#dff3f2"; g.font = "600 18px 'Be Vietnam Pro', sans-serif"; g.textAlign = "right"; g.fillText((window.MS && MS.tr ? MS.tr(r.reads + " lượt") : r.reads + " lượt"), 576, y + 16);
     });
-    if (data.demo) { g.fillStyle = "rgba(255,255,255,.7)"; g.font = "500 15px 'Be Vietnam Pro', sans-serif"; g.textAlign = "right"; g.fillText("số liệu minh hoạ", 576, 346); }
+    if (data.demo) { g.fillStyle = "rgba(255,255,255,.7)"; g.font = "500 15px 'Be Vietnam Pro', sans-serif"; g.textAlign = "right"; g.fillText((window.MS && MS.tr ? MS.tr("số liệu minh hoạ") : "số liệu minh hoạ"), 576, 346); }
     var tex = new THREE.CanvasTexture(c); tex.anisotropy = 4;
     MS3D.box(3.6, 2.25, 0.1, 0xd4a017, x, 1.5, z, world.scene);
     var b = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 2.04), new THREE.MeshBasicMaterial({ map: tex }));

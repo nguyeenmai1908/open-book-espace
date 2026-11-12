@@ -153,3 +153,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* Bản tiếng Anh (i18n.js đặt <html lang="en">): ghi chú giải thích nội dung tiếng Việt cho người xem portfolio */
+.en-note { display: none; margin: 0; padding: 8px 12px; border-left: 4px solid var(--orange); border-radius: 0 var(--r-md, 12px) var(--r-md, 12px) 0; background: var(--orange-soft); color: var(--ink); font: 500 .88rem/1.5 var(--font-body); }
+.en-note b { color: var(--orange-ink); }
+html[lang="en"] .en-note { display: block; }
+html[lang="en"] .vi-only { display: none !important; }

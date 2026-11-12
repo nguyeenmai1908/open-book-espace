@@ -125,8 +125,8 @@
     g.font = "600 28px 'Be Vietnam Pro', sans-serif";
     if (seen) {
       g.strokeStyle = "#2e9e5b"; g.lineWidth = 7; g.beginPath(); g.moveTo(48, H - 66); g.lineTo(64, H - 50); g.lineTo(94, H - 84); g.stroke();
-      g.fillStyle = "#2e9e5b"; g.fillText("Đã khám phá", 108, H - 66);
-    } else { g.fillStyle = f.accent; g.fillText("Chạm để khám phá →", 48, H - 66); }
+      g.fillStyle = "#2e9e5b"; g.fillText((window.MS && MS.tr ? MS.tr("Đã khám phá") : "Đã khám phá"), 108, H - 66);
+    } else { g.fillStyle = f.accent; g.fillText((window.MS && MS.tr ? MS.tr("Chạm để khám phá →") : "Chạm để khám phá →"), 48, H - 66); }
   }
   function buildStations(world, g, room, f) {
     var content = (MS3D.FESTIVAL_CONTENT || {})[f.id]; if (!content) return;

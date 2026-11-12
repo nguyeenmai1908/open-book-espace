@@ -69,10 +69,10 @@
     g.font = "800 38px 'Baloo 2', system-ui, sans-serif";
     var n = wrap(g, film.title, cx, 310, W - 40, 38);
     g.font = "600 18px 'Be Vietnam Pro', system-ui, sans-serif"; g.fillStyle = "#fff6ea";
-    g.fillText("Phim ngắn · " + (film.minutes || ""), cx, 316 + n * 38);
+    g.fillText((window.MS && MS.tr ? MS.tr("Phim ngắn · " + (film.minutes || "")) : "Phim ngắn · " + (film.minutes || "")), cx, 316 + n * 38);
     if (film.demo) {
       g.fillStyle = "#ff8300"; g.fillRect(W - 112, 30, 100, 30);
-      g.fillStyle = "#1f1406"; g.font = "700 16px 'Be Vietnam Pro', system-ui, sans-serif"; g.fillText("MINH HOẠ", W - 62, 36);
+      g.fillStyle = "#1f1406"; g.font = "700 16px 'Be Vietnam Pro', system-ui, sans-serif"; g.fillText((window.MS && MS.tr ? MS.tr("MINH HOẠ") : "MINH HOẠ"), W - 62, 36);
     } else if (film.by) {   // phim thật: ghi ai làm phim
       g.font = "700 15px 'Be Vietnam Pro', system-ui, sans-serif";
       var bw = g.measureText(film.by).width + 24;
@@ -95,16 +95,16 @@
     g.textAlign = "center"; g.textBaseline = "middle";
     if (!film) {
       g.fillStyle = "#1d6b6d"; g.font = "800 64px 'Baloo 2', system-ui, sans-serif"; g.fillText("Mở Sách Cinema", W / 2, H / 2 - 22);
-      g.fillStyle = "#a85000"; g.font = "600 26px 'Be Vietnam Pro', system-ui, sans-serif"; g.fillText("Xem · Nghĩ · Viết", W / 2, H / 2 + 38);
+      g.fillStyle = "#a85000"; g.font = "600 26px 'Be Vietnam Pro', system-ui, sans-serif"; g.fillText((window.MS && MS.tr ? MS.tr("Xem · Nghĩ · Viết") : "Xem · Nghĩ · Viết"), W / 2, H / 2 + 38);
       return;
     }
     var p = MS3D.drawFilmPoster(film, document.createElement("canvas"));
     var ph = H - 40, pw = ph * 320 / 440;
     g.drawImage(p, 30, 20, pw, ph);
     g.textAlign = "left";
-    g.fillStyle = "#a85000"; g.font = "700 24px 'Be Vietnam Pro', system-ui, sans-serif"; g.fillText("ĐANG CHIẾU", 60 + pw, H / 2 - 50);
+    g.fillStyle = "#a85000"; g.font = "700 24px 'Be Vietnam Pro', system-ui, sans-serif"; g.fillText((window.MS && MS.tr ? MS.tr("ĐANG CHIẾU") : "ĐANG CHIẾU"), 60 + pw, H / 2 - 50);
     g.fillStyle = "#1b2a2b"; g.font = "800 54px 'Baloo 2', system-ui, sans-serif"; g.fillText(film.title, 60 + pw, H / 2 + 6);
-    g.fillStyle = "#1d6b6d"; g.font = "600 24px 'Be Vietnam Pro', system-ui, sans-serif"; g.fillText(film.minutes + " · " + film.grade, 60 + pw, H / 2 + 58);
+    g.fillStyle = "#1d6b6d"; g.font = "600 24px 'Be Vietnam Pro', system-ui, sans-serif"; g.fillText((window.MS && MS.tr ? MS.tr(film.minutes + " · " + film.grade) : film.minutes + " · " + film.grade), 60 + pw, H / 2 + 58);
   }
 
   /* ---------- Không khí rạp: ốp tường tối, viền bóng đèn quanh màn, cột chắn dây nhung, biển Lối ra, cuộn phim ---------- */
@@ -149,7 +149,7 @@
     });
     // biển "Lối ra" phía trên cửa
     var ec = document.createElement("canvas"); ec.width = 256; ec.height = 64; var eg = ec.getContext("2d");
-    eg.fillStyle = "#1e8a4c"; eg.fillRect(0, 0, 256, 64); eg.fillStyle = "#ffffff"; eg.font = "700 30px 'Be Vietnam Pro', system-ui, sans-serif"; eg.textAlign = "center"; eg.textBaseline = "middle"; eg.fillText("Lối ra · Sảnh chính", 128, 34);
+    eg.fillStyle = "#1e8a4c"; eg.fillRect(0, 0, 256, 64); eg.fillStyle = "#ffffff"; eg.font = "700 30px 'Be Vietnam Pro', system-ui, sans-serif"; eg.textAlign = "center"; eg.textBaseline = "middle"; eg.fillText((window.MS && MS.tr ? MS.tr("Lối ra · Sảnh chính") : "Lối ra · Sảnh chính"), 128, 34);
     var ex = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.35), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(ec) }));
     ex.position.set(dx, 3.3, wallZ + 0.12); scene.add(ex);
     // cuộn phim + dải phim trên tường đông

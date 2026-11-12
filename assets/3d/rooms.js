@@ -586,7 +586,7 @@
     g.fillStyle = ["#e2f3f3", "#fff1e2", "#f4f9f9"][i % 3]; g.fillRect(0, 0, 128, 160);
     g.fillStyle = "#b9d9d9"; g.beginPath(); g.arc(64, 62, 26, 0, Math.PI * 2); g.fill();
     g.beginPath(); g.ellipse(64, 140, 46, 40, 0, Math.PI, 0); g.fill();
-    g.fillStyle = "#1d6b6d"; g.font = "600 15px 'Be Vietnam Pro', system-ui, sans-serif"; g.textAlign = "center"; g.fillText("Sắp có ảnh", 64, 108);
+    g.fillStyle = "#1d6b6d"; g.font = "600 15px 'Be Vietnam Pro', system-ui, sans-serif"; g.textAlign = "center"; g.fillText((window.MS && MS.tr ? MS.tr("Sắp có ảnh") : "Sắp có ảnh"), 64, 108);
     return new THREE.CanvasTexture(c);
   }
   function buildPhotoWall(world, x, z, rot) {
